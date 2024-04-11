@@ -1,10 +1,24 @@
 using SocialMediaService.Domain.Aggregates.Profiles;
-using SocialMediaService.Domain.Bases;
 
 namespace SocialMediaService.Domain.Aggregates.Groups;
 
 public class Invite
 {
+    public Invite(Group group, Profile profile, Profile sender, string content)
+    {
+        GroupId = group.Id;
+        Group = group;
+
+        ProfileId = profile.Id;
+        Profile = profile;
+
+        SenderId = sender.Id;
+        Sender = sender;
+
+        Content = content;
+        SentAtUtc = DateTime.UtcNow;
+    }
+
     public string ProfileId { get; private set; }
     public Profile Profile { get; private set; }
 
@@ -15,5 +29,5 @@ public class Invite
     public Group Group { get; private set; }
 
     public string? Content { get; private set; }
-    public DateTime SentAt { get; private set; }
+    public DateTime SentAtUtc { get; private set; }
 }

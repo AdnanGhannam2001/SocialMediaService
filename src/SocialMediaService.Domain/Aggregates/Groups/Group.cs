@@ -14,11 +14,30 @@ public class Group : AggregateRoot
     private List<Discussion> _discussions = [];
     private List<Post> _posts = [];
 
+    public Group(string name,
+        string description,
+        Settings settings,
+        GroupVisibilities visibility = GroupVisibilities.Public,
+        string? image = null,
+        string? coverImage = null) : base()
+    {
+        Name = name;
+        Description = description;
+        Visibility = visibility;
+        Image = image;
+        CoverImage = coverImage;
+
+        SettingsId = settings.Id;
+        Settings = settings;
+    }
+
     public string Name { get; private set; }
     public string Description { get; private set; }
-    public string Image { get; private set; }
-    public string CoverImage { get; private set; }
+    public string? Image { get; private set; }
+    public string? CoverImage { get; private set; }
     public GroupVisibilities Visibility { get; private set; }
+
+    public string SettingsId { get; private set; }
     public Settings Settings { get; private set; }
 
     public IReadOnlyCollection<Member> Members => _members;
