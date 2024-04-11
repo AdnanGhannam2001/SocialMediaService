@@ -1,3 +1,4 @@
+using SocialMediaService.Domain.Aggregates.Profiles.ValueObjects;
 using SocialMediaService.Domain.Bases;
 using SocialMediaService.Domain.Enums;
 
@@ -10,4 +11,6 @@ public class Profile : AggregateRoot
     public DateTime DateOfBirth { get; private set; }
     public Genders Gender { get; private set; }
     public string Bio { get; private set; }
+    public JobInformations JobInformations { get; private set; }
+    public Socials Socials { get; private set; }
 }

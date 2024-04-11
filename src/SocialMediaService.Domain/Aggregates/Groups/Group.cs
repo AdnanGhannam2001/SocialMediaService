@@ -19,6 +19,7 @@ public class Group : AggregateRoot
     public string Image { get; private set; }
     public string CoverImage { get; private set; }
     public GroupVisibilities Visibility { get; private set; }
+    public Settings Settings { get; private set; }
 
     public IReadOnlyCollection<Member> Members => _members;
     public IReadOnlyCollection<Profile> Kicked => _kicked;

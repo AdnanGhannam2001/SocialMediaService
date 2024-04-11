@@ -1,4 +1,5 @@
 using SocialMediaService.Domain.Aggregates.Groups;
+using SocialMediaService.Domain.Aggregates.Posts.ValueObjects;
 using SocialMediaService.Domain.Aggregates.Profiles;
 using SocialMediaService.Domain.Bases;
 using SocialMediaService.Domain.Enums;
@@ -13,6 +14,7 @@ public class Post : AggregateRoot
 
     public string Content { get; private set; }
     public PostVisibilities Visibility { get; private set; }
+    public Media? Media { get; private set; }
 
     public string ProfileId { get; private set; }
     public Profile Profile { get; private set; }
