@@ -6,8 +6,6 @@ namespace SocialMediaService.Domain.Aggregates.Profiles;
 
 public sealed class Profile : AggregateRoot
 {
-    public string FirstName { get; private set; }
-
     public Profile(string firstName,
         string lastName,
         DateTime dateOfBirth,
@@ -25,6 +23,7 @@ public sealed class Profile : AggregateRoot
         Socials = socials;
     }
 
+    public string FirstName { get; private set; }
     public string LastName { get; private set; }
     public DateTime DateOfBirth { get; private set; }
     public Genders Gender { get; private set; }

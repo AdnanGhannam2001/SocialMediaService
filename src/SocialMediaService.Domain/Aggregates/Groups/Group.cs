@@ -5,7 +5,7 @@ using SocialMediaService.Domain.Enums;
 
 namespace SocialMediaService.Domain.Aggregates.Groups;
 
-public class Group : AggregateRoot
+public sealed class Group : AggregateRoot
 {
     private List<Member> _members = [];
     private List<Profile> _kicked = [];

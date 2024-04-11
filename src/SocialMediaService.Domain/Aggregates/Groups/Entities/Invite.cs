@@ -2,7 +2,7 @@ using SocialMediaService.Domain.Aggregates.Profiles;
 
 namespace SocialMediaService.Domain.Aggregates.Groups;
 
-public class Invite
+public sealed class Invite
 {
     public Invite(Group group, Profile profile, Profile sender, string content)
     {

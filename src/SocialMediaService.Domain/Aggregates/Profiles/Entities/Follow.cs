@@ -1,6 +1,6 @@
 namespace SocialMediaService.Domain.Aggregates.Profiles;
 
-public class Follow
+public sealed class Follow
 {
     public Follow(Profile follower, Profile followed)
     {

@@ -4,7 +4,7 @@ using SocialMediaService.Domain.Bases;
 
 namespace SocialMediaService.Domain.Aggregates.Posts;
 
-public class Comment : Entity
+public sealed class Comment : Entity
 {
     private List<Comment> _replies = [];
 

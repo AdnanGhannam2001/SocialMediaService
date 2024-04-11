@@ -2,7 +2,7 @@ using SocialMediaService.Domain.Aggregates.Profiles;
 
 namespace SocialMediaService.Domain.Aggregates.Groups;
 
-public class Kicked
+public sealed class Kicked
 {
     public Kicked(Group group, Profile profile, Profile kickedBy, string reason)
     {

@@ -3,7 +3,7 @@ using SocialMediaService.Domain.Enums;
 
 namespace SocialMediaService.Domain.Aggregates.Posts;
 
-public class Reaction
+public sealed class Reaction
 {
     public Reaction(Post post, Profile profile, ReactionTypes type)
     {

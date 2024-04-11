@@ -3,7 +3,7 @@ using SocialMediaService.Domain.Aggregates.Profiles;
 
 namespace SocialMediaService.Domain.Aggregates.Groups;
 
-public class Member
+public sealed class Member
 {
     public Member(Group group, Profile profile)
     {

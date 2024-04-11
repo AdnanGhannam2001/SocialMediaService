@@ -1,6 +1,6 @@
 namespace SocialMediaService.Domain.Aggregates.Profiles;
 
-public class Friendship
+public sealed class Friendship
 {
     public Friendship(Profile profile, Profile friend)
     {

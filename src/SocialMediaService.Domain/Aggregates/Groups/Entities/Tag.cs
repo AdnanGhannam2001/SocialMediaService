@@ -2,7 +2,7 @@ using SocialMediaService.Domain.Bases;
 
 namespace SocialMediaService.Domain.Aggregates.Groups;
 
-public class Tag : Entity
+public sealed class Tag : Entity
 {
     private List<Discussion> _discussions = [];
 

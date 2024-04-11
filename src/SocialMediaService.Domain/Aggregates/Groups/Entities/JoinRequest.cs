@@ -2,7 +2,7 @@ using SocialMediaService.Domain.Aggregates.Profiles;
 
 namespace SocialMediaService.Domain.Aggregates.Groups;
 
-public class JoinRequest
+public sealed class JoinRequest
 {
     public JoinRequest(Group group, Profile profile, string content)
     {

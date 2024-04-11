@@ -4,7 +4,7 @@ using SocialMediaService.Domain.Bases;
 
 namespace SocialMediaService.Domain.Aggregates.Groups;
 
-public class Discussion : Entity
+public sealed class Discussion : Entity
 {
     private List<Tag> _tags = [];
     private List<FavoriteDiscussion> _favorites = [];

@@ -1,6 +1,6 @@
 namespace SocialMediaService.Domain.Aggregates.Profiles;
 
-public class FriendshipRequest
+public sealed class FriendshipRequest
 {
     public FriendshipRequest(Profile sender, Profile receiver)
     {

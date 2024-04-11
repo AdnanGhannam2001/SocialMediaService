@@ -2,7 +2,7 @@ using SocialMediaService.Domain.Aggregates.Groups;
 
 namespace SocialMediaService.Domain.Aggregates.Profiles;
 
-public class FavoriteDiscussion
+public sealed class FavoriteDiscussion
 {
     public FavoriteDiscussion(Profile profile, Discussion discussion)
     {
