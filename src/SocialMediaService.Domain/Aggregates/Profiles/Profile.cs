@@ -4,9 +4,27 @@ using SocialMediaService.Domain.Enums;
 
 namespace SocialMediaService.Domain.Aggregates.Profiles;
 
-public class Profile : AggregateRoot
+public sealed class Profile : AggregateRoot
 {
     public string FirstName { get; private set; }
+
+    public Profile(string firstName,
+        string lastName,
+        DateTime dateOfBirth,
+        Genders gender,
+        string bio,
+        JobInformations jobInformations,
+        Socials socials) : base()
+    {
+        FirstName = firstName;
+        LastName = lastName;
+        DateOfBirth = dateOfBirth;
+        Gender = gender;
+        Bio = bio;
+        JobInformations = jobInformations;
+        Socials = socials;
+    }
+
     public string LastName { get; private set; }
     public DateTime DateOfBirth { get; private set; }
     public Genders Gender { get; private set; }
