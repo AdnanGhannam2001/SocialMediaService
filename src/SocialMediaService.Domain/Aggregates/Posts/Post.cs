@@ -12,6 +12,29 @@ public class Post : AggregateRoot
     private List<Reaction> _reactions = [];
     private List<Comment> _comments = [];
 
+    public Post(Profile profile, string content, PostVisibilities visibility, Media? media = null) : base()
+    {
+        ProfileId = profile.Id;
+        Profile = profile;
+
+        Content = content;
+        Visibility = visibility;
+        Media = media;
+    }
+
+    public Post(Profile profile, Group group, string content, PostVisibilities visibility, Media? media = null) : base()
+    {
+        ProfileId = profile.Id;
+        Profile = profile;
+
+        GroupId = group.Id;
+        Group = group;
+
+        Content = content;
+        Visibility = visibility;
+        Media = media;
+    }
+
     public string Content { get; private set; }
     public PostVisibilities Visibility { get; private set; }
     public Media? Media { get; private set; }

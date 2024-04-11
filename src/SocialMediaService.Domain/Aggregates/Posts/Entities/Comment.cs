@@ -8,6 +8,39 @@ public class Comment : Entity
 {
     private List<Comment> _replies = [];
 
+    public Comment(Post post, Profile profile, string content) : base()
+    {
+        PostId = post.Id;
+        Post = post;
+
+        ProfileId = profile.Id;
+        Profile = profile;
+
+        Content = content;
+    }
+
+    public Comment(Comment comment, Profile profile, string content) : base()
+    {
+        ParentId = comment.Id;
+        Parent = comment;
+
+        ProfileId = profile.Id;
+        Profile = profile;
+
+        Content = content;
+    }
+
+    public Comment(Discussion discussion, Profile profile, string content) : base()
+    {
+        DiscussionId = discussion.Id;
+        Discussion = discussion;
+
+        ProfileId = profile.Id;
+        Profile = profile;
+
+        Content = content;
+    }
+
     public string ProfileId { get; private set; }
     public Profile Profile { get; private set; }
 
