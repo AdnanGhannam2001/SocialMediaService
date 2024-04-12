@@ -4,12 +4,12 @@ namespace SocialMediaService.Domain.Aggregates.Posts.ValueObjects;
 
 public sealed record Media
 {
-    public Media(MediaTypes type, string url)
+    public Media(MediaTypes type, Uri uri)
     {
         Type = type;
-        Url = url;
+        Uri = uri;
     }
 
     public MediaTypes Type { get; }
-    public string Url { get; }
+    public Uri Uri { get; }
 }

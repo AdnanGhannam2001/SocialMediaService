@@ -2,9 +2,9 @@ using PR2.Shared.Enums;
 
 namespace SocialMediaService.Domain.Aggregates.Groups.ValueObjects;
 
-public sealed record Settings
+public sealed record GroupSettings
 {
-    public Settings(MemberRoleTypes inviterRole = MemberRoleTypes.Normal,
+    public GroupSettings(MemberRoleTypes inviterRole = MemberRoleTypes.Normal,
         MemberRoleTypes postingRole = MemberRoleTypes.Normal,
         MemberRoleTypes editDetailsRole = MemberRoleTypes.Organizer)
     {

@@ -22,7 +22,11 @@ public sealed class Post : AggregateRoot
         Media = media;
     }
 
-    public Post(Profile profile, Group group, string content, PostVisibilities visibility, Media? media = null) : base()
+    public Post(Profile profile,
+        Group group,
+        string content,
+        PostVisibilities visibility = PostVisibilities.Public,
+        Media? media = null) : base()
     {
         ProfileId = profile.Id;
         Profile = profile;

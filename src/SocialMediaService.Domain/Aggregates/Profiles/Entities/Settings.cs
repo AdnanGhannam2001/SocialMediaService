@@ -7,11 +7,10 @@ public sealed class Settings : Entity
 {
     public Settings(Profile profile) : base()
     {
-        ProfileId = profile.Id;
+        Id = profile.Id;
         Profile = profile;
     }
 
-    public string ProfileId { get; private set; }
     public Profile Profile { get; private set; }
 
     public InformationVisibilities LastName { get; private set; } = InformationVisibilities.Public;
