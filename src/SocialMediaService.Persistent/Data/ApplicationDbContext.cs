@@ -34,6 +34,23 @@ public sealed class ApplicationDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-        modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetCallingAssembly());
+
+        // Configure Relationships Key
+        {
+            modelBuilder.Entity<Invite>().HasKey(x => new { x.SenderId, x.ProfileId, x.GroupId });
+            modelBuilder.Entity<JoinRequest>().HasKey(x => new { x.ProfileId, x.GroupId });
+            modelBuilder.Entity<Kicked>().HasKey(x => new { x.ProfileId, x.KickedById, x.GroupId });
+            modelBuilder.Entity<Member>().HasKey(x => new { x.ProfileId, x.GroupId });
+
+            modelBuilder.Entity<Reaction>().HasKey(x => new { x.PostId, x.ProfileId });
+
+            modelBuilder.Entity<FriendshipRequest>().HasKey(x => new { x.SenderId, x.ReceiverId });
+            modelBuilder.Entity<Friendship>().HasKey(x => new { x.FriendId, x.ProfileId });
+            modelBuilder.Entity<Follow>().HasKey(x => new { x.FollowedId, x.FollowerId });
+            modelBuilder.Entity<FavoriteDiscussion>().HasKey(x => new { x.ProfileId, x.DiscussionId });
+            modelBuilder.Entity<Block>().HasKey(x => new { x.BlockedId, x.BlockerId });
+        }
+        
+        modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
     }
 }

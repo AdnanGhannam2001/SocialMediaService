@@ -18,6 +18,8 @@ internal sealed class ProfileEntityTypeConfiguration : IEntityTypeConfiguration<
             .Property(x => x.LastName)
             .HasMaxLength(30);
 
+        builder.HasQueryFilter(x => x.IsActive);
+
         builder
             .Property(x => x.Bio)
             .HasMaxLength(500);
@@ -42,7 +44,9 @@ internal sealed class ProfileEntityTypeConfiguration : IEntityTypeConfiguration<
             });
 
         builder.HasOne(x => x.Settings)
-            .WithOne(x => x.Profile);
+            .WithOne(x => x.Profile)
+            .HasForeignKey<Settings>(x => x.Id)
+            .IsRequired();
 
         builder.HasMany(x => x.Blocked)
             .WithOne(x => x.Blocker)
