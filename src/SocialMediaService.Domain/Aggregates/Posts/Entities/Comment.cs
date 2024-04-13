@@ -8,6 +8,10 @@ public sealed class Comment : Entity
 {
     private List<Comment> _replies = [];
 
+    #pragma warning disable CS8618
+    private Comment() { }
+    #pragma warning restore CS8618
+
     public Comment(Post post, Profile profile, string content) : base()
     {
         PostId = post.Id;

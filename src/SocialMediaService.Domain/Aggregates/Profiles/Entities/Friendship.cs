@@ -2,6 +2,10 @@ namespace SocialMediaService.Domain.Aggregates.Profiles;
 
 public sealed class Friendship
 {
+    #pragma warning disable CS8618
+    private Friendship() { }
+    #pragma warning restore CS8618
+
     public Friendship(Profile profile, Profile friend)
     {
         ProfileId = profile.Id;

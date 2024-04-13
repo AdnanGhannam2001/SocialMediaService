@@ -4,6 +4,10 @@ namespace SocialMediaService.Domain.Aggregates.Groups;
 
 public sealed class JoinRequest
 {
+    #pragma warning disable CS8618
+    private JoinRequest() { }
+    #pragma warning restore CS8618
+
     public JoinRequest(Group group, Profile profile, string content)
     {
         GroupId = group.Id;

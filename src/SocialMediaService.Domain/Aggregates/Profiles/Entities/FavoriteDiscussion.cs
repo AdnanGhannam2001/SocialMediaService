@@ -4,6 +4,10 @@ namespace SocialMediaService.Domain.Aggregates.Profiles;
 
 public sealed class FavoriteDiscussion
 {
+    #pragma warning disable CS8618
+    private FavoriteDiscussion() { }
+    #pragma warning restore CS8618
+
     public FavoriteDiscussion(Profile profile, Discussion discussion)
     {
         ProfileId = profile.Id;

@@ -12,6 +12,10 @@ public sealed class Post : AggregateRoot
     private List<Reaction> _reactions = [];
     private List<Comment> _comments = [];
 
+    #pragma warning disable CS8618
+    private Post() { }
+    #pragma warning restore CS8618
+
     public Post(Profile profile, string content, PostVisibilities visibility, Media? media = null) : base()
     {
         ProfileId = profile.Id;

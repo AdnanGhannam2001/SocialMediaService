@@ -4,6 +4,10 @@ namespace SocialMediaService.Domain.Aggregates.Groups;
 
 public sealed class Kicked
 {
+    #pragma warning disable CS8618
+    private Kicked() { }
+    #pragma warning restore CS8618
+
     public Kicked(Group group, Profile profile, Profile kickedBy, string reason)
     {
         GroupId = group.Id;

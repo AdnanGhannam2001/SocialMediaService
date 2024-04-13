@@ -5,6 +5,10 @@ namespace SocialMediaService.Domain.Aggregates.Profiles;
 
 public sealed class Settings : Entity
 {
+    #pragma warning disable CS8618
+    private Settings() { }
+    #pragma warning restore CS8618
+
     public Settings(Profile profile) : base()
     {
         Id = profile.Id;

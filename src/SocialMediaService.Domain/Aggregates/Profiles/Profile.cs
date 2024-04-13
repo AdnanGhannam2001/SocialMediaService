@@ -29,6 +29,10 @@ public sealed class Profile : AggregateRoot
     private List<Discussion> _discussions = [];
     private List<FavoriteDiscussion> _favoriteDiscussions = [];
 
+    #pragma warning disable CS8618
+    private Profile() { }
+    #pragma warning restore CS8618
+
     public Profile(string id,
         string firstName,
         string lastName,

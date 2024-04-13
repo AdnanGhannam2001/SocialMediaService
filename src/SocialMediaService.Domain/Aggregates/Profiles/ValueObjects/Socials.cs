@@ -4,6 +4,8 @@ namespace SocialMediaService.Domain.Aggregates.Profiles.ValueObjects;
 
 public sealed record Socials
 {
+    public Socials() { }
+
     public Socials(string? facebook = null, string? youtube = null, string? twitter = null)
     {
         if (!IsValidUrlOrEmpty(facebook)) throw new InvalidUrlException(nameof(Facebook));

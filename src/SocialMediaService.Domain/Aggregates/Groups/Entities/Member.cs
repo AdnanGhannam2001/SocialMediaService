@@ -5,6 +5,10 @@ namespace SocialMediaService.Domain.Aggregates.Groups;
 
 public sealed class Member
 {
+    #pragma warning disable CS8618
+    private Member() { }
+    #pragma warning restore CS8618
+
     public Member(Group group, Profile profile)
     {
         GroupId = group.Id;

@@ -14,6 +14,10 @@ public sealed class Group : AggregateRoot
     private List<Discussion> _discussions = [];
     private List<Post> _posts = [];
 
+    #pragma warning disable CS8618
+    private Group() { }
+    #pragma warning restore CS8618
+
     public Group(string name,
         string description,
         GroupSettings settings,

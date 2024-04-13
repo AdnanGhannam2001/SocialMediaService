@@ -4,6 +4,10 @@ namespace SocialMediaService.Domain.Aggregates.Groups;
 
 public sealed class Invite
 {
+    #pragma warning disable CS8618
+    private Invite() { }
+    #pragma warning restore CS8618
+
     public Invite(Group group, Profile profile, Profile sender, string content)
     {
         GroupId = group.Id;

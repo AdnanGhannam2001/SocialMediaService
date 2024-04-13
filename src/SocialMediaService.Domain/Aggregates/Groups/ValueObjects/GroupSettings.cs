@@ -4,6 +4,8 @@ namespace SocialMediaService.Domain.Aggregates.Groups.ValueObjects;
 
 public sealed record GroupSettings
 {
+    private GroupSettings() { }
+
     public GroupSettings(MemberRoleTypes inviterRole = MemberRoleTypes.Normal,
         MemberRoleTypes postingRole = MemberRoleTypes.Normal,
         MemberRoleTypes editDetailsRole = MemberRoleTypes.Organizer)

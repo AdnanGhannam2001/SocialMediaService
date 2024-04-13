@@ -2,6 +2,10 @@ namespace SocialMediaService.Domain.Aggregates.Profiles;
 
 public sealed class Block
 {
+    #pragma warning disable CS8618
+    private Block() { }
+    #pragma warning restore CS8618
+
     public Block(Profile blocker, Profile blocked, string reason)
     {
         BlockerId = blocker.Id;

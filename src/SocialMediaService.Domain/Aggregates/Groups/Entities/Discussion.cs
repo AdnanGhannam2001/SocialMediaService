@@ -6,6 +6,10 @@ namespace SocialMediaService.Domain.Aggregates.Groups;
 
 public sealed class Discussion : Entity
 {
+    #pragma warning disable CS8618
+    private Discussion() { }
+    #pragma warning restore CS8618
+
     private List<Tag> _tags = [];
     private List<FavoriteDiscussion> _favorites = [];
     private List<Comment> _comments = [];
