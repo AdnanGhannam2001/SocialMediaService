@@ -3,7 +3,7 @@ using System.Text;
 namespace SocialMediaService.Domain.Bases;
 
 public abstract class Entity<T>
-    where T : IComparable<T>
+    where T : notnull, IComparable<T>
 {
     public Entity(T id)
     {

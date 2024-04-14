@@ -3,7 +3,7 @@ using System.Text;
 namespace SocialMediaService.Domain.Bases;
 
 public abstract class AggregateRoot<T> : IEquatable<AggregateRoot<T>>
-    where T : IComparable<T>
+    where T : notnull, IComparable<T>
 {
     public AggregateRoot(T id)
     {
