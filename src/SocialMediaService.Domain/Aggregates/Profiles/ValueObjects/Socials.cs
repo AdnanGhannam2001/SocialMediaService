@@ -4,7 +4,7 @@ namespace SocialMediaService.Domain.Aggregates.Profiles.ValueObjects;
 
 public sealed record Socials
 {
-    public Socials() { }
+    private Socials() { }
 
     public Socials(string? facebook = null, string? youtube = null, string? twitter = null)
     {

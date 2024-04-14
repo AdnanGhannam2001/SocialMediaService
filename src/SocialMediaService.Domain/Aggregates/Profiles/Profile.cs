@@ -36,13 +36,13 @@ public sealed class Profile : AggregateRoot
     public Profile(string id,
         string firstName,
         string lastName,
-        PhoneNumber phoneNumber,
         DateTime dateOfBirth,
         Genders gender,
-        string bio,
-        JobInformations jobInformations,
-        Socials socials,
-        Settings settings) : base()
+        Settings settings,
+        PhoneNumber? phoneNumber = null,
+        string? bio = null,
+        JobInformations? jobInformations = null,
+        Socials? socials = null) : base()
     {
         Id = id;
         FirstName = firstName;
@@ -52,18 +52,20 @@ public sealed class Profile : AggregateRoot
         DateOfBirth = dateOfBirth;
         Gender = gender;
         Bio = bio;
-        JobInformations = jobInformations;
-        Socials = socials;
+        JobInformations = jobInformations ?? new();
+        Socials = socials ?? new();
         Settings = settings;
     }
 
     public string FirstName { get; private set; }
     public string LastName { get; private set; }
-    public PhoneNumber PhoneNumber { get; private set; }
+    public PhoneNumber? PhoneNumber { get; private set; }
     public bool IsActive { get; private set; }
     public DateTime DateOfBirth { get; private set; }
     public Genders Gender { get; private set; }
-    public string Bio { get; private set; }
+    public string? Bio { get; private set; }
+    public Uri? Image { get; private set; }
+    public Uri? CoverImage { get; private set; }
     public JobInformations JobInformations { get; private set; }
     public Socials Socials { get; private set; }
     public Settings Settings { get; private set; }

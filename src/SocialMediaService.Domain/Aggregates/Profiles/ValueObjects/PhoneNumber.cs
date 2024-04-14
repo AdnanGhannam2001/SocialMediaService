@@ -8,7 +8,7 @@ public sealed record PhoneNumber
     private readonly string _regexExpression = @"^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$";
 
     #pragma warning disable CS8618
-    public PhoneNumber() { }
+    private PhoneNumber() { }
     #pragma warning restore CS8618
 
     public PhoneNumber(string value)
