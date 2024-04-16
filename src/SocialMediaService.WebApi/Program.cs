@@ -1,5 +1,6 @@
 using SocialMediaService.Persistent.Extensions;
 using SocialMediaService.Application.Extensions;
+using SocialMediaService.WebApi.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,7 +12,8 @@ builder.Services.AddSwaggerGen();
 
 builder.Services
     .AddPersistent(connectionString)
-    .AddApplication();
+    .AddApplication()
+    .AddAuth();
 
 var app = builder.Build();
 
@@ -23,6 +25,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
