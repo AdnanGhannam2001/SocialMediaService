@@ -90,4 +90,23 @@ public sealed class Profile : AggregateRoot
     public IReadOnlyCollection<Invite> ReceivedInvites => _receivedInvites.AsReadOnly();
     public IReadOnlyCollection<Discussion> Discussions => _discussions.AsReadOnly();
     public IReadOnlyCollection<FavoriteDiscussion> FavoriteDiscussions => _favoriteDiscussions.AsReadOnly();
+
+    public void Update(string? firstName = null,
+        string? lastName = null,
+        DateTime? dateOfBirth = null,
+        Genders? gender = null,
+        PhoneNumber? phoneNumber = null,
+        string? bio = null,
+        JobInformations? jobInformations = null,
+        Socials? socials = null)
+    {
+        FirstName = firstName ?? FirstName;
+        LastName = lastName ?? LastName;
+        PhoneNumber = phoneNumber ?? PhoneNumber;
+        DateOfBirth = dateOfBirth ?? DateOfBirth;
+        Gender = gender ?? Gender;
+        Bio = bio ?? Bio;
+        JobInformations = jobInformations ?? JobInformations;
+        Socials = socials ?? Socials;
+    }
 }
