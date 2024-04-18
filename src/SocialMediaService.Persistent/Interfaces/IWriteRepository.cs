@@ -1,12 +1,13 @@
+using System.Data.Common;
 using SocialMediaService.Domain.Bases;
 
 namespace SocialMediaService.Persistent.Interfaces;
 
-public interface IWriteRepository<T, TKey, TTransaction>
+public interface IWriteRepository<T, TKey>
     where T : AggregateRoot<TKey>
     where TKey : notnull, IComparable<TKey>
 {
-    Task<TTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default);
+    Task<DbTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default);
     
     Task<T> AddAsync(T entity, CancellationToken cancellationToken = default);
 
