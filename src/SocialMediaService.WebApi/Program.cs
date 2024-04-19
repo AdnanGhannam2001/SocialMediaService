@@ -1,6 +1,7 @@
 using SocialMediaService.Persistent.Extensions;
 using SocialMediaService.Application.Extensions;
 using SocialMediaService.WebApi.Extensions;
+using SocialMediaService.WebApi.Implementaions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,7 +14,8 @@ builder.Services.AddSwaggerGen();
 builder.Services
     .AddPersistent(connectionString)
     .AddApplication()
-    .AddAuth();
+    .AddAuth()
+    .AddGrpc();
 
 var app = builder.Build();
 
@@ -27,6 +29,8 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapGrpcService<ProfileServiceImpl>();
 
 app.MapControllers();
 
