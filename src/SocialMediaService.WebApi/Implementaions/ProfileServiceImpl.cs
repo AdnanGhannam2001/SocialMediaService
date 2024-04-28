@@ -18,14 +18,12 @@ public sealed class ProfileServiceImpl : ProfileService.ProfileServiceBase
 
     public override async Task<Empty> CreateProfile(CreateProfileRequest request, ServerCallContext context)
     {
-        var result = await _mediator.Send(new CreateProfileCommand(request.Id,
-            request.FirstName,
-            request.LastName,
-            request.DateOfBirth.ToDateTime(),
-            (Domain.Enums.Genders) request.Gender,
-            new PhoneNumber(request.PhoneNumber)));
-
-        if (!result.IsSuccess)
+        if (await _mediator.Send(new CreateProfileCommand(request.Id,
+                request.FirstName,
+                request.LastName,
+                request.DateOfBirth.ToDateTime(),
+                (Domain.Enums.Genders) request.Gender,
+                new PhoneNumber(request.PhoneNumber))) is var result && result == false)
         {
             throw new RpcException(new Status(StatusCode.InvalidArgument, result.Exceptions.First().ToString()));
         }
@@ -35,9 +33,7 @@ public sealed class ProfileServiceImpl : ProfileService.ProfileServiceBase
 
     public override async Task<Empty> DeleteProfile(DeleteProfileRequest request, ServerCallContext context)
     {
-        var result = await _mediator.Send(new DeleteProfileCommand(request.Id));
-
-        if (!result.IsSuccess)
+        if (await _mediator.Send(new DeleteProfileCommand(request.Id)) is var result && result == false)
         {
             throw new RpcException(new Status(StatusCode.InvalidArgument, result.Exceptions.First().ToString()));
         }
