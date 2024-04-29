@@ -34,7 +34,8 @@ public sealed class ProfileEfRepository
         var query = Queryable
             .AsNoTracking()
             .Where(x => x.Id.Equals(userId))
-            .SelectMany(x => x.Friends);
+            .SelectMany(x => x.Friends)
+            .Where(request.Predicate ?? (_ => true));
 
         var orderQuery = request.KeySelector is not null
             ? request.Desc
@@ -48,14 +49,16 @@ public sealed class ProfileEfRepository
             .Skip((request.PageNumber - 1) * request.PageSize)
             .Take(request.PageSize);
 
-        var total = await CountFriendshipsCountAsync(userId, request.Predicate ?? (_ => true), cancellationToken);
+        var total = await CountFriendshipsAsync(userId, request.Predicate, cancellationToken);
 
         return new (query.ToList(), 0);
     }
 
-    public Task<Friendship?> CreateFriendshipAsync(Friendship friendship, CancellationToken cancellationToken = default)
+    public async Task<Friendship?> CreateFriendshipAsync(Friendship friendship, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        await _context.Friendships.AddAsync(friendship, cancellationToken);
+        await SaveChangesAsync(cancellationToken);
+        return friendship;
     }
 
     public Task<Friendship?> GetFriendshipAsync(string id1, string id2, CancellationToken cancellationToken = default)
@@ -67,20 +70,14 @@ public sealed class ProfileEfRepository
             .FirstOrDefaultAsync(cancellationToken);
     }
 
-    public Task<int> CountFriendshipsCountAsync(string userId, CancellationToken cancellationToken = default)
+    public Task<int> CountFriendshipsAsync(string userId,
+        Expression<Func<Friendship, bool>>? predicate = null,
+        CancellationToken cancellationToken = default)
     {
         return Queryable
             .Where(x => x.Id.Equals(userId))
             .SelectMany(x => x.Friends)
-            .CountAsync(cancellationToken: cancellationToken);
-    }
-
-    public Task<int> CountFriendshipsCountAsync(string userId, Expression<Func<Friendship, bool>> predicate, CancellationToken cancellationToken = default)
-    {
-        return Queryable
-            .Where(x => x.Id.Equals(userId))
-            .SelectMany(x => x.Friends)
-            .CountAsync(predicate, cancellationToken);
+            .CountAsync(predicate ?? (_ => true), cancellationToken);
     }
 
     public async Task<bool> DeleteFriendshipAsync(Friendship friendship, CancellationToken cancellationToken = default)
@@ -91,45 +88,98 @@ public sealed class ProfileEfRepository
     #endregion
 
     #region Friendship Requests
-    public Task<Page<FriendshipRequest>> GetSentFriendshipRequestsPageAsync(string userId,
+    public async Task<Page<FriendshipRequest>> GetSentFriendshipRequestsPageAsync(string userId,
         PageRequest<FriendshipRequest> request,
         CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        var query = Queryable
+            .AsNoTracking()
+            .Where(x => x.Id.Equals(userId))
+            .SelectMany(x => x.SentRequests)
+            .Where(request.Predicate ?? (_ => true));
+
+        var orderQuery = request.KeySelector is not null
+            ? request.Desc
+                ? query.OrderByDescending(request.KeySelector)
+                : query.OrderBy(request.KeySelector)
+            : request.Desc
+                ? query.OrderDescending()
+                : query.Order();
+
+        query = orderQuery
+            .Skip((request.PageNumber - 1) * request.PageSize)
+            .Take(request.PageSize);
+
+        var total = await CountSentFriendshipsRequestAsync(userId, request.Predicate, cancellationToken);
+
+        return new (query.ToList(), 0);
     }
 
-    public Task<Page<FriendshipRequest>> GetReceivedFriendshipRequestsPageAsync(string userId,
+    public async Task<Page<FriendshipRequest>> GetReceivedFriendshipRequestsPageAsync(string userId,
         PageRequest<FriendshipRequest> request,
         CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        var query = Queryable
+            .AsNoTracking()
+            .Where(x => x.Id.Equals(userId))
+            .SelectMany(x => x.ReceivedRequests)
+            .Where(request.Predicate ?? (_ => true));
+
+        var orderQuery = request.KeySelector is not null
+            ? request.Desc
+                ? query.OrderByDescending(request.KeySelector)
+                : query.OrderBy(request.KeySelector)
+            : request.Desc
+                ? query.OrderDescending()
+                : query.Order();
+
+        query = orderQuery
+            .Skip((request.PageNumber - 1) * request.PageSize)
+            .Take(request.PageSize);
+
+        var total = await CountReceivedFriendshipsRequestAsync(userId, request.Predicate, cancellationToken);
+
+        return new (query.ToList(), 0);
     }
            
     public Task<FriendshipRequest?> GetFriendshipRequestAsync(string senderId, string receiverId, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        return Queryable
+            .SelectMany(x => x.SentRequests)
+            .FirstOrDefaultAsync(x => x.SenderId.Equals(senderId) && x.ReceiverId.Equals(receiverId), cancellationToken: cancellationToken);
     }
            
-    public Task<FriendshipRequest> CreateFriendshipRequestAsync(FriendshipRequest friendshipRequest, CancellationToken cancellationToken = default)
+    public async Task<FriendshipRequest> CreateFriendshipRequestAsync(FriendshipRequest friendshipRequest, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        await _context.Set<FriendshipRequest>().AddAsync(friendshipRequest, cancellationToken);
+        await SaveChangesAsync(cancellationToken);
+        return friendshipRequest;
     }
 
-    public Task<bool> DeleteFriendshipRequestAsync(FriendshipRequest friendshipRequest, CancellationToken cancellationToken = default)
+    public async Task<bool> DeleteFriendshipRequestAsync(FriendshipRequest friendshipRequest, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
-    }
-           
-    public Task<int> CountFriendshipsRequestCountAsync(string userId, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
+        _context.Set<FriendshipRequest>().Remove(friendshipRequest);
+        return await SaveChangesAsync(cancellationToken) > 0;
     }
 
-    public Task<int> CountFriendshipsRequestCountAsync(string userId,
-        Expression<Func<FriendshipRequest, bool>> predicate,
+    public Task<int> CountSentFriendshipsRequestAsync(string userId,
+        Expression<Func<FriendshipRequest, bool>>? predicate = null,
         CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        return Queryable
+            .Where(x => x.Id.Equals(userId))
+            .SelectMany(x => x.SentRequests)
+            .CountAsync(predicate ?? (_ => true), cancellationToken);
+    }
+
+    public Task<int> CountReceivedFriendshipsRequestAsync(string userId,
+        Expression<Func<FriendshipRequest, bool>>? predicate = null,
+        CancellationToken cancellationToken = default)
+    {
+        return Queryable
+            .Where(x => x.Id.Equals(userId))
+            .SelectMany(x => x.ReceivedRequests)
+            .CountAsync(predicate ?? (_ => true), cancellationToken);
     }
     #endregion
 }

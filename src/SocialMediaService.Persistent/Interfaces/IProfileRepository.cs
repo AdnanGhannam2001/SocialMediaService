@@ -18,8 +18,7 @@ public interface IProfileRepository
     Task<Friendship?> CreateFriendshipAsync(Friendship friendship, CancellationToken cancellationToken = default);
     Task<bool> DeleteFriendshipAsync(Friendship friendship, CancellationToken cancellationToken = default);
 
-    Task<int> CountFriendshipsCountAsync(string userId, CancellationToken cancellationToken = default);
-    Task<int> CountFriendshipsCountAsync(string userId, Expression<Func<Friendship, bool>> predicate, CancellationToken cancellationToken = default);
+    Task<int> CountFriendshipsAsync(string userId, Expression<Func<Friendship, bool>>? predicate = null, CancellationToken cancellationToken = default);
     #endregion
 
     #region Friendship Requests
@@ -31,9 +30,12 @@ public interface IProfileRepository
     Task<FriendshipRequest> CreateFriendshipRequestAsync(FriendshipRequest friendshipRequest, CancellationToken cancellationToken = default);
     Task<bool> DeleteFriendshipRequestAsync(FriendshipRequest friendshipRequest, CancellationToken cancellationToken = default);
 
-    Task<int> CountFriendshipsRequestCountAsync(string userId, CancellationToken cancellationToken = default);
-    Task<int> CountFriendshipsRequestCountAsync(string userId,
-        Expression<Func<FriendshipRequest, bool>> predicate,
+    Task<int> CountSentFriendshipsRequestAsync(string userId,
+        Expression<Func<FriendshipRequest, bool>>? predicate = null,
+        CancellationToken cancellationToken = default);
+
+    Task<int> CountReceivedFriendshipsRequestAsync(string userId,
+        Expression<Func<FriendshipRequest, bool>>? predicate = null,
         CancellationToken cancellationToken = default);
     #endregion
 }
