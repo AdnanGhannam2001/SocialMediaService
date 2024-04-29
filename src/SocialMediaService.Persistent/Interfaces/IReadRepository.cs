@@ -10,7 +10,7 @@ public interface IReadRepository<T, TKey>
 {
     Task<T?> GetByIdAsync(TKey id, CancellationToken cancellationToken = default);
 
-    Task<List<T>> ListAsync(CancellationToken cancellationToken = default);
+    IAsyncEnumerable<T> ListAsync(CancellationToken cancellationToken = default);
 
     Task<Page<T>> GetPageAsync(int pageNumber,
         int pageSize,

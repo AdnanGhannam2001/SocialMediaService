@@ -25,8 +25,8 @@ public class EfRepository<T, TKey> : IReadRepository<T, TKey>, IWriteRepository<
     public virtual async Task<T?> GetByIdAsync(TKey id, CancellationToken cancellationToken = default)
         => await _context.Set<T>().FindAsync(id, cancellationToken);
 
-    public virtual Task<List<T>> ListAsync(CancellationToken cancellationToken = default)
-        => Queryable.AsNoTracking().ToListAsync(cancellationToken);
+    public virtual IAsyncEnumerable<T> ListAsync(CancellationToken cancellationToken = default)
+        => Queryable.AsNoTracking().AsAsyncEnumerable();
 
     public virtual async Task<Page<T>> GetPageAsync(int pageNumber,
         int pageSize,
