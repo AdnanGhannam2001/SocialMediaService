@@ -28,11 +28,7 @@ public sealed class ProfileEfRepository
 
     #region Friendship
     public async Task<Page<Friendship>> GetFriendshipsPageAsync(string userId,
-        int pageNumber,
-        int pageSize,
-        Expression<Func<Friendship, bool>>? predicate = null,
-        Expression<Func<Friendship, dynamic>>? keySelector = null,
-        bool desc = false,
+        PageRequest<Friendship> request,
         CancellationToken cancellationToken = default)
     {
         var query = Queryable
@@ -40,21 +36,26 @@ public sealed class ProfileEfRepository
             .Where(x => x.Id.Equals(userId))
             .SelectMany(x => x.Friends);
 
-        var orderQuery = keySelector is not null
-            ? desc
-                ? query.OrderByDescending(keySelector)
-                : query.OrderBy(keySelector)
-            : desc
+        var orderQuery = request.KeySelector is not null
+            ? request.Desc
+                ? query.OrderByDescending(request.KeySelector)
+                : query.OrderBy(request.KeySelector)
+            : request.Desc
                 ? query.OrderDescending()
                 : query.Order();
 
         query = orderQuery
-            .Skip((pageNumber - 1) * pageSize)
-            .Take(pageSize);
+            .Skip((request.PageNumber - 1) * request.PageSize)
+            .Take(request.PageSize);
 
-        var total = await CountFriendshipsCountAsync(userId, predicate ?? (_ => true), cancellationToken);
+        var total = await CountFriendshipsCountAsync(userId, request.Predicate ?? (_ => true), cancellationToken);
 
         return new (query.ToList(), 0);
+    }
+
+    public Task<Friendship?> CreateFriendshipAsync(Friendship friendship, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
     }
 
     public Task<Friendship?> GetFriendshipAsync(string id1, string id2, CancellationToken cancellationToken = default)
@@ -90,12 +91,16 @@ public sealed class ProfileEfRepository
     #endregion
 
     #region Friendship Requests
-    public Task<Page<FriendshipRequest>> GetSentFriendshipRequestsPageAsync(string userId, CancellationToken cancellationToken = default)
+    public Task<Page<FriendshipRequest>> GetSentFriendshipRequestsPageAsync(string userId,
+        PageRequest<FriendshipRequest> request,
+        CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }
 
-    public Task<Page<FriendshipRequest>> GetReceivedFriendshipRequestsPageAsync(string userId, CancellationToken cancellationToken = default)
+    public Task<Page<FriendshipRequest>> GetReceivedFriendshipRequestsPageAsync(string userId,
+        PageRequest<FriendshipRequest> request,
+        CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }
@@ -126,6 +131,5 @@ public sealed class ProfileEfRepository
     {
         throw new NotImplementedException();
     }
-
     #endregion
 }

@@ -11,11 +11,7 @@ public interface IProfileRepository
 
     #region Friendship
     Task<Page<Friendship>> GetFriendshipsPageAsync(string userId,
-        int pageNumber,
-        int pageSize,
-        Expression<Func<Friendship, bool>>? predicate = null,
-        Expression<Func<Friendship, dynamic>>? keySelector = null,
-        bool desc = false,
+        PageRequest<Friendship> request,
         CancellationToken cancellationToken = default);
 
     Task<Friendship?> GetFriendshipAsync(string id1, string id2, CancellationToken cancellationToken = default);
@@ -27,8 +23,8 @@ public interface IProfileRepository
     #endregion
 
     #region Friendship Requests
-    Task<Page<FriendshipRequest>> GetSentFriendshipRequestsPageAsync(string userId, CancellationToken cancellationToken = default);
-    Task<Page<FriendshipRequest>> GetReceivedFriendshipRequestsPageAsync(string userId, CancellationToken cancellationToken = default);
+    Task<Page<FriendshipRequest>> GetSentFriendshipRequestsPageAsync(string userId, PageRequest<FriendshipRequest> request, CancellationToken cancellationToken = default);
+    Task<Page<FriendshipRequest>> GetReceivedFriendshipRequestsPageAsync(string userId, PageRequest<FriendshipRequest> request, CancellationToken cancellationToken = default);
 
     Task<FriendshipRequest?> GetFriendshipRequestAsync(string senderId, string receiverId, CancellationToken cancellationToken = default);
 

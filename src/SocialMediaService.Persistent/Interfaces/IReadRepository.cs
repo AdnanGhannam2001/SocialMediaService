@@ -12,11 +12,7 @@ public interface IReadRepository<T, TKey>
 
     IAsyncEnumerable<T> ListAsync(CancellationToken cancellationToken = default);
 
-    Task<Page<T>> GetPageAsync(int pageNumber,
-        int pageSize,
-        Expression<Func<T, bool>>? predicate = null,
-        Expression<Func<T, dynamic>>? keySelector = null,
-        bool desc = false,
+    Task<Page<T>> GetPageAsync(PageRequest<T> request,
         CancellationToken cancellationToken = default);
 
     Task<int> CountAsync(CancellationToken cancellationToken = default);

@@ -28,33 +28,29 @@ public class EfRepository<T, TKey> : IReadRepository<T, TKey>, IWriteRepository<
     public virtual IAsyncEnumerable<T> ListAsync(CancellationToken cancellationToken = default)
         => Queryable.AsNoTracking().AsAsyncEnumerable();
 
-    public virtual async Task<Page<T>> GetPageAsync(int pageNumber,
-        int pageSize,
-        Expression<Func<T, bool>>? predicate = null,
-        Expression<Func<T, dynamic>>? keySelector = null,
-        bool desc = false,
+    public virtual async Task<Page<T>> GetPageAsync(PageRequest<T> request,
         CancellationToken cancellationToken = default)
     {
         // SELECT * FROM table WHERE ...
         var query = Queryable
             .AsNoTracking()
-            .Where(predicate ?? (_ => true));
+            .Where(request.Predicate ?? (_ => true));
 
         // ORDER BY ...
-        var orderQuery = keySelector is not null
-            ? desc
-                ? query.OrderByDescending(keySelector)
-                : query.OrderBy(keySelector)
-            : desc
+        var orderQuery = request.KeySelector is not null
+            ? request.Desc
+                ? query.OrderByDescending(request.KeySelector)
+                : query.OrderBy(request.KeySelector)
+            : request.Desc
                 ? query.OrderDescending()
                 : query.Order();
 
         // LIMIT ... OFFSET ...
         query = orderQuery
-            .Skip((pageNumber - 1) * pageSize)
-            .Take(pageSize);
+            .Skip((request.PageNumber - 1) * request.PageSize)
+            .Take(request.PageSize);
 
-        var total = await CountAsync(predicate ?? (_ => true), cancellationToken);
+        var total = await CountAsync(request.Predicate ?? (_ => true), cancellationToken);
 
         return new (query.ToList(), total);
     }
