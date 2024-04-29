@@ -17,7 +17,7 @@ public sealed class GetSentFriendshipRequestsPageHandler
 
     public async Task<Result<Page<FriendshipRequest>>> Handle(GetSentFriendshipRequestsPageQuery request, CancellationToken cancellationToken)
     {
-        var friendshipRequests = await _repo.GetSentFriendshipRequestsPageAsync(request.UserId, cancellationToken);
+        var friendshipRequests = await _repo.GetSentFriendshipRequestsPageAsync(request.UserId, request.Request, cancellationToken);
 
         return friendshipRequests;
     }

@@ -4,4 +4,4 @@ using SocialMediaService.Domain.Aggregates.Profiles;
 
 namespace SocialMediaService.Application.Features.Queries.GetFriendshipsPage;
 
-public sealed record GetFriendshipsPageQuery(string UserId, int PageNumber, int PageSize) : IQuery<Page<Friendship>>;
+public sealed record GetFriendshipsPageQuery(string UserId, PageRequest<Friendship> Request) : IQuery<Page<Friendship>>;

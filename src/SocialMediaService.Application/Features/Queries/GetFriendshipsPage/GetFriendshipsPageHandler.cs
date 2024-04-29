@@ -16,12 +16,7 @@ public sealed class GetFriendshipsPageHandler : IRequestHandler<GetFriendshipsPa
 
     public async Task<Result<Page<Friendship>>> Handle(GetFriendshipsPageQuery request, CancellationToken cancellationToken)
     {
-        // TODO: Use Filters
-        var page = await _repo.GetFriendshipsPageAsync(request.UserId,
-            request.PageNumber,
-            request.PageSize,
-            desc: true,
-            cancellationToken: cancellationToken);
+        var page = await _repo.GetFriendshipsPageAsync(request.UserId, request.Request, cancellationToken);
 
         return page;
     }
