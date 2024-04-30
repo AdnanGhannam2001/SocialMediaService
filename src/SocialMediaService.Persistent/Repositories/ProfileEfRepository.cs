@@ -182,4 +182,14 @@ public sealed class ProfileEfRepository
             .CountAsync(predicate ?? (_ => true), cancellationToken);
     }
     #endregion
+
+    #region Block
+    public Task<Block?> GetBlockedAsync(string blockerId, string blockedId, CancellationToken cancellationToken = default)
+    {
+        return Queryable
+            .Where(x => x.Id.Equals(blockerId))
+            .SelectMany(x => x.Blocked)
+            .FirstOrDefaultAsync(x => x.BlockerId.Equals(blockedId), cancellationToken);
+    }
+    #endregion
 }

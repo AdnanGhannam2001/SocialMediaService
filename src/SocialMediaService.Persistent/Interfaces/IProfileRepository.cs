@@ -38,4 +38,8 @@ public interface IProfileRepository
         Expression<Func<FriendshipRequest, bool>>? predicate = null,
         CancellationToken cancellationToken = default);
     #endregion
+
+    #region Block
+    Task<Block?> GetBlockedAsync(string blockerId, string blockedId, CancellationToken cancellationToken = default);
+    #endregion
 }
