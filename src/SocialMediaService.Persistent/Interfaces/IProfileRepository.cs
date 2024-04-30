@@ -15,7 +15,7 @@ public interface IProfileRepository
         CancellationToken cancellationToken = default);
 
     Task<Friendship?> GetFriendshipAsync(string id1, string id2, CancellationToken cancellationToken = default);
-    Task<Friendship?> CreateFriendshipAsync(Friendship friendship, CancellationToken cancellationToken = default);
+    Task<Friendship?> AddFriendshipAsync(Friendship friendship, CancellationToken cancellationToken = default);
     Task<bool> DeleteFriendshipAsync(Friendship friendship, CancellationToken cancellationToken = default);
 
     Task<int> CountFriendshipsAsync(string userId, Expression<Func<Friendship, bool>>? predicate = null, CancellationToken cancellationToken = default);
@@ -27,7 +27,7 @@ public interface IProfileRepository
 
     Task<FriendshipRequest?> GetFriendshipRequestAsync(string senderId, string receiverId, CancellationToken cancellationToken = default);
 
-    Task<FriendshipRequest> CreateFriendshipRequestAsync(FriendshipRequest friendshipRequest, CancellationToken cancellationToken = default);
+    Task<FriendshipRequest> AddFriendshipRequestAsync(FriendshipRequest friendshipRequest, CancellationToken cancellationToken = default);
     Task<bool> DeleteFriendshipRequestAsync(FriendshipRequest friendshipRequest, CancellationToken cancellationToken = default);
 
     Task<int> CountSentFriendshipsRequestAsync(string userId,

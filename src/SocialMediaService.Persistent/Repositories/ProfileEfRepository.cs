@@ -54,7 +54,7 @@ public sealed class ProfileEfRepository
         return new (query.ToList(), 0);
     }
 
-    public async Task<Friendship?> CreateFriendshipAsync(Friendship friendship, CancellationToken cancellationToken = default)
+    public async Task<Friendship?> AddFriendshipAsync(Friendship friendship, CancellationToken cancellationToken = default)
     {
         await _context.Friendships.AddAsync(friendship, cancellationToken);
         await SaveChangesAsync(cancellationToken);
@@ -149,7 +149,7 @@ public sealed class ProfileEfRepository
             .FirstOrDefaultAsync(x => x.SenderId.Equals(senderId) && x.ReceiverId.Equals(receiverId), cancellationToken: cancellationToken);
     }
            
-    public async Task<FriendshipRequest> CreateFriendshipRequestAsync(FriendshipRequest friendshipRequest, CancellationToken cancellationToken = default)
+    public async Task<FriendshipRequest> AddFriendshipRequestAsync(FriendshipRequest friendshipRequest, CancellationToken cancellationToken = default)
     {
         await _context.Set<FriendshipRequest>().AddAsync(friendshipRequest, cancellationToken);
         await SaveChangesAsync(cancellationToken);
