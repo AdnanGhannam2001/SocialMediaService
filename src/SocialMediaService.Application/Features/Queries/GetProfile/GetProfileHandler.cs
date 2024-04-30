@@ -5,6 +5,7 @@ using PR2.Shared.Exceptions;
 using SocialMediaService.Domain.Aggregates.Profiles;
 using SocialMediaService.Domain.Enums;
 using SocialMediaService.Persistent.Interfaces;
+using SocialMediaService.Application.Helpers;
 
 namespace SocialMediaService.Application.Features.Queries.GetProfile;
 
@@ -19,15 +20,10 @@ public sealed class GetProfileHandler : IRequestHandler<GetProfileQuery, Result<
 
     public async Task<Result<GetProfileResult>> Handle(GetProfileQuery request, CancellationToken cancellationToken)
     {
-        if (request.RequesterId is not null)
+        if (request.RequesterId is not null &&
+            await ProfileHelper.IsBlocked(_repo, request.ProfileId, request.RequesterId, cancellationToken))
         {
-            var blocked = await _repo.GetBlockedAsync(request.ProfileId, request.RequesterId, cancellationToken);
-            var blockedBy = await _repo.GetBlockedAsync(request.RequesterId, request.ProfileId, cancellationToken);
-
-            if (blocked is not null || blockedBy is not null)
-            {
-                return new RecordNotFoundException($"Profile is not found");
-            }
+            return new RecordNotFoundException($"Profile is not found");
         }
 
         var profile = await _repo.GetByIdAsync(request.ProfileId, cancellationToken);

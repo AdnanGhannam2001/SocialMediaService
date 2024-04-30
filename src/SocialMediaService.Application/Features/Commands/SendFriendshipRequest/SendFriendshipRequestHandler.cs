@@ -1,6 +1,7 @@
 using MediatR;
 using PR2.Shared.Common;
 using PR2.Shared.Exceptions;
+using SocialMediaService.Application.Helpers;
 using SocialMediaService.Domain.Aggregates.Profiles;
 using SocialMediaService.Persistent.Interfaces;
 
@@ -22,15 +23,9 @@ public sealed class SendFriendshipRequestHandler : IRequestHandler<SendFriendshi
             return new DataValidationException(nameof(request.SenderId), "Sender and receiver can't be the same");
         }
 
-        // Check If Blocked
+        if (await ProfileHelper.IsBlocked(_repo, request.SenderId, request.ReceiverId, cancellationToken))
         {
-            var blocked = await _repo.GetBlockedAsync(request.SenderId, request.ReceiverId, cancellationToken);
-            var blockedBy = await _repo.GetBlockedAsync(request.ReceiverId, request.SenderId, cancellationToken);
-
-            if (blocked is not null || blockedBy is not null)
-            {
-                return new RecordNotFoundException($"Profile is not found");
-            }
+            return new RecordNotFoundException($"Profile is not found");
         }
 
         var friendship = await _repo.GetFriendshipAsync(request.SenderId, request.ReceiverId, cancellationToken);
