@@ -48,7 +48,7 @@ public sealed class SendFriendshipRequestHandler : IRequestHandler<SendFriendshi
 
         var friendshipRequest = new FriendshipRequest(sender, receiver);
 
-        await _repo.CreateFriendshipRequestAsync(friendshipRequest, cancellationToken);
+        await _repo.AddFriendshipRequestAsync(friendshipRequest, cancellationToken);
 
         return friendshipRequest;
     }
