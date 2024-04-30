@@ -17,6 +17,22 @@ public sealed class SendFriendshipRequestHandler : IRequestHandler<SendFriendshi
 
     public async  Task<Result<FriendshipRequest>> Handle(SendFriendshipRequestCommand request, CancellationToken cancellationToken)
     {
+        if (request.SenderId == request.ReceiverId)
+        {
+            return new DataValidationException(nameof(request.SenderId), "Sender and receiver can't be the same");
+        }
+
+        // Check If Blocked
+        {
+            var blocked = await _repo.GetBlockedAsync(request.SenderId, request.ReceiverId, cancellationToken);
+            var blockedBy = await _repo.GetBlockedAsync(request.ReceiverId, request.SenderId, cancellationToken);
+
+            if (blocked is not null || blockedBy is not null)
+            {
+                return new RecordNotFoundException($"Profile is not found");
+            }
+        }
+
         var friendship = await _repo.GetFriendshipAsync(request.SenderId, request.ReceiverId, cancellationToken);
 
         if (friendship is not null)

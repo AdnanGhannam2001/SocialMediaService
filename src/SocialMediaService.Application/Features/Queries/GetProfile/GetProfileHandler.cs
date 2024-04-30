@@ -3,7 +3,6 @@ using MediatR;
 using PR2.Shared.Common;
 using PR2.Shared.Exceptions;
 using SocialMediaService.Domain.Aggregates.Profiles;
-using SocialMediaService.Persistent.Repositories;
 using SocialMediaService.Domain.Enums;
 using SocialMediaService.Persistent.Interfaces;
 
@@ -20,6 +19,17 @@ public sealed class GetProfileHandler : IRequestHandler<GetProfileQuery, Result<
 
     public async Task<Result<GetProfileResult>> Handle(GetProfileQuery request, CancellationToken cancellationToken)
     {
+        if (request.RequesterId is not null)
+        {
+            var blocked = await _repo.GetBlockedAsync(request.ProfileId, request.RequesterId, cancellationToken);
+            var blockedBy = await _repo.GetBlockedAsync(request.RequesterId, request.ProfileId, cancellationToken);
+
+            if (blocked is not null || blockedBy is not null)
+            {
+                return new RecordNotFoundException($"Profile is not found");
+            }
+        }
+
         var profile = await _repo.GetByIdAsync(request.ProfileId, cancellationToken);
 
         if (profile is null)
@@ -27,7 +37,7 @@ public sealed class GetProfileHandler : IRequestHandler<GetProfileQuery, Result<
             return new RecordNotFoundException($"Profile with Id: {request.ProfileId} is not found");
         }
 
-        if (!request.CheckOwnership || request.ProfileId == request.OtherProfileId)
+        if (!request.CheckOwnership || request.ProfileId == request.RequesterId)
         {
             return GetProfileResult.MapProfile(profile);
         }
@@ -36,8 +46,8 @@ public sealed class GetProfileHandler : IRequestHandler<GetProfileQuery, Result<
 
         Assert(settings != null);
 
-        var friendship = request.OtherProfileId is not null
-            ? await _repo.GetFriendshipAsync(request.ProfileId, request.OtherProfileId, cancellationToken)
+        var friendship = request.RequesterId is not null
+            ? await _repo.GetFriendshipAsync(request.ProfileId, request.RequesterId, cancellationToken)
             : null;
 
         var visibilitiy = friendship is null ? InformationVisibilities.Public : InformationVisibilities.Friends;
