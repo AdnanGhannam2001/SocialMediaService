@@ -51,7 +51,7 @@ public sealed class ProfileEfRepository
 
         var total = await CountFriendshipsAsync(userId, request.Predicate, cancellationToken);
 
-        return new (query.ToList(), 0);
+        return new (query.ToList(), total);
     }
 
     public async Task<Friendship?> AddFriendshipAsync(Friendship friendship, CancellationToken cancellationToken = default)
@@ -112,7 +112,7 @@ public sealed class ProfileEfRepository
 
         var total = await CountSentFriendshipsRequestAsync(userId, request.Predicate, cancellationToken);
 
-        return new (query.ToList(), 0);
+        return new (query.ToList(), total);
     }
 
     public async Task<Page<FriendshipRequest>> GetReceivedFriendshipRequestsPageAsync(string userId,
@@ -139,7 +139,7 @@ public sealed class ProfileEfRepository
 
         var total = await CountReceivedFriendshipsRequestAsync(userId, request.Predicate, cancellationToken);
 
-        return new (query.ToList(), 0);
+        return new (query.ToList(), total);
     }
            
     public Task<FriendshipRequest?> GetFriendshipRequestAsync(string senderId, string receiverId, CancellationToken cancellationToken = default)
@@ -190,6 +190,56 @@ public sealed class ProfileEfRepository
             .Where(x => x.Id.Equals(blockerId))
             .SelectMany(x => x.Blocked)
             .FirstOrDefaultAsync(x => x.BlockerId.Equals(blockedId), cancellationToken);
+    }
+
+    public async Task<Page<Block>> GetBlockedPageAsync(string blockerId,
+        PageRequest<Block> request,
+        CancellationToken cancellationToken = default)
+    {
+        var query = Queryable
+            .AsNoTracking()
+            .Where(x => x.Id.Equals(blockerId))
+            .SelectMany(x => x.Blocked)
+            .Where(request.Predicate ?? (_ => true));
+
+        var orderQuery = request.KeySelector is not null
+            ? request.Desc
+                ? query.OrderByDescending(request.KeySelector)
+                : query.OrderBy(request.KeySelector)
+            : request.Desc
+                ? query.OrderDescending()
+                : query.Order();
+
+        query = orderQuery
+            .Skip((request.PageNumber - 1) * request.PageSize)
+            .Take(request.PageSize);
+
+        var total = await CountBlockedAsync(blockerId, request.Predicate, cancellationToken);
+
+        return new (query.ToList(), total);
+    }
+
+    public Task<int> CountBlockedAsync(string blockerId,
+        Expression<Func<Block, bool>>? predicate = null,
+        CancellationToken cancellationToken = default)
+    {
+        return Queryable
+            .Where(x => x.Id.Equals(blockerId))
+            .SelectMany(x => x.Blocked)
+            .CountAsync(predicate ?? (_ => true), cancellationToken);
+    }
+
+    public async Task<Block> AddBlockAsync(Block block, CancellationToken cancellationToken = default)
+    {
+        await _context.Set<Block>().AddAsync(block, cancellationToken);
+        await SaveChangesAsync(cancellationToken);
+        return block;
+    }
+
+    public async Task<bool> DeleteBlockAsync(Block block, CancellationToken cancellationToken = default)
+    {
+        _context.Set<Block>().Remove(block);
+        return await SaveChangesAsync(cancellationToken) > 0;
     }
     #endregion
 }

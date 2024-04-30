@@ -41,5 +41,12 @@ public interface IProfileRepository
 
     #region Block
     Task<Block?> GetBlockedAsync(string blockerId, string blockedId, CancellationToken cancellationToken = default);
+    Task<Page<Block>> GetBlockedPageAsync(string blockerId, PageRequest<Block> request, CancellationToken cancellationToken = default);
+    Task<int> CountBlockedAsync(string blockerId,
+        Expression<Func<Block, bool>>? predicate = null,
+        CancellationToken cancellationToken = default);
+
+    Task<Block> AddBlockAsync(Block block, CancellationToken cancellationToken = default);
+    Task<bool> DeleteBlockAsync(Block block, CancellationToken cancellationToken = default);
     #endregion
 }
