@@ -49,4 +49,15 @@ public interface IProfileRepository
     Task<Block> AddBlockAsync(Block block, CancellationToken cancellationToken = default);
     Task<bool> DeleteBlockAsync(Block block, CancellationToken cancellationToken = default);
     #endregion
+
+    #region Follow
+    Task<Follow?> GetFollowedAsync(string followerId, string followedId, CancellationToken cancellationToken = default);
+    Task<Page<Follow>> GetFollowedPageAsync(string followerId, PageRequest<Follow> request, CancellationToken cancellationToken = default);
+    Task<int> CountFollowedAsync(string followerId,
+        Expression<Func<Follow, bool>>? predicate = null,
+        CancellationToken cancellationToken = default);
+
+    Task<Follow> AddFollowAsync(Follow follow, CancellationToken cancellationToken = default);
+    Task<bool> DeleteFollowAsync(Follow follow, CancellationToken cancellationToken = default);
+    #endregion
 }

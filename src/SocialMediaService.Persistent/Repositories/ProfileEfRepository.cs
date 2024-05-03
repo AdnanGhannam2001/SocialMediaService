@@ -189,7 +189,7 @@ public sealed class ProfileEfRepository
         return Queryable
             .Where(x => x.Id.Equals(blockerId))
             .SelectMany(x => x.Blocked)
-            .FirstOrDefaultAsync(x => x.BlockerId.Equals(blockedId), cancellationToken);
+            .FirstOrDefaultAsync(x => x.BlockedId.Equals(blockedId), cancellationToken);
     }
 
     public async Task<Page<Block>> GetBlockedPageAsync(string blockerId,
@@ -239,6 +239,64 @@ public sealed class ProfileEfRepository
     public async Task<bool> DeleteBlockAsync(Block block, CancellationToken cancellationToken = default)
     {
         _context.Set<Block>().Remove(block);
+        return await SaveChangesAsync(cancellationToken) > 0;
+    }
+    #endregion
+
+    #region Follow
+    public Task<Follow?> GetFollowedAsync(string followerId, string followedId, CancellationToken cancellationToken = default)
+    {
+        return Queryable
+            .Where(x => x.Id.Equals(followerId))
+            .SelectMany(x => x.Following)
+            .FirstOrDefaultAsync(x => x.FollowedId.Equals(followedId), cancellationToken);
+    }
+
+    public async Task<Page<Follow>> GetFollowedPageAsync(string followerId, PageRequest<Follow> request, CancellationToken cancellationToken = default)
+    {
+        var query = Queryable
+            .AsNoTracking()
+            .Where(x => x.Id.Equals(followerId))
+            .SelectMany(x => x.Following)
+            .Where(request.Predicate ?? (_ => true));
+
+        var orderQuery = request.KeySelector is not null
+            ? request.Desc
+                ? query.OrderByDescending(request.KeySelector)
+                : query.OrderBy(request.KeySelector)
+            : request.Desc
+                ? query.OrderDescending()
+                : query.Order();
+
+        query = orderQuery
+            .Skip((request.PageNumber - 1) * request.PageSize)
+            .Take(request.PageSize);
+
+        var total = await CountFollowedAsync(followerId, request.Predicate, cancellationToken);
+
+        return new (query.ToList(), total);
+    }
+
+    public Task<int> CountFollowedAsync(string followerId,
+        Expression<Func<Follow, bool>>? predicate = null,
+        CancellationToken cancellationToken = default)
+    {
+        return Queryable
+            .Where(x => x.Id.Equals(followerId))
+            .SelectMany(x => x.Following)
+            .CountAsync(predicate ?? (_ => true), cancellationToken);
+    }
+
+    public async Task<Follow> AddFollowAsync(Follow follow, CancellationToken cancellationToken = default)
+    {
+        await _context.Set<Follow>().AddAsync(follow, cancellationToken);
+        await SaveChangesAsync(cancellationToken);
+        return follow;
+    }
+
+    public async Task<bool> DeleteFollowAsync(Follow follow, CancellationToken cancellationToken = default)
+    {
+        _context.Set<Follow>().Remove(follow);
         return await SaveChangesAsync(cancellationToken) > 0;
     }
     #endregion
