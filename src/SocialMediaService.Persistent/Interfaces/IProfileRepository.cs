@@ -7,7 +7,11 @@ namespace SocialMediaService.Persistent.Interfaces;
 public interface IProfileRepository
     : IWriteRepository<Profile, string>, IReadRepository<Profile, string>
 {
+    #region Settings
     Task<Settings?> GetSettingsAsync(string id, CancellationToken cancellationToken = default);
+
+    Task<int> UpdateSettingsAsync(Settings settings, CancellationToken cancellationToken = default);
+    #endregion // Settings
 
     #region Friendship
     Task<Page<Friendship>> GetFriendshipsPageAsync(string userId,
@@ -19,7 +23,7 @@ public interface IProfileRepository
     Task<bool> DeleteFriendshipAsync(Friendship friendship, CancellationToken cancellationToken = default);
 
     Task<int> CountFriendshipsAsync(string userId, Expression<Func<Friendship, bool>>? predicate = null, CancellationToken cancellationToken = default);
-    #endregion
+    #endregion // Friendship
 
     #region Friendship Requests
     Task<Page<FriendshipRequest>> GetSentFriendshipRequestsPageAsync(string userId, PageRequest<FriendshipRequest> request, CancellationToken cancellationToken = default);
@@ -37,7 +41,7 @@ public interface IProfileRepository
     Task<int> CountReceivedFriendshipsRequestAsync(string userId,
         Expression<Func<FriendshipRequest, bool>>? predicate = null,
         CancellationToken cancellationToken = default);
-    #endregion
+    #endregion // Friendship Requests
 
     #region Block
     Task<Block?> GetBlockedAsync(string blockerId, string blockedId, CancellationToken cancellationToken = default);
@@ -48,7 +52,7 @@ public interface IProfileRepository
 
     Task<Block> AddBlockAsync(Block block, CancellationToken cancellationToken = default);
     Task<bool> DeleteBlockAsync(Block block, CancellationToken cancellationToken = default);
-    #endregion
+    #endregion // Block
 
     #region Follow
     Task<Follow?> GetFollowedAsync(string followerId, string followedId, CancellationToken cancellationToken = default);
@@ -59,5 +63,5 @@ public interface IProfileRepository
 
     Task<Follow> AddFollowAsync(Follow follow, CancellationToken cancellationToken = default);
     Task<bool> DeleteFollowAsync(Follow follow, CancellationToken cancellationToken = default);
-    #endregion
+    #endregion // Follow
 }

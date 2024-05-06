@@ -25,4 +25,18 @@ public sealed class Settings : Entity
     public InformationVisibilities StartDate { get; private set; } = InformationVisibilities.Public;
     public InformationVisibilities Socials { get; private set; } = InformationVisibilities.Public;
     public InformationVisibilities Bio { get; private set; } = InformationVisibilities.Public;
+
+    public void Update(Settings settings)
+    {
+        LastName = settings.LastName;
+        DateOfBirth = settings.DateOfBirth;
+        Gender = settings.Gender;
+        Phone = settings.Phone;
+        JobTitle = settings.JobTitle;
+        Company = settings.Company;
+        StartDate = settings.StartDate;
+        Socials = settings.Socials;
+        Bio = settings.Bio;
+        UpdatedAtUtc = DateTime.UtcNow;
+    }
 }

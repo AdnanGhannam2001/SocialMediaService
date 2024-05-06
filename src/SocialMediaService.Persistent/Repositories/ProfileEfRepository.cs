@@ -18,6 +18,7 @@ public sealed class ProfileEfRepository
         _context = context;
     }
 
+    #region Settings
     public Task<Settings?> GetSettingsAsync(string id, CancellationToken cancellationToken = default)
     {
         return Queryable
@@ -25,6 +26,13 @@ public sealed class ProfileEfRepository
             .Select(x => x.Settings)
             .FirstOrDefaultAsync(cancellationToken);
     }
+
+    public Task<int> UpdateSettingsAsync(Settings settings, CancellationToken cancellationToken = default)
+    {
+        _context.Set<Settings>().Update(settings);
+        return SaveChangesAsync(cancellationToken);
+    }
+    #endregion // Settings
 
     #region Friendship
     public async Task<Page<Friendship>> GetFriendshipsPageAsync(string userId,
