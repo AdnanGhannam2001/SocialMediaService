@@ -32,9 +32,10 @@ public sealed class RespondToFriendshipRequestHandler : IRequestHandler<RespondT
 
         try
         {
-            Friendship friendship;
+            Friendship? friendship = null;
 
             // Add Friendship
+            if (request.Aggreed)
             {
                 var sender = await _repo.GetByIdAsync(request.SenderId, cancellationToken);
                 var receiver = await _repo.GetByIdAsync(request.ReceiverId, cancellationToken);
@@ -51,6 +52,7 @@ public sealed class RespondToFriendshipRequestHandler : IRequestHandler<RespondT
 
             await transaction.CommitAsync(cancellationToken);
 
+            // TODO: Fix this
             return friendship;
         }
         catch (Exception exp)

@@ -24,7 +24,17 @@ public sealed class UpdateSettingsHandler : IRequestHandler<UpdateSettingsComman
             return new RecordNotFoundException("Profile not found");
         }
 
-        settings.Update(request.Settings);
+        settings.Update(request.LastName,
+            request.DateOfBirth,
+            request.Gender,
+            request.Phone,
+            request.JobTitle,
+            request.Company,
+            request.StartDate,
+            request.Socials,
+            request.Bio);
+
+        await _repo.SaveChangesAsync(cancellationToken);
 
         return settings;
     }
