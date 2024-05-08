@@ -14,7 +14,7 @@ internal static class IServiceCollectionExtensions
             .AddCookie("WebApiCookies")
             .AddOpenIdConnect("oidc", opt =>
             {
-                opt.Authority = "http://localhost:5001";
+                opt.Authority = "https://localhost:5001";
                 opt.RequireHttpsMetadata = false;
 
                 opt.ClientId = "WEB_API";
