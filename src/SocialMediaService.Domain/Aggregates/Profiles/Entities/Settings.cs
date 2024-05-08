@@ -26,17 +26,25 @@ public sealed class Settings : Entity
     public InformationVisibilities Socials { get; private set; } = InformationVisibilities.Public;
     public InformationVisibilities Bio { get; private set; } = InformationVisibilities.Public;
 
-    public void Update(Settings settings)
+    public void Update(InformationVisibilities lastName,
+        InformationVisibilities dateOfBirth,
+        InformationVisibilities gender,
+        InformationVisibilities phone,
+        InformationVisibilities jobTitle,
+        InformationVisibilities company,
+        InformationVisibilities startDate,
+        InformationVisibilities socials,
+        InformationVisibilities bio)
     {
-        LastName = settings.LastName;
-        DateOfBirth = settings.DateOfBirth;
-        Gender = settings.Gender;
-        Phone = settings.Phone;
-        JobTitle = settings.JobTitle;
-        Company = settings.Company;
-        StartDate = settings.StartDate;
-        Socials = settings.Socials;
-        Bio = settings.Bio;
+        LastName = lastName;
+        DateOfBirth = dateOfBirth;
+        Gender = gender;
+        Phone = phone;
+        JobTitle = jobTitle;
+        Company = company;
+        StartDate = startDate;
+        Socials = socials;
+        Bio = bio;
         UpdatedAtUtc = DateTime.UtcNow;
     }
 }
