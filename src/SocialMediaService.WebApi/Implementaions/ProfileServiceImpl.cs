@@ -19,11 +19,12 @@ public sealed class ProfileServiceImpl : ProfileService.ProfileServiceBase
     public override async Task<Empty> CreateProfile(CreateProfileRequest request, ServerCallContext context)
     {
         if (await _mediator.Send(new CreateProfileCommand(request.Id,
-                request.FirstName,
-                request.LastName,
-                request.DateOfBirth.ToDateTime(),
-                (Domain.Enums.Genders) request.Gender,
-                new PhoneNumber(request.PhoneNumber))) is var result && result == false)
+            request.FirstName,
+            request.LastName,
+            request.DateOfBirth.ToDateTime(),
+            (Domain.Enums.Genders) request.Gender,
+            string.IsNullOrEmpty(request.PhoneNumber) ? null : new PhoneNumber(request.PhoneNumber)))
+                is var result && result == false)
         {
             throw new RpcException(new Status(StatusCode.InvalidArgument, result.Exceptions.First().ToString()));
         }
