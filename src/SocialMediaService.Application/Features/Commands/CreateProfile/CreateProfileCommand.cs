@@ -10,4 +10,4 @@ public sealed record CreateProfileCommand(string Id,
     string LastName,
     DateTime DateOfBirth,
     Genders Gender,
-    PhoneNumber PhoneNumber) : ICommand<Profile>;
+    PhoneNumber? PhoneNumber = null) : ICommand<Profile>;
