@@ -11,6 +11,11 @@ public sealed record PhoneNumber
     private PhoneNumber() { }
     #pragma warning restore CS8618
 
+    /// <summary>
+    /// Initialize a PhoneNumber by setting PhoneNumber.Value
+    /// </summary>
+    /// <param name="value">The actual value</param>
+    /// <exception cref="InvalidPhoneNumberException">PhoneNumber.Value is not a valid phonenumber</exception>
     public PhoneNumber(string value)
     {
         var regex = new Regex(_regexExpression);
