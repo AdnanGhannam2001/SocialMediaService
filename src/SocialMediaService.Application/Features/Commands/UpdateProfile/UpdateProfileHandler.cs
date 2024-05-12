@@ -4,8 +4,8 @@ using PR2.Shared.Common;
 using PR2.Shared.Exceptions;
 using SocialMediaService.Application.Exceptions;
 using SocialMediaService.Domain.Aggregates.Profiles;
+using SocialMediaService.Domain.Aggregates.Profiles.ValueObjects;
 using SocialMediaService.Persistent.Interfaces;
-using SocialMediaService.Persistent.Repositories;
 
 namespace SocialMediaService.Application.Features.Commands.UpdateProfile;
 
@@ -29,23 +29,29 @@ public sealed class UpdateProfileHandler : IRequestHandler<UpdateProfileCommand,
             return new RecordNotFoundException($"Profile with Id: {request.Id} is not found");
         }
 
-        profile.Update(request.FirstName,
-            request.LastName,
-            request.DateOfBirth,
-            request.Gender,
-            request.PhoneNumber,
-            request.Bio,
-            request.JobInformations,
-            request.Socials);
-
         try
         {
+            var socials = new Socials(request.Facebook, request.Youtube, request.Twitter);
+            profile.Update(request.FirstName,
+                request.LastName,
+                request.DateOfBirth,
+                request.Gender,
+                request.PhoneNumber,
+                request.Bio,
+                request.JobInformations,
+                socials);
+
             await _repo.SaveChangesAsync(cancellationToken);
 
             return profile;
         }
         catch (Exception exp)
         {
+            if (exp is ExceptionBase e)
+            {
+                return e;
+            }
+
             _logger.LogCritical("[Application] {Message}\n{StackTrace}", exp.Message, exp.StackTrace);
             return new UnexpectedException();
         }

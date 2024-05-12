@@ -1,3 +1,4 @@
+using static System.Diagnostics.Debug;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using PR2.Shared.Common;
@@ -7,7 +8,7 @@ using SocialMediaService.Persistent.Interfaces;
 
 namespace SocialMediaService.Application.Features.Commands.RespondToFriendshipRequest;
 
-public sealed class RespondToFriendshipRequestHandler : IRequestHandler<RespondToFriendshipRequestCommand, Result<Friendship>>
+public sealed class RespondToFriendshipRequestHandler : IRequestHandler<RespondToFriendshipRequestCommand, Result<Unit>>
 {
     private readonly ILogger<RespondToFriendshipRequestHandler> _logger;
     private readonly IProfileRepository _repo;
@@ -19,13 +20,13 @@ public sealed class RespondToFriendshipRequestHandler : IRequestHandler<RespondT
         _repo = repo;
     }
 
-    public async Task<Result<Friendship>> Handle(RespondToFriendshipRequestCommand request, CancellationToken cancellationToken)
+    public async Task<Result<Unit>> Handle(RespondToFriendshipRequestCommand request, CancellationToken cancellationToken)
     {
         var friendshipRequest = await _repo.GetFriendshipRequestAsync(request.SenderId, request.ReceiverId, cancellationToken);
 
         if (friendshipRequest is null)
         {
-            return new RecordNotFoundException("You didn't send a friendship request to this user");
+            return new RecordNotFoundException("You didn't received a friendship request from this user");
         }
 
         using var transaction = await _repo.BeginTransactionAsync();
@@ -34,14 +35,14 @@ public sealed class RespondToFriendshipRequestHandler : IRequestHandler<RespondT
         {
             Friendship? friendship = null;
 
-            // Add Friendship
+            // Add Friendship if Aggreed
             if (request.Aggreed)
             {
                 var sender = await _repo.GetByIdAsync(request.SenderId, cancellationToken);
                 var receiver = await _repo.GetByIdAsync(request.ReceiverId, cancellationToken);
 
-                ArgumentNullException.ThrowIfNull(sender);
-                ArgumentNullException.ThrowIfNull(receiver);
+                Assert(sender is not null);
+                Assert(receiver is not null);
 
                 friendship = new Friendship(sender, receiver);
 
@@ -52,8 +53,7 @@ public sealed class RespondToFriendshipRequestHandler : IRequestHandler<RespondT
 
             await transaction.CommitAsync(cancellationToken);
 
-            // TODO: Fix this
-            return friendship;
+            return Unit.Value;
         }
         catch (Exception exp)
         {

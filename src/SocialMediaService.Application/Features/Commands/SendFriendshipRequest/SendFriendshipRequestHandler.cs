@@ -28,23 +28,39 @@ public sealed class SendFriendshipRequestHandler : IRequestHandler<SendFriendshi
             return new RecordNotFoundException($"Profile is not found");
         }
 
-        var friendship = await _repo.GetFriendshipAsync(request.SenderId, request.ReceiverId, cancellationToken);
-
-        if (friendship is not null)
+        // Check for Existed Friendship
         {
-            return new DuplicatedRecordException("You're already a friend with this user");
+            var friendship = await _repo.GetFriendshipAsync(request.SenderId, request.ReceiverId, cancellationToken);
+
+            if (friendship is not null)
+            {
+                return new DuplicatedRecordException("You're already a friend with this user");
+            }
         }
 
-        var sender = await _repo.GetByIdAsync(request.SenderId, cancellationToken);
-        var receiver = await _repo.GetByIdAsync(request.ReceiverId, cancellationToken);
+        // Check for Existed Friendship Request
+        {
+            var friendshipRequest = await _repo.GetFriendshipRequestAsync(request.SenderId, request.ReceiverId, cancellationToken);
 
-        ArgumentNullException.ThrowIfNull(sender);
-        ArgumentNullException.ThrowIfNull(receiver);
+            if (friendshipRequest is not null)
+            {
+                return new DuplicatedRecordException("You already sent a request to this user");
+            }
+        }
 
-        var friendshipRequest = new FriendshipRequest(sender, receiver);
+        // Send Friendship Request
+        {
+            var sender = await _repo.GetByIdAsync(request.SenderId, cancellationToken);
+            var receiver = await _repo.GetByIdAsync(request.ReceiverId, cancellationToken);
 
-        await _repo.AddFriendshipRequestAsync(friendshipRequest, cancellationToken);
+            ArgumentNullException.ThrowIfNull(sender);
+            ArgumentNullException.ThrowIfNull(receiver);
 
-        return friendshipRequest;
+            var friendshipRequest = new FriendshipRequest(sender, receiver);
+
+            await _repo.AddFriendshipRequestAsync(friendshipRequest, cancellationToken);
+
+            return friendshipRequest;
+        }
     }
 }

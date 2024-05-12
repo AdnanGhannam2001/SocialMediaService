@@ -1,6 +1,7 @@
 using MediatR;
 using PR2.Shared.Common;
 using PR2.Shared.Exceptions;
+using SocialMediaService.Application.Helpers;
 using SocialMediaService.Domain.Aggregates.Profiles;
 using SocialMediaService.Persistent.Interfaces;
 
@@ -17,6 +18,16 @@ public sealed class FollowAccountHandler : IRequestHandler<FollowAccountCommand,
 
     public async Task<Result<Follow>> Handle(FollowAccountCommand request, CancellationToken cancellationToken)
     {
+        if (request.FollowerId == request.ProfileId)
+        {
+            return new DataValidationException(nameof(request.FollowerId), "Follower and profile to be followed can't be the same");
+        }
+
+        if (await ProfileHelper.IsBlocked(_repo, request.FollowerId, request.ProfileId, cancellationToken))
+        {
+            return new RecordNotFoundException("Profile is blocked or not found");
+        }
+
         var follower = await _repo.GetByIdAsync(request.FollowerId, cancellationToken);
 
         if (follower is null)

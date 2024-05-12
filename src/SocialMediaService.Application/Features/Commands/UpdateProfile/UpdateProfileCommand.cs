@@ -10,7 +10,9 @@ public sealed record UpdateProfileCommand(string Id,
     string? LastName = null,
     DateTime? DateOfBirth = null,
     Genders? Gender = null,
-    PhoneNumber? PhoneNumber = null,
+    string? PhoneNumber = null,
     string? Bio = null,
     JobInformations? JobInformations = null,
-    Socials? Socials = null) : ICommand<Profile>;
+    string? Facebook = null,
+    string? Youtube = null,
+    string? Twitter = null) : ICommand<Profile>;

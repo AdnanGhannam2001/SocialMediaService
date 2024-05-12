@@ -17,8 +17,8 @@ public sealed class GetFriendshipRequestsPageHandler : IRequestHandler<GetFriend
     public async Task<Result<Page<FriendshipRequest>>> Handle(GetFriendshipRequestsPageQuery request, CancellationToken cancellationToken)
     {
         var friendshipRequests = request.Sent
-            ? await _repo.GetReceivedFriendshipRequestsPageAsync(request.ProfileId, request.Request, cancellationToken)
-            : await _repo.GetSentFriendshipRequestsPageAsync(request.ProfileId, request.Request, cancellationToken);
+            ? await _repo.GetSentFriendshipRequestsPageAsync(request.ProfileId, request.Request, cancellationToken)
+            : await _repo.GetReceivedFriendshipRequestsPageAsync(request.ProfileId, request.Request, cancellationToken);
 
         return friendshipRequests;
     }
