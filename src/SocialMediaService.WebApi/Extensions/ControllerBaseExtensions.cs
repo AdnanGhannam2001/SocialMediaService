@@ -22,7 +22,7 @@ internal static class ControllerBaseExtensions
         return result.Exceptions[0] switch
         {
             RecordNotFoundException e => controller.NotFound(e),
-            _ => controller.BadRequest(result.Exceptions)
+            _ => controller.BadRequest(result.Exceptions[0])
         };
     }
 }

@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-
 namespace SocialMediaService.WebApi.Extensions;
 
 internal static class IServiceCollectionExtensions
@@ -7,10 +5,10 @@ internal static class IServiceCollectionExtensions
     public static IServiceCollection AddAuth(this IServiceCollection services)
     {
         services.AddAuthentication(opt =>
-        {
-            opt.DefaultScheme = "WebApiCookies";
-            opt.DefaultChallengeScheme = "oidc";
-        })
+            {
+                opt.DefaultScheme = "WebApiCookies";
+                opt.DefaultChallengeScheme = "oidc";
+            })
             .AddCookie("WebApiCookies")
             .AddOpenIdConnect("oidc", opt =>
             {
@@ -18,7 +16,7 @@ internal static class IServiceCollectionExtensions
                 opt.RequireHttpsMetadata = false;
 
                 opt.ClientId = "WEB_API";
-                opt.ClientSecret = "511536EF-F270-4058-80CA-1C89C192F69A";
+                opt.ClientSecret = "511536EF-F270-4058-80CA-1C89C192F69A"; // TODO: Get this from settings
                 opt.ResponseType = "code";
 
                 opt.Scope.Clear();
