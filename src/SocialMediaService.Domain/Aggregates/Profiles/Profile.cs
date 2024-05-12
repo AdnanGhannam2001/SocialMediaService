@@ -95,14 +95,15 @@ public sealed class Profile : AggregateRoot
         string? lastName = null,
         DateTime? dateOfBirth = null,
         Genders? gender = null,
-        PhoneNumber? phoneNumber = null,
+        string? phoneNumber = null,
         string? bio = null,
         JobInformations? jobInformations = null,
         Socials? socials = null)
     {
+        System.Console.WriteLine(2);
         FirstName = firstName ?? FirstName;
         LastName = lastName ?? LastName;
-        PhoneNumber = phoneNumber ?? PhoneNumber;
+        PhoneNumber = phoneNumber is not null ? new PhoneNumber(phoneNumber) : PhoneNumber;
         DateOfBirth = dateOfBirth ?? DateOfBirth;
         Gender = gender ?? Gender;
         Bio = bio ?? Bio;

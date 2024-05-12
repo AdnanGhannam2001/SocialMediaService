@@ -6,6 +6,10 @@ public sealed record Socials
 {
     private Socials() { }
 
+    /// <summary>
+    /// Initialize Scoial Links
+    /// </summary>
+    /// <exception cref="InvalidUrlException">Thrown when providing an invalid URL</exception>
     public Socials(string? facebook = null, string? youtube = null, string? twitter = null)
     {
         if (!IsValidUrlOrEmpty(facebook)) throw new InvalidUrlException(nameof(Facebook));
