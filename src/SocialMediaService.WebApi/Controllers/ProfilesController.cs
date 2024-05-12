@@ -64,7 +64,9 @@ public sealed class ProfilesController : ControllerBase
             request.PhoneNumber,
             request.Bio,
             request.JobInformations,
-            request.Socials));
+            request.Facebook,
+            request.Youtube,
+            request.Twitter));
 
         return this.GetFromResult(result);
     }
@@ -230,13 +232,28 @@ public sealed class ProfilesController : ControllerBase
     [HttpPost("{id}/respond")]
     public async Task<IActionResult> Respond([FromRoute(Name = "id")] string profileId, bool aggreed = true)
     {
-        var result = await _mediator.Send(new RespondToFriendshipRequestCommand(User.GetId()!, profileId, aggreed));
+        var result = await _mediator.Send(new RespondToFriendshipRequestCommand(profileId, User.GetId()!, aggreed));
 
         return this.GetFromResult(result);
     }
-    #endregion // Friendship Requestf
+    #endregion // Friendship Request
 
     #region Friendship
+    [HttpGet("friends")]
+    public async Task<IActionResult> Friends([FromQuery] int pageNumber = 0,
+        [FromQuery] int pageSize = 20,
+        [FromQuery] string search = "")
+    {
+        var pageRequest = new PageRequest<Friendship>(pageNumber,
+            pageSize,
+            x => x.Friend.FirstName.Contains(search) || x.Friend.LastName.Contains(search),
+            x => x.StartedAtUtc);
+
+        var result = await _mediator.Send(new GetFriendshipsPageQuery(User.GetId()!, pageRequest));
+
+        return this.GetFromResult(result);
+    }
+
     [HttpGet("{id}/friends")]
     [AllowAnonymous]
     public async Task<IActionResult> Friends([FromRoute(Name = "id")] string profileId,
