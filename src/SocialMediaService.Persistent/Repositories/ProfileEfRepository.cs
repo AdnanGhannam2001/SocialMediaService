@@ -41,8 +41,8 @@ public sealed class ProfileEfRepository
     {
         var query = Queryable
             .AsNoTracking()
-            .Where(x => x.Id.Equals(userId))
             .SelectMany(x => x.Friends)
+            .Where(x => x.FriendId.Equals(userId) || x.ProfileId.Equals(userId))
             .Where(request.Predicate ?? (_ => true));
 
         var orderQuery = request.KeySelector is not null
@@ -54,7 +54,7 @@ public sealed class ProfileEfRepository
                 : query.Order();
 
         query = orderQuery
-            .Skip((request.PageNumber - 1) * request.PageSize)
+            .Skip(request.PageNumber * request.PageSize)
             .Take(request.PageSize);
 
         var total = await CountFriendshipsAsync(userId, request.Predicate, cancellationToken);
@@ -115,7 +115,7 @@ public sealed class ProfileEfRepository
                 : query.Order();
 
         query = orderQuery
-            .Skip((request.PageNumber - 1) * request.PageSize)
+            .Skip(request.PageNumber * request.PageSize)
             .Take(request.PageSize);
 
         var total = await CountSentFriendshipsRequestAsync(userId, request.Predicate, cancellationToken);
@@ -142,7 +142,7 @@ public sealed class ProfileEfRepository
                 : query.Order();
 
         query = orderQuery
-            .Skip((request.PageNumber - 1) * request.PageSize)
+            .Skip(request.PageNumber * request.PageSize)
             .Take(request.PageSize);
 
         var total = await CountReceivedFriendshipsRequestAsync(userId, request.Predicate, cancellationToken);
@@ -219,7 +219,7 @@ public sealed class ProfileEfRepository
                 : query.Order();
 
         query = orderQuery
-            .Skip((request.PageNumber - 1) * request.PageSize)
+            .Skip(request.PageNumber * request.PageSize)
             .Take(request.PageSize);
 
         var total = await CountBlockedAsync(blockerId, request.Predicate, cancellationToken);
@@ -277,7 +277,7 @@ public sealed class ProfileEfRepository
                 : query.Order();
 
         query = orderQuery
-            .Skip((request.PageNumber - 1) * request.PageSize)
+            .Skip(request.PageNumber * request.PageSize)
             .Take(request.PageSize);
 
         var total = await CountFollowedAsync(followerId, request.Predicate, cancellationToken);
