@@ -2,6 +2,7 @@ using System.Data;
 using System.Data.Common;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using PR2.Shared.Common;
 using SocialMediaService.Domain.Bases;
 using SocialMediaService.Persistent.Data;
@@ -19,8 +20,8 @@ public class EfRepository<T, TKey> : IReadRepository<T, TKey>, IWriteRepository<
 
     protected IQueryable<T> Queryable => _context.Set<T>();
 
-    public async Task<DbTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
-        => (DbTransaction) await _context.Database.BeginTransactionAsync(cancellationToken);
+    public async Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
+        => await _context.Database.BeginTransactionAsync(cancellationToken);
 
     public virtual async Task<T?> GetByIdAsync(TKey id, CancellationToken cancellationToken = default)
         => await _context.Set<T>().FindAsync(id, cancellationToken);
