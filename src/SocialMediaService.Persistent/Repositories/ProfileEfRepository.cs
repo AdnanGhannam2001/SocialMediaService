@@ -19,18 +19,11 @@ public sealed class ProfileEfRepository
     }
 
     #region Settings
-    public Task<Settings?> GetSettingsAsync(string id, CancellationToken cancellationToken = default)
+    public Task<Profile?> GetWithSettingsAsync(string id, CancellationToken cancellationToken = default)
     {
         return Queryable
-            .Where(x => x.Id.Equals(id))
-            .Select(x => x.Settings)
-            .FirstOrDefaultAsync(cancellationToken);
-    }
-
-    public Task<int> UpdateSettingsAsync(Settings settings, CancellationToken cancellationToken = default)
-    {
-        _context.Set<Settings>().Update(settings);
-        return SaveChangesAsync(cancellationToken);
+            .Include(x => x.Settings)
+            .FirstOrDefaultAsync(x => x.Id.Equals(id), cancellationToken);
     }
     #endregion // Settings
 
@@ -54,6 +47,8 @@ public sealed class ProfileEfRepository
                 : query.Order();
 
         query = orderQuery
+            .Include(x => x.Friend)
+            .Include(x => x.Profile)
             .Skip(request.PageNumber * request.PageSize)
             .Take(request.PageSize);
 
@@ -62,20 +57,12 @@ public sealed class ProfileEfRepository
         return new (query.ToList(), total);
     }
 
-    public async Task<Friendship?> AddFriendshipAsync(Friendship friendship, CancellationToken cancellationToken = default)
-    {
-        await _context.Friendships.AddAsync(friendship, cancellationToken);
-        await SaveChangesAsync(cancellationToken);
-        return friendship;
-    }
-
-    public Task<Friendship?> GetFriendshipAsync(string id1, string id2, CancellationToken cancellationToken = default)
+    public Task<Profile?> GetWithFriendshipAsync(string profileId, string friendId, CancellationToken cancellationToken = default)
     {
         return Queryable
-            .Where(x => x.Id.Equals(id1))
-            .SelectMany(x => x.Friends)
-            .Where(x => x.FriendId.Equals(id2))
-            .FirstOrDefaultAsync(cancellationToken);
+            .Include(x => x.Friends.Where(
+                x => x.ProfileId.Equals(profileId) && x.FriendId.Equals(friendId)))
+            .FirstOrDefaultAsync(x => x.Id.Equals(profileId), cancellationToken);
     }
 
     public Task<int> CountFriendshipsAsync(string userId,
@@ -86,12 +73,6 @@ public sealed class ProfileEfRepository
             .Where(x => x.Id.Equals(userId))
             .SelectMany(x => x.Friends)
             .CountAsync(predicate ?? (_ => true), cancellationToken);
-    }
-
-    public async Task<bool> DeleteFriendshipAsync(Friendship friendship, CancellationToken cancellationToken = default)
-    {
-        _context.Set<Friendship>().Remove(friendship);
-        return await SaveChangesAsync(cancellationToken) > 0;
     }
     #endregion
 
@@ -115,6 +96,7 @@ public sealed class ProfileEfRepository
                 : query.Order();
 
         query = orderQuery
+            .Include(x => x.Receiver)
             .Skip(request.PageNumber * request.PageSize)
             .Take(request.PageSize);
 
@@ -142,6 +124,7 @@ public sealed class ProfileEfRepository
                 : query.Order();
 
         query = orderQuery
+            .Include(x => x.Sender)
             .Skip(request.PageNumber * request.PageSize)
             .Take(request.PageSize);
 
@@ -149,25 +132,13 @@ public sealed class ProfileEfRepository
 
         return new (query.ToList(), total);
     }
-           
-    public Task<FriendshipRequest?> GetFriendshipRequestAsync(string senderId, string receiverId, CancellationToken cancellationToken = default)
+
+    public Task<Profile?> GetWithFriendshipRequestAsync(string senderId, string receiverId, CancellationToken cancellationToken = default)
     {
         return Queryable
-            .SelectMany(x => x.SentRequests)
-            .FirstOrDefaultAsync(x => x.SenderId.Equals(senderId) && x.ReceiverId.Equals(receiverId), cancellationToken: cancellationToken);
-    }
-           
-    public async Task<FriendshipRequest> AddFriendshipRequestAsync(FriendshipRequest friendshipRequest, CancellationToken cancellationToken = default)
-    {
-        await _context.Set<FriendshipRequest>().AddAsync(friendshipRequest, cancellationToken);
-        await SaveChangesAsync(cancellationToken);
-        return friendshipRequest;
-    }
-
-    public async Task<bool> DeleteFriendshipRequestAsync(FriendshipRequest friendshipRequest, CancellationToken cancellationToken = default)
-    {
-        _context.Set<FriendshipRequest>().Remove(friendshipRequest);
-        return await SaveChangesAsync(cancellationToken) > 0;
+            .Include(x => x.SentRequests.Where(
+                x => x.SenderId.Equals(senderId) && x.ReceiverId.Equals(receiverId)))
+            .FirstOrDefaultAsync(x => x.Id.Equals(senderId), cancellationToken: cancellationToken);
     }
 
     public Task<int> CountSentFriendshipsRequestAsync(string userId,
@@ -192,12 +163,12 @@ public sealed class ProfileEfRepository
     #endregion
 
     #region Block
-    public Task<Block?> GetBlockedAsync(string blockerId, string blockedId, CancellationToken cancellationToken = default)
+    public Task<Profile?> GetWithBlockedAsync(string blockerId, string blockedId, CancellationToken cancellationToken = default)
     {
         return Queryable
-            .Where(x => x.Id.Equals(blockerId))
-            .SelectMany(x => x.Blocked)
-            .FirstOrDefaultAsync(x => x.BlockedId.Equals(blockedId), cancellationToken);
+            .Include(x => x.Blocked.Where(
+                x => x.BlockerId.Equals(blockerId) && x.BlockedId.Equals(blockedId)))
+            .FirstOrDefaultAsync(x => x.Id.Equals(blockedId), cancellationToken);
     }
 
     public async Task<Page<Block>> GetBlockedPageAsync(string blockerId,
@@ -219,6 +190,7 @@ public sealed class ProfileEfRepository
                 : query.Order();
 
         query = orderQuery
+            .Include(x => x.Blocked)
             .Skip(request.PageNumber * request.PageSize)
             .Take(request.PageSize);
 
@@ -236,28 +208,15 @@ public sealed class ProfileEfRepository
             .SelectMany(x => x.Blocked)
             .CountAsync(predicate ?? (_ => true), cancellationToken);
     }
-
-    public async Task<Block> AddBlockAsync(Block block, CancellationToken cancellationToken = default)
-    {
-        await _context.Set<Block>().AddAsync(block, cancellationToken);
-        await SaveChangesAsync(cancellationToken);
-        return block;
-    }
-
-    public async Task<bool> DeleteBlockAsync(Block block, CancellationToken cancellationToken = default)
-    {
-        _context.Set<Block>().Remove(block);
-        return await SaveChangesAsync(cancellationToken) > 0;
-    }
     #endregion
 
     #region Follow
-    public Task<Follow?> GetFollowedAsync(string followerId, string followedId, CancellationToken cancellationToken = default)
+    public Task<Profile?> GetWithFollowedAsync(string followerId, string followedId, CancellationToken cancellationToken = default)
     {
         return Queryable
-            .Where(x => x.Id.Equals(followerId))
-            .SelectMany(x => x.Following)
-            .FirstOrDefaultAsync(x => x.FollowedId.Equals(followedId), cancellationToken);
+            .Include(x => x.Following.Where(
+                x => x.FollowedId.Equals(followerId) && x.FollowedId.Equals(followedId)))
+            .FirstOrDefaultAsync(x => x.Id.Equals(followerId), cancellationToken);
     }
 
     public async Task<Page<Follow>> GetFollowedPageAsync(string followerId, PageRequest<Follow> request, CancellationToken cancellationToken = default)
@@ -277,6 +236,7 @@ public sealed class ProfileEfRepository
                 : query.Order();
 
         query = orderQuery
+            .Include(x => x.Followed)
             .Skip(request.PageNumber * request.PageSize)
             .Take(request.PageSize);
 
@@ -293,19 +253,6 @@ public sealed class ProfileEfRepository
             .Where(x => x.Id.Equals(followerId))
             .SelectMany(x => x.Following)
             .CountAsync(predicate ?? (_ => true), cancellationToken);
-    }
-
-    public async Task<Follow> AddFollowAsync(Follow follow, CancellationToken cancellationToken = default)
-    {
-        await _context.Set<Follow>().AddAsync(follow, cancellationToken);
-        await SaveChangesAsync(cancellationToken);
-        return follow;
-    }
-
-    public async Task<bool> DeleteFollowAsync(Follow follow, CancellationToken cancellationToken = default)
-    {
-        _context.Set<Follow>().Remove(follow);
-        return await SaveChangesAsync(cancellationToken) > 0;
     }
     #endregion
 }
