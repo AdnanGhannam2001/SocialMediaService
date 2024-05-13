@@ -100,7 +100,6 @@ public sealed class Profile : AggregateRoot
         JobInformations? jobInformations = null,
         Socials? socials = null)
     {
-        System.Console.WriteLine(2);
         FirstName = firstName ?? FirstName;
         LastName = lastName ?? LastName;
         PhoneNumber = phoneNumber is not null ? new PhoneNumber(phoneNumber) : PhoneNumber;
@@ -109,5 +108,51 @@ public sealed class Profile : AggregateRoot
         Bio = bio ?? Bio;
         JobInformations = jobInformations ?? JobInformations;
         Socials = socials ?? Socials;
+    }
+
+    /// <summary>
+    /// Add to Sent Requests
+    /// </summary>
+    public void AddFriendshipRequest(FriendshipRequest friendshipRequest)
+    {
+        _sentRequests.Add(friendshipRequest);
+    }
+
+    /// <summary>
+    /// Remove from Sent Requests
+    /// </summary>
+    public void RemoveFriendshipRequest(FriendshipRequest friendshipRequest)
+    {
+        _sentRequests.Remove(friendshipRequest);
+    }
+
+    public void AddBlocked(Block block)
+    {
+        _blocked.Add(block);
+    }
+
+    public void RemoveBlocked(Block block)
+    {
+        _blocked.Remove(block);
+    }
+
+    public void AddFollow(Follow follow)
+    {
+        _following.Add(follow);
+    }
+
+    public void RemoveFollow(Follow follow)
+    {
+        _following.Remove(follow);
+    }
+
+    public void AddFriend(Friendship friendship)
+    {
+        _friends.Add(friendship);
+    }
+
+    public void RemoveFriend(Friendship friendship)
+    {
+        _friends.Remove(friendship);
     }
 }
