@@ -9,9 +9,10 @@ internal static class ProfileHelper
         string id2,
         CancellationToken cancellationToken = default)
     {
-        var blocked = await repo.GetBlockedAsync(id1, id2, cancellationToken);
-        var blockedBy = await repo.GetBlockedAsync(id2, id1, cancellationToken);
+        var blocked = await repo.GetWithBlockedAsync(id1, id2, cancellationToken);
+        var blockedBy = await repo.GetWithBlockedAsync(id2, id1, cancellationToken);
 
-        return blocked is not null || blockedBy is not null;
+        return (blocked is not null && blocked.Blocked.Count > 0)
+            || (blockedBy is not null && blockedBy.Blocked.Count > 0);
     }
 }

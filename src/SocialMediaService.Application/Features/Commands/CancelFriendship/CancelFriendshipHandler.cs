@@ -17,15 +17,35 @@ public sealed class CancelFriendshipHandler : IRequestHandler<CancelFriendshipCo
 
     public async Task<Result<Friendship>> Handle(CancelFriendshipCommand request, CancellationToken cancellationToken)
     {
-        var friendship1 = await _repo.GetFriendshipAsync(request.Id1, request.Id2, cancellationToken);
-        var friendship2 = await _repo.GetFriendshipAsync(request.Id2, request.Id1, cancellationToken);
+        var profile = await _repo.GetWithFriendshipAsync(request.Id1, request.Id2, cancellationToken);
+        var friend = await _repo.GetWithFriendshipAsync(request.Id2, request.Id1, cancellationToken);
 
-        if (friendship1 is null && friendship2 is null)
+        if (profile is null)
+        {
+            return new RecordNotFoundException("Profile is not found");
+        }
+
+        if (friend is null)
+        {
+            return new RecordNotFoundException("Friend profile is not found");
+        }
+
+        if (profile.Friends.Count == 0 && friend.Friends.Count == 0)
         {
             return new RecordNotFoundException("No Friendship found");
         }
 
-        await _repo.DeleteFriendshipAsync((friendship1 ?? friendship2)!, cancellationToken);        
+        if (profile.Friends.ElementAt(0) is var friendship1 && friendship1 is not null)
+        {
+            profile.RemoveFriend(friendship1);
+        }
+
+        if (friend.Friends.ElementAt(0) is var friendship2 && friendship2 is not null)
+        {
+            friend.RemoveFriend(friendship2);
+        }
+
+        await _repo.SaveChangesAsync(cancellationToken);        
 
         return (friendship1 ?? friendship2)!;
     }

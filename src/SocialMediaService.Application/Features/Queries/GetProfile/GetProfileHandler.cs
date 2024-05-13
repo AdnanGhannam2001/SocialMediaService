@@ -26,7 +26,7 @@ public sealed class GetProfileHandler : IRequestHandler<GetProfileQuery, Result<
             return new RecordNotFoundException($"Profile is not found");
         }
 
-        var profile = await _repo.GetByIdAsync(request.ProfileId, cancellationToken);
+        var profile = await _repo.GetWithSettingsAsync(request.ProfileId, cancellationToken);
 
         if (profile is null)
         {
@@ -38,29 +38,30 @@ public sealed class GetProfileHandler : IRequestHandler<GetProfileQuery, Result<
             return GetProfileResult.MapProfile(profile);
         }
 
-        var settings = await _repo.GetSettingsAsync(request.ProfileId, cancellationToken);
-
-        Assert(settings != null);
-
-        var friendship = request.RequesterId is not null
-            ? await _repo.GetFriendshipAsync(request.ProfileId, request.RequesterId, cancellationToken)
+        // TODO: Test this
+        var requester = request.RequesterId is not null
+            ? await _repo.GetWithFriendshipAsync(request.ProfileId, request.RequesterId, cancellationToken)
+                ?? await _repo.GetWithFriendshipAsync(request.RequesterId, request.ProfileId, cancellationToken)
             : null;
 
-        var visibilitiy = friendship is null ? InformationVisibilities.Public : InformationVisibilities.Friends;
+        var visibilitiy = (requester is null || requester.Friends.Count == 0)
+            ? InformationVisibilities.Public
+            : InformationVisibilities.Friends;
 
-        return MapToResult(profile, settings, visibilitiy);
+        return MapToResult(profile, visibilitiy);
     }
 
-    private static GetProfileResult MapToResult(Profile profile, Settings settings, InformationVisibilities visibility)
+    // TODO: Maybe Add to ProfileHelper
+    private static GetProfileResult MapToResult(Profile profile, InformationVisibilities visibility)
     {
         return new (profile.Id,
             profile.FirstName,
-            settings.LastName       <= visibility ? profile.LastName        : null,
-            settings.DateOfBirth    <= visibility ? profile.DateOfBirth     : null,
-            settings.Gender         <= visibility ? profile.Gender          : null,
-            settings.Phone          <= visibility ? profile.PhoneNumber     : null,
-            settings.Bio            <= visibility ? profile.Bio             : null,
-            settings.JobTitle       <= visibility ? profile.JobInformations : null,
-            settings.Socials        <= visibility ? profile.Socials         : null);
+            profile.Settings.LastName       <= visibility ? profile.LastName        : null,
+            profile.Settings.DateOfBirth    <= visibility ? profile.DateOfBirth     : null,
+            profile.Settings.Gender         <= visibility ? profile.Gender          : null,
+            profile.Settings.Phone          <= visibility ? profile.PhoneNumber     : null,
+            profile.Settings.Bio            <= visibility ? profile.Bio             : null,
+            profile.Settings.JobTitle       <= visibility ? profile.JobInformations : null,
+            profile.Settings.Socials        <= visibility ? profile.Socials         : null);
     }
 }

@@ -22,9 +22,14 @@ public sealed class RespondToFriendshipRequestHandler : IRequestHandler<RespondT
 
     public async Task<Result<Unit>> Handle(RespondToFriendshipRequestCommand request, CancellationToken cancellationToken)
     {
-        var friendshipRequest = await _repo.GetFriendshipRequestAsync(request.SenderId, request.ReceiverId, cancellationToken);
+        var sender = await _repo.GetWithFriendshipRequestAsync(request.SenderId, request.ReceiverId, cancellationToken);
 
-        if (friendshipRequest is null)
+        if (sender is null)
+        {
+            return new RecordNotFoundException("Sender profile is not found");
+        }
+
+        if (sender.SentRequests.Count == 0)
         {
             return new RecordNotFoundException("You didn't received a friendship request from this user");
         }
@@ -38,18 +43,17 @@ public sealed class RespondToFriendshipRequestHandler : IRequestHandler<RespondT
             // Add Friendship if Aggreed
             if (request.Aggreed)
             {
-                var sender = await _repo.GetByIdAsync(request.SenderId, cancellationToken);
                 var receiver = await _repo.GetByIdAsync(request.ReceiverId, cancellationToken);
 
-                Assert(sender is not null);
                 Assert(receiver is not null);
 
                 friendship = new Friendship(sender, receiver);
-
-                await _repo.AddFriendshipAsync(friendship, cancellationToken);
+                sender.AddFriend(friendship);
             }
 
-            await _repo.DeleteFriendshipRequestAsync(friendshipRequest, cancellationToken);
+            sender.RemoveFriendshipRequest(sender.SentRequests.ElementAt(0));
+
+            await _repo.SaveChangesAsync(cancellationToken);
 
             await transaction.CommitAsync(cancellationToken);
 
@@ -59,7 +63,7 @@ public sealed class RespondToFriendshipRequestHandler : IRequestHandler<RespondT
         {
             await transaction.RollbackAsync();
             _logger.LogError("Error happend while trying to handle {0}: {1}", nameof(RespondToFriendshipRequestHandler), exp.Message);
-            return new OperationCancelledException("Something went wrong");
+            return new TransactionFailureException("Something went wrong");
         }
     }
 }

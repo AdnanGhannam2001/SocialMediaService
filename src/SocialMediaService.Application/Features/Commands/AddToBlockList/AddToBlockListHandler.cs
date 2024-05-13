@@ -23,24 +23,29 @@ public sealed class AddToBlockListHandler : IRequestHandler<AddToBlockListComman
             return new DataValidationException(nameof(request.BlockerId), "Blocker and profile to be blocked can't be the same");
         }
 
-        if (await ProfileHelper.IsBlocked(_repo, request.BlockerId, request.ProfileId, cancellationToken))
-        {
-            return new RecordNotFoundException("Profile is already blocked or not found");
-        }
-
-        var blocker = await _repo.GetByIdAsync(request.BlockerId, cancellationToken);
         var profile = await _repo.GetByIdAsync(request.ProfileId, cancellationToken);
 
-        ArgumentNullException.ThrowIfNull(blocker);
-
-        if (profile is null)
+        if (await ProfileHelper.IsBlocked(_repo, request.BlockerId, request.ProfileId, cancellationToken)
+            || profile is null)
         {
             return new RecordNotFoundException("Profile is not found");
         }
 
-        var block = new Block(blocker, profile, request.Reason);
+        var blocker = await _repo.GetWithBlockedAsync(request.BlockerId, request.ProfileId, cancellationToken);
 
-        await _repo.AddBlockAsync(block, cancellationToken);
+        if (blocker is null)
+        {
+            return new RecordNotFoundException("Blocker profile is not found");
+        }
+
+        if (blocker.Blocked.Count > 0)
+        {
+            return new DuplicatedRecordException("Profile is already blocked");
+        }
+
+        var block = new Block(blocker, profile, request.Reason);
+        blocker.AddBlocked(block);
+        await _repo.SaveChangesAsync(cancellationToken);
 
         return block;
     }

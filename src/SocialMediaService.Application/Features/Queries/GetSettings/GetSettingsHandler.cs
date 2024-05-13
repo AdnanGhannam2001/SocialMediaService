@@ -17,13 +17,13 @@ public sealed class GetSettingsHandler : IRequestHandler<GetSettingsQuery, Resul
 
     public async Task<Result<Settings>> Handle(GetSettingsQuery request, CancellationToken cancellationToken)
     {
-        var settings = await _repo.GetSettingsAsync(request.Id, cancellationToken);
+        var profile = await _repo.GetWithSettingsAsync(request.Id, cancellationToken);
 
-        if (settings is null)
+        if (profile is null)
         {
             return new RecordNotFoundException("Profile not found");
         }
 
-        return settings;
+        return profile.Settings;
     }
 }

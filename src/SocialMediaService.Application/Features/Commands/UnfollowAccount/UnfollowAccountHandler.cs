@@ -17,28 +17,21 @@ public sealed class UnfollowAccountHandler : IRequestHandler<UnfollowAccountComm
 
     public async Task<Result<Follow>> Handle(UnfollowAccountCommand request, CancellationToken cancellationToken)
     {
-        var follower = await _repo.GetByIdAsync(request.FollowerId, cancellationToken);
+        var follower = await _repo.GetWithFollowedAsync(request.FollowerId, request.FollowedId, cancellationToken);
 
         if (follower is null)
         {
-            return new RecordNotFoundException("Follower account is not found");
+            return new RecordNotFoundException("Follower profile is not found");
         }
 
-        var profile = await _repo.GetByIdAsync(request.FollowedId, cancellationToken);
-
-        if (profile is null)
+        if (follower.Following.Count == 0)
         {
-            return new RecordNotFoundException("Account is not found");
+            return new RecordNotFoundException("You're not following this user");
         }
 
-        var follow = await _repo.GetFollowedAsync(request.FollowerId, request.FollowedId, cancellationToken);
-
-        if (follow is null)
-        {
-            return new RecordNotFoundException("You're not following this account");
-        }
-
-        await _repo.DeleteFollowAsync(follow, cancellationToken);
+        var follow = follower.Following.ElementAt(0);
+        follower.RemoveFollow(follow);
+        await _repo.SaveChangesAsync(cancellationToken);
 
         return follow;
     }

@@ -17,15 +17,23 @@ public sealed class CancelFriendshipRequestHandler : IRequestHandler<CancelFrien
 
     public async Task<Result<FriendshipRequest>> Handle(CancelFriendshipRequestCommand request, CancellationToken cancellationToken)
     {
-        var friendshipRequest = await _repo.GetFriendshipRequestAsync(request.SenderId, request.ReceiverId, cancellationToken);
+        var sender = await _repo.GetWithFriendshipRequestAsync(request.SenderId, request.ReceiverId, cancellationToken);
 
-        if (friendshipRequest is null)
+        if (sender is null)
+        {
+            return new RecordNotFoundException("Profile is not found");
+        }
+
+        if (sender.SentRequests.Count == 0)
         {
             return new RecordNotFoundException("Friendship request is not found");
         }
 
-        await _repo.DeleteFriendshipRequestAsync(friendshipRequest, cancellationToken);
+        var friendshipRequest = sender.SentRequests.ElementAt(0);
 
+        sender.RemoveFriendshipRequest(friendshipRequest);
+        await _repo.SaveChangesAsync(cancellationToken);
+        
         return friendshipRequest;
     }
 }

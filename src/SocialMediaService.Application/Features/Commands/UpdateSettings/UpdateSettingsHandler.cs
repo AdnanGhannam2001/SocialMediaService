@@ -17,14 +17,14 @@ public sealed class UpdateSettingsHandler : IRequestHandler<UpdateSettingsComman
 
     public async Task<Result<Settings>> Handle(UpdateSettingsCommand request, CancellationToken cancellationToken)
     {
-        var settings = await _repo.GetSettingsAsync(request.Id, cancellationToken);
+        var profile = await _repo.GetWithSettingsAsync(request.Id, cancellationToken);
 
-        if (settings is null)
+        if (profile is null)
         {
             return new RecordNotFoundException("Profile not found");
         }
 
-        settings.Update(request.LastName,
+        profile.Settings.Update(request.LastName,
             request.DateOfBirth,
             request.Gender,
             request.Phone,
@@ -36,6 +36,6 @@ public sealed class UpdateSettingsHandler : IRequestHandler<UpdateSettingsComman
 
         await _repo.SaveChangesAsync(cancellationToken);
 
-        return settings;
+        return profile.Settings;
     }
 }
