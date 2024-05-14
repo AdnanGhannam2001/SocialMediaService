@@ -4,10 +4,9 @@ using SocialMediaService.WebApi.Extensions;
 using SocialMediaService.WebApi.Implementaions;
 using SocialMediaService.WebApi.JsonConverters;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 
 var builder = WebApplication.CreateBuilder(args);
-
-var connectionString = builder.Configuration.GetConnectionString("PostgresConnection");
 
 builder.Services.AddControllers()
     .AddJsonOptions(opt => 
@@ -20,9 +19,9 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services
-    .AddPersistent(connectionString)
+    .AddPersistent(builder.Configuration.GetConnectionString("PostgresConnection"))
     .AddApplication()
-    .AddAuth()
+    .AddAuth(builder.Configuration.GetSection(nameof(OpenIdConnectOptions)))
     .AddGrpc();
 
 var app = builder.Build();
