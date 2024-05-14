@@ -18,11 +18,6 @@ public sealed class SendFriendshipRequestHandler : IRequestHandler<SendFriendshi
 
     public async  Task<Result<FriendshipRequest>> Handle(SendFriendshipRequestCommand request, CancellationToken cancellationToken)
     {
-        if (request.SenderId == request.ReceiverId)
-        {
-            return new DataValidationException(nameof(request.SenderId), "Sender and receiver can't be the same");
-        }
-
         if (await ProfileHelper.IsBlocked(_repo, request.SenderId, request.ReceiverId, cancellationToken))
         {
             return new RecordNotFoundException($"Profile is not found");

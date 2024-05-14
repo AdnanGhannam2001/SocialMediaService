@@ -4,7 +4,6 @@ using PR2.Shared.Common;
 using SocialMediaService.Application.Exceptions;
 using SocialMediaService.Domain.Aggregates.Profiles;
 using SocialMediaService.Persistent.Interfaces;
-using SocialMediaService.Persistent.Repositories;
 
 namespace SocialMediaService.Application.Features.Commands.CreateProfile;
 

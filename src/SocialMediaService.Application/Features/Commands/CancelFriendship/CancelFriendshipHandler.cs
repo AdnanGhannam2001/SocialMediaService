@@ -17,8 +17,8 @@ public sealed class CancelFriendshipHandler : IRequestHandler<CancelFriendshipCo
 
     public async Task<Result<Friendship>> Handle(CancelFriendshipCommand request, CancellationToken cancellationToken)
     {
-        var profile = await _repo.GetWithFriendshipAsync(request.Id1, request.Id2, cancellationToken);
-        var friend = await _repo.GetWithFriendshipAsync(request.Id2, request.Id1, cancellationToken);
+        var profile = await _repo.GetWithFriendshipAsync(request.ProfileId, request.FriendId, cancellationToken);
+        var friend = await _repo.GetWithFriendshipAsync(request.FriendId, request.ProfileId, cancellationToken);
 
         if (profile is null)
         {

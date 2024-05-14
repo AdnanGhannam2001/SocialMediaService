@@ -18,11 +18,6 @@ public sealed class FollowAccountHandler : IRequestHandler<FollowAccountCommand,
 
     public async Task<Result<Follow>> Handle(FollowAccountCommand request, CancellationToken cancellationToken)
     {
-        if (request.FollowerId == request.ProfileId)
-        {
-            return new DataValidationException(nameof(request.FollowerId), "Follower and profile to be followed can't be the same");
-        }
-
         if (await ProfileHelper.IsBlocked(_repo, request.FollowerId, request.ProfileId, cancellationToken))
         {
             return new RecordNotFoundException("Profile is blocked or not found");

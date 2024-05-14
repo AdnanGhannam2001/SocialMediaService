@@ -18,11 +18,6 @@ public sealed class AddToBlockListHandler : IRequestHandler<AddToBlockListComman
 
     public async Task<Result<Block>> Handle(AddToBlockListCommand request, CancellationToken cancellationToken)
     {
-        if (request.BlockerId == request.ProfileId)
-        {
-            return new DataValidationException(nameof(request.BlockerId), "Blocker and profile to be blocked can't be the same");
-        }
-
         var profile = await _repo.GetByIdAsync(request.ProfileId, cancellationToken);
 
         if (await ProfileHelper.IsBlocked(_repo, request.BlockerId, request.ProfileId, cancellationToken)

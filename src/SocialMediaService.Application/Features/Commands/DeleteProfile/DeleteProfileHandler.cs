@@ -6,7 +6,6 @@ using SocialMediaService.Application.Exceptions;
 using SocialMediaService.Application.Features.Commands.UpdateProfile;
 using SocialMediaService.Domain.Aggregates.Profiles;
 using SocialMediaService.Persistent.Interfaces;
-using SocialMediaService.Persistent.Repositories;
 
 namespace SocialMediaService.Application.Features.Commands.DeleteProfile;
 
