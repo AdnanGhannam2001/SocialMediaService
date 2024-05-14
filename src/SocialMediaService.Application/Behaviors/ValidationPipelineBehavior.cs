@@ -1,7 +1,8 @@
-using System.Diagnostics;
+using static System.Diagnostics.Debug;
 using FluentValidation;
 using MediatR;
 using PR2.Shared.Common;
+using PR2.Shared.Exceptions;
 
 namespace SocialMediaService.Application.Behaviors;
 
@@ -37,14 +38,14 @@ internal sealed class ValidationPipelineBehavior<TRequest, TResponse>
         var returnType = typeof(TResponse).GetGenericArguments()[0];
 
         var exceptions = validationResult.Errors
-            .Select(x => new ExceptionBase(x.PropertyName, x.ErrorMessage, x.ErrorCode))
+            .Select(x => new DataValidationException(x.PropertyName, x.ErrorMessage))
             .ToArray();
 
         var resultConstructed = typeof(Result<>).MakeGenericType(returnType);
 
         var result = Activator.CreateInstance(resultConstructed, new { exceptions });
 
-        Debug.Assert(result != null);
+        Assert(result != null);
 
         return (TResponse) result;
     }
