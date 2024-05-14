@@ -38,8 +38,35 @@ public sealed class AddToBlockListHandler : IRequestHandler<AddToBlockListComman
             return new DuplicatedRecordException("Profile is already blocked");
         }
 
+        // Delete Friendship Request
+        {
+            var p = await _repo.GetWithFriendshipRequestAsync(request.BlockerId, request.ProfileId, cancellationToken)
+                ?? await _repo.GetWithFriendshipRequestAsync(request.ProfileId, request.BlockerId, cancellationToken);
+
+            if (p!.Blocked.Count > 0) p.RemoveFriendshipRequest(p.SentRequests.ElementAt(0));
+        }
+
+        // Delete Friendship
+        {
+            var p = await _repo.GetWithFriendshipAsync(request.ProfileId, request.BlockerId, cancellationToken)
+                ?? await _repo.GetWithFriendshipAsync(request.BlockerId, request.ProfileId, cancellationToken);
+
+            if (p!.Friends.Count > 0) p.RemoveFriend(p.Friends.ElementAt(0));
+        }
+
+        // Delete Follow
+        {
+            var p = await _repo.GetWithFollowedAsync(request.BlockerId, request.ProfileId, cancellationToken);
+            if (p!.Following.Count > 0) p.RemoveFollow(p.Following.ElementAt(0));
+        }
+        {
+            var p = await _repo.GetWithFollowedAsync(request.ProfileId, request.BlockerId, cancellationToken);
+            if (p!.Following.Count > 0) p.RemoveFollow(p.Following.ElementAt(0));
+        }
+
         var block = new Block(blocker, profile, request.Reason);
         blocker.AddBlocked(block);
+
         await _repo.SaveChangesAsync(cancellationToken);
 
         return block;

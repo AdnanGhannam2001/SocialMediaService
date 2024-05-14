@@ -1,3 +1,4 @@
+using static System.Diagnostics.Debug;
 using MediatR;
 using PR2.Shared.Common;
 using PR2.Shared.Exceptions;
@@ -23,34 +24,39 @@ public sealed class SendFriendshipRequestHandler : IRequestHandler<SendFriendshi
             return new RecordNotFoundException($"Profile is not found");
         }
 
-        // FIXME
         // Check for Existed Friendship
-        // {
-        //     var friendship = await _repo.GetFriendshipAsync(request.SenderId, request.ReceiverId, cancellationToken);
-
-        //     if (friendship is not null)
-        //     {
-        //         return new DuplicatedRecordException("You're already a friend with this user");
-        //     }
-        // }
-
-        var sender = await _repo.GetWithFriendshipRequestAsync(request.SenderId, request.ReceiverId, cancellationToken);
-
-        ArgumentNullException.ThrowIfNull(sender);
-
-        if (sender.SentRequests.Count > 0)
         {
-            return new DuplicatedRecordException("You already sent a request to this user");
+            var sender = await _repo.GetWithFriendshipAsync(request.SenderId, request.ReceiverId, cancellationToken);
+
+            if (sender is not null && sender.SentRequests.Count > 0)
+            {
+                return new DuplicatedRecordException("You're already a friend with this user");
+            }
         }
 
-        var receiver = await _repo.GetByIdAsync(request.ReceiverId, cancellationToken);
+        // Send Friendship Request
+        {
+            var sender = await _repo.GetWithFriendshipRequestAsync(request.SenderId, request.ReceiverId, cancellationToken);
 
-        ArgumentNullException.ThrowIfNull(receiver);
+            if (sender is null)
+            {
+                return new RecordNotFoundException("Sender profile is not found");
+            }
 
-        var friendshipRequest = new FriendshipRequest(sender, receiver);
-        sender.AddFriendshipRequest(friendshipRequest);
-        await _repo.SaveChangesAsync(cancellationToken);
+            if (sender.SentRequests.Count > 0)
+            {
+                return new DuplicatedRecordException("You already sent a request to this user");
+            }
 
-        return friendshipRequest;
+            var receiver = await _repo.GetByIdAsync(request.ReceiverId, cancellationToken);
+
+            Assert(receiver is not null);
+
+            var friendshipRequest = new FriendshipRequest(sender, receiver);
+            sender.AddFriendshipRequest(friendshipRequest);
+            await _repo.SaveChangesAsync(cancellationToken);
+
+            return friendshipRequest;
+        }
     }
 }
