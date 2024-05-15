@@ -13,6 +13,4 @@ public sealed record UpdateProfileCommand(string Id,
     string? PhoneNumber = null,
     string? Bio = null,
     JobInformations? JobInformations = null,
-    string? Facebook = null,
-    string? Youtube = null,
-    string? Twitter = null) : ICommand<Profile>;
+    Socials? Socials = null) : ICommand<Profile>;

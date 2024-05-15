@@ -1,4 +1,5 @@
 using FluentValidation;
+using SocialMediaService.Domain.Aggregates.Profiles.ValueObjects;
 
 namespace SocialMediaService.Application.Features.Commands.CreateProfile;
 
@@ -22,5 +23,10 @@ public class CreateProfileValidator : AbstractValidator<CreateProfileCommand>
 
         RuleFor(x => x.Gender)
             .IsInEnum();
+
+        When(x => x.PhoneNumber is not null, () =>
+            RuleFor(x => x.PhoneNumber!.Value)
+                .NotEmpty()
+                .Must(PhoneNumber.IsValidPhoneNumber));
     }
 }

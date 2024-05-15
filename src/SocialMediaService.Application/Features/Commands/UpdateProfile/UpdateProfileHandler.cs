@@ -31,7 +31,6 @@ public sealed class UpdateProfileHandler : IRequestHandler<UpdateProfileCommand,
 
         try
         {
-            var socials = new Socials(request.Facebook, request.Youtube, request.Twitter);
             profile.Update(request.FirstName,
                 request.LastName,
                 request.DateOfBirth,
@@ -39,7 +38,7 @@ public sealed class UpdateProfileHandler : IRequestHandler<UpdateProfileCommand,
                 request.PhoneNumber,
                 request.Bio,
                 request.JobInformations,
-                socials);
+                request.Socials);
 
             await _repo.SaveChangesAsync(cancellationToken);
 
