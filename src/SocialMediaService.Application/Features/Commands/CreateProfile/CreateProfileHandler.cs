@@ -1,6 +1,8 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
+using Npgsql;
 using PR2.Shared.Common;
+using PR2.Shared.Exceptions;
 using SocialMediaService.Application.Exceptions;
 using SocialMediaService.Domain.Aggregates.Profiles;
 using SocialMediaService.Persistent.Interfaces;
@@ -43,7 +45,13 @@ public sealed class CreateProfileHandler : IRequestHandler<CreateProfileCommand,
         }
         catch (Exception exp)
         {
-            _logger.LogCritical("[Application] {Message}\n{StackTrace}", exp.Message, exp.StackTrace);
+            _logger.LogError("[Application] {Message}\n{StackTrace}", exp.Message, exp.StackTrace);
+
+            if (exp is PostgresException pe)
+            {
+                return new DataValidationException(pe.ColumnName ?? pe.ConstraintName ?? pe.ErrorCode.ToString(), pe.MessageText);
+            }
+
             return new UnexpectedException();
         }
     }
