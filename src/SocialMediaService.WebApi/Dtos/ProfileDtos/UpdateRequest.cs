@@ -10,6 +10,4 @@ public record UpdateRequest(string? FirstName = null,
     string? PhoneNumber = null,
     string? Bio = null,
     JobInformations? JobInformations = null,
-    string? Facebook = null,
-    string? Youtube = null,
-    string? Twitter = null);
+    Socials? Socials = null);

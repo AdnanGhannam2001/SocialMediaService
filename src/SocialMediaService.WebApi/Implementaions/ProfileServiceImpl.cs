@@ -19,23 +19,12 @@ public sealed class ProfileServiceImpl : ProfileService.ProfileServiceBase
 
     public override async Task<Empty> CreateProfile(CreateProfileRequest request, ServerCallContext context)
     {
-        PhoneNumber? phoneNumber;
-
-        try
-        {
-            phoneNumber = string.IsNullOrEmpty(request.PhoneNumber) ? null : new PhoneNumber(request.PhoneNumber);
-        }
-        catch (InvalidPhoneNumberException exp)
-        {
-            throw new RpcException(new Status(StatusCode.InvalidArgument, exp.Message));
-        }
-
         if (await _mediator.Send(new CreateProfileCommand(request.Id,
                 request.FirstName,
                 request.LastName,
                 request.DateOfBirth.ToDateTime(),
                 (Domain.Enums.Genders) request.Gender,
-                phoneNumber))
+                request.HasPhoneNumber ? new PhoneNumber(request.PhoneNumber) : null))
                     is var result && result == false)
         {
             var errors = result.Exceptions.Select(x => x.Message);

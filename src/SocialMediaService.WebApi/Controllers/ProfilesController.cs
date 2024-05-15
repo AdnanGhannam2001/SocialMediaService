@@ -64,9 +64,7 @@ public sealed class ProfilesController : ControllerBase
             request.PhoneNumber,
             request.Bio,
             request.JobInformations,
-            request.Facebook,
-            request.Youtube,
-            request.Twitter));
+            request.Socials));
 
         return this.GetFromResult(result);
     }
