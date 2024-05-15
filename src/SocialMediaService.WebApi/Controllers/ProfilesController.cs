@@ -118,7 +118,7 @@ public sealed class ProfilesController : ControllerBase
     {
         var result = await _mediator.Send(new AddToBlockListCommand(User.GetId()!, profileId, reason));
 
-        return this.GetFromResult(result);
+        return this.GetFromResult(result, StatusCodes.Status201Created);
     }
 
     [HttpDelete("{id}/block")]
@@ -168,7 +168,7 @@ public sealed class ProfilesController : ControllerBase
     {
         var result = await _mediator.Send(new FollowAccountCommand(User.GetId()!, profileId));
 
-        return this.GetFromResult(result);
+        return this.GetFromResult(result, StatusCodes.Status201Created);
     }
 
     [HttpDelete("{id}/follow")]
@@ -216,7 +216,7 @@ public sealed class ProfilesController : ControllerBase
     {
         var result = await _mediator.Send(new SendFriendshipRequestCommand(User.GetId()!, profileId));
 
-        return this.GetFromResult(result);
+        return this.GetFromResult(result, StatusCodes.Status201Created);
     }
 
     [HttpDelete("{id}/request")]
@@ -232,7 +232,7 @@ public sealed class ProfilesController : ControllerBase
     {
         var result = await _mediator.Send(new RespondToFriendshipRequestCommand(profileId, User.GetId()!, aggreed));
 
-        return this.GetFromResult(result);
+        return this.GetFromResult(result, 204);
     }
     #endregion // Friendship Request
 

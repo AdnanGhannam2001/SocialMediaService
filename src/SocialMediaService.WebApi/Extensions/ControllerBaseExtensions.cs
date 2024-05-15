@@ -6,12 +6,12 @@ namespace SocialMediaService.WebApi.Extensions;
 
 internal static class ControllerBaseExtensions
 {
-    public static IActionResult GetFromResult<T>(this ControllerBase controller, Result<T> result)
+    public static IActionResult GetFromResult<T>(this ControllerBase controller, Result<T> result, int successCode = 200)
         where T : notnull
     {
         if (result.IsSuccess)
         {
-            return controller.Ok(result.Value);
+            return controller.StatusCode(successCode, result.Value);
         }
 
         if (result.Exceptions.Length > 1)
