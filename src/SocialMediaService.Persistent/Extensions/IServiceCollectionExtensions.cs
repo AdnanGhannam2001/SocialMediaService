@@ -15,6 +15,7 @@ public static class IServiceCollectionExtensions
             .AddDbContext<ApplicationDbContext>(config => config.UseNpgsql(sqlConnection))
             .AddScoped(typeof(IReadRepository<,>), typeof(EfRepository<,>))
             .AddScoped(typeof(IWriteRepository<,>), typeof(EfRepository<,>))
-            .AddScoped(typeof(IProfileRepository), typeof(ProfileEfRepository));
+            .AddScoped(typeof(IProfileRepository), typeof(ProfileEfRepository))
+            .AddScoped(typeof(IPostRepository), typeof(PostEfRepository));
     }
 }

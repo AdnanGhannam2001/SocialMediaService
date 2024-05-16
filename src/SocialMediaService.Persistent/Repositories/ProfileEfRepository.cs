@@ -11,12 +11,7 @@ namespace SocialMediaService.Persistent.Repositories;
 public sealed class ProfileEfRepository
     : EfRepository<Profile, string>, IProfileRepository
 {
-    private readonly ApplicationDbContext _context;
-
-    public ProfileEfRepository(ApplicationDbContext context) : base(context)
-    {
-        _context = context;
-    }
+    public ProfileEfRepository(ApplicationDbContext context) : base(context) { }
 
     #region Settings
     public Task<Profile?> GetWithSettingsAsync(string id, CancellationToken cancellationToken = default)
