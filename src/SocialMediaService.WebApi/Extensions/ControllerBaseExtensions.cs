@@ -22,6 +22,7 @@ internal static class ControllerBaseExtensions
         return result.Exceptions[0] switch
         {
             RecordNotFoundException e => controller.NotFound(e),
+            UnauthorizedException e => controller.Unauthorized(e),
             _ => controller.BadRequest(result.Exceptions[0])
         };
     }

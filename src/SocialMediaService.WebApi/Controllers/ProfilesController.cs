@@ -26,7 +26,7 @@ namespace SocialMediaService.WebApi.Controllers;
 
 [Authorize]
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 public sealed class ProfilesController : ControllerBase
 {
     private readonly IMediator _mediator;
