@@ -56,4 +56,11 @@ public sealed class Post : AggregateRoot
     public IReadOnlyCollection<Profile> HiddenBy => _hiddenBy;
     public IReadOnlyCollection<Reaction> Reactions => _reactions;
     public IReadOnlyCollection<Comment> Comments => _comments;
+
+    public void Update(string content, PostVisibilities visibility, Media? media = null)
+    {
+        Content = content;
+        Visibility = visibility;
+        Media = media;
+    }
 }
