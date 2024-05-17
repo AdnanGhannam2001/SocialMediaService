@@ -63,4 +63,14 @@ public sealed class Post : AggregateRoot
         Visibility = visibility;
         Media = media;
     }
+
+    public void HideTo(Profile profile)
+    {
+        _hiddenBy.Add(profile);
+    }
+
+    public void UnhideTo(Profile profile)
+    {
+        _hiddenBy.Remove(profile);
+    }
 }
