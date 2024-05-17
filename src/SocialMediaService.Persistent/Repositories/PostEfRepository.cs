@@ -11,6 +11,7 @@ public sealed class PostEfRepository : EfRepository<Post, string>, IPostReposito
 {
     public PostEfRepository(ApplicationDbContext context) : base(context) { }
 
+    #region Hidden
     public async Task<Page<Post>> GetHiddenPageAsync(string profileId, PageRequest<Post> request, CancellationToken cancellationToken = default)
     {
         var query = Queryable
@@ -40,4 +41,12 @@ public sealed class PostEfRepository : EfRepository<Post, string>, IPostReposito
             .SelectMany(x => x.HiddenBy.Where(x => x.Id.Equals(profileId)))
             .CountAsync(cancellationToken);
     }
+
+    public Task<Post?> GetWithHiddenAsync(string postId, string profileId, CancellationToken cancellationToken = default)
+    {
+        return Queryable
+            .Include(x => x.HiddenBy.Where(x => x.Id.Equals(profileId)))
+            .FirstOrDefaultAsync(x => x.Id.Equals(postId), cancellationToken);
+    }
+    #endregion // Hidden
 }
