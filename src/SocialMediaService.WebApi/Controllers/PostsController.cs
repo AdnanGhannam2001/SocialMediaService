@@ -1,9 +1,14 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using PR2.Shared.Common;
 using SocialMediaService.Application.Features.Commands.CreatePost;
 using SocialMediaService.Application.Features.Commands.DeletePost;
+using SocialMediaService.Application.Features.Commands.HidePost;
+using SocialMediaService.Application.Features.Commands.UnhidePost;
 using SocialMediaService.Application.Features.Commands.UpdatePost;
+using SocialMediaService.Application.Features.Queries.GetHiddenPosts;
+using SocialMediaService.Domain.Aggregates.Posts;
 using SocialMediaService.WebApi.Dtos.PostDtos;
 using SocialMediaService.WebApi.Extensions;
 namespace SocialMediaService.WebApi.Controllers;
@@ -39,12 +44,41 @@ public sealed class PostsController : ControllerBase
         return this.GetFromResult(result);
     }
 
-
-    [HttpDelete("{id}")]
     public async Task<IActionResult> Delete([FromRoute] string id)
     {
         var result = await _mediator.Send(new DeletePostCommand(User.GetId()!, id));
 
+        return this.GetFromResult(result);
+    }
+
+    [HttpGet("hidden")]
+    public async Task<IActionResult> Hidden([FromQuery] int pageNumber = 0,
+        [FromQuery] int pageSize = 20,
+        [FromQuery] string search = "")
+    {
+       var pageRequest = new PageRequest<Post>(pageNumber,
+            pageSize,
+            x => x.Content.Contains(search),
+            x => x.UpdatedAtUtc);
+
+        var result = await _mediator.Send(new GetHiddenPostsQuery(User.GetId()!, pageRequest));
+
+        return this.GetFromResult(result);
+    }
+
+    [HttpPost("{id}/hide")]
+    public async Task<IActionResult> Hide([FromRoute(Name = "id")] string postId)
+    {
+        var result = await _mediator.Send(new HidePostCommand(User.GetId()!, postId));
+        
+        return this.GetFromResult(result);
+    }
+
+    [HttpDelete("{id}/unhide")]
+    public async Task<IActionResult> Unhide([FromRoute(Name = "id")] string postId)
+    {
+        var result = await _mediator.Send(new UnhidePostCommand(User.GetId()!, postId));
+        
         return this.GetFromResult(result);
     }
 }
