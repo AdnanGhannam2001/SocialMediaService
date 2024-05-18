@@ -5,10 +5,14 @@ using PR2.Shared.Common;
 using SocialMediaService.Application.Features.Commands.CreatePost;
 using SocialMediaService.Application.Features.Commands.DeletePost;
 using SocialMediaService.Application.Features.Commands.HidePost;
+using SocialMediaService.Application.Features.Commands.ReactToPost;
 using SocialMediaService.Application.Features.Commands.UnhidePost;
+using SocialMediaService.Application.Features.Commands.UnreactToPost;
 using SocialMediaService.Application.Features.Commands.UpdatePost;
 using SocialMediaService.Application.Features.Queries.GetHiddenPosts;
+using SocialMediaService.Application.Features.Queries.GetReactionsPage;
 using SocialMediaService.Domain.Aggregates.Posts;
+using SocialMediaService.Domain.Enums;
 using SocialMediaService.WebApi.Dtos.PostDtos;
 using SocialMediaService.WebApi.Extensions;
 namespace SocialMediaService.WebApi.Controllers;
@@ -79,6 +83,40 @@ public sealed class PostsController : ControllerBase
     {
         var result = await _mediator.Send(new UnhidePostCommand(User.GetId()!, postId));
         
+        return this.GetFromResult(result);
+    }
+
+    [AllowAnonymous]
+    [HttpGet("{id}")]
+    public async Task<IActionResult> Reactions([FromRoute(Name = "id")] string postId,
+        [FromQuery] int pageNumber = 0,
+        [FromQuery] int pageSize = 20,
+        [FromQuery] ReactionTypes type = ReactionTypes.Like)
+    {
+        var pageRequest = new PageRequest<Reaction>(pageNumber,
+            pageSize,
+            x => x.Type.Equals(type),
+            x => x.ReactedAtUtc);
+
+        var result = await _mediator.Send(new GetReactionsPageQuery(postId, pageRequest, User.GetId()));
+
+        return this.GetFromResult(result);
+    }
+
+    [HttpPost("{id}/react")]
+    public async Task<IActionResult> React([FromRoute(Name = "id")] string postId,
+        [FromQuery] ReactionTypes type = ReactionTypes.Like)
+    {
+        var result = await _mediator.Send(new ReactToPostCommand(User.GetId()!, postId, type));
+
+        return this.GetFromResult(result);
+    }
+
+    [HttpDelete("{id}/unreact")]
+    public async Task<IActionResult> Unreact([FromRoute(Name = "id")] string postId)
+    {
+        var result = await _mediator.Send(new UnreactToPostCommand(User.GetId()!, postId));
+
         return this.GetFromResult(result);
     }
 }
