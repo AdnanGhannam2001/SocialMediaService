@@ -73,4 +73,14 @@ public sealed class Post : AggregateRoot
     {
         _hiddenBy.Remove(profile);
     }
+
+    public void React(Reaction reaction)
+    {
+        _reactions.Add(reaction);
+    }
+
+    public void Unreact(Reaction reaction)
+    {
+        _reactions.Remove(reaction);
+    }
 }

@@ -29,4 +29,9 @@ public sealed class Reaction
 
     public ReactionTypes Type { get; private set; }
     public DateTime ReactedAtUtc { get; private set; }
+
+    public void Update(ReactionTypes type)
+    {
+        Type = type;
+    }
 }
