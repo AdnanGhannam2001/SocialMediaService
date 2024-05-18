@@ -13,4 +13,11 @@ public interface IPostRepository
 
     Task<Post?> GetWithHiddenAsync(string postId, string profileId, CancellationToken cancellationToken = default);
     #endregion // Hidden
+
+    #region Reaction
+    Task<Page<Reaction>> GetReactionsPageAsync(string postId, PageRequest<Reaction> request, CancellationToken cancellationToken = default);
+    Task<int> CountReactionsAsync(string postId, Expression<Func<Reaction, bool>>? predicate = null, CancellationToken cancellationToken = default);
+    
+    Task<Post?> GetWithReactionAsync(string postId, string profileId, CancellationToken cancellationToken = default);
+    #endregion // Reaction
 }

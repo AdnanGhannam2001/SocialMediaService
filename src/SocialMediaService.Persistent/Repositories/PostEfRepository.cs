@@ -49,4 +49,45 @@ public sealed class PostEfRepository : EfRepository<Post, string>, IPostReposito
             .FirstOrDefaultAsync(x => x.Id.Equals(postId), cancellationToken);
     }
     #endregion // Hidden
+
+    #region Reaction
+    public async Task<Page<Reaction>> GetReactionsPageAsync(string postId, PageRequest<Reaction> request, CancellationToken cancellationToken = default)
+    {
+        var query = Queryable
+            .AsNoTracking()
+            .Where(x => x.Id.Equals(postId))
+            .SelectMany(x => x.Reactions)
+            .Where(request.Predicate ?? (_ => true));
+
+        var orderQuery = request.KeySelector is not null
+            ? request.Desc
+                ? query.OrderByDescending(request.KeySelector)
+                : query.OrderBy(request.KeySelector)
+            : request.Desc
+                ? query.OrderDescending()
+                : query.Order();
+
+        query = orderQuery
+            .Skip(request.PageNumber * request.PageSize)
+            .Take(request.PageSize);
+
+        var total = await CountReactionsAsync(postId, request.Predicate, cancellationToken);
+
+        return new (query.ToList(), total);
+    }
+
+    public Task<int> CountReactionsAsync(string postId, Expression<Func<Reaction, bool>>? predicate = null, CancellationToken cancellationToken = default)
+    {
+        return Queryable
+            .SelectMany(x => x.Reactions)
+            .CountAsync(predicate ?? (_ => true), cancellationToken);
+    }
+    
+    public Task<Post?> GetWithReactionAsync(string postId, string profileId, CancellationToken cancellationToken = default)
+    {
+        return Queryable
+            .Include(x => x.Reactions.Where(x => x.ProfileId.Equals(profileId) && x.PostId.Equals(postId)))
+            .FirstOrDefaultAsync(x => x.Id.Equals(postId), cancellationToken);
+    }
+    #endregion // Reaction
 }
