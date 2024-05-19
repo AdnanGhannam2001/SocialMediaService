@@ -60,4 +60,14 @@ public sealed class Comment : Entity
     public string Content { get; private set; }
 
     public IReadOnlyCollection<Comment> Replies => _replies;
+
+    public void AddReply(Comment comment)
+    {
+        _replies.Add(comment);
+    }
+
+    public void RemoveReply(Comment comment)
+    {
+        _replies.Remove(comment);
+    }
 }

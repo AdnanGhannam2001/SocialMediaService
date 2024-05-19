@@ -83,4 +83,14 @@ public sealed class Post : AggregateRoot
     {
         _reactions.Remove(reaction);
     }
+
+    public void AddComment(Comment comment)
+    {
+        _comments.Add(comment);
+    }
+
+    public void RemoveComment(Comment comment)
+    {
+        _comments.Remove(comment);
+    }
 }
