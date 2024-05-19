@@ -20,4 +20,12 @@ public interface IPostRepository
     
     Task<Post?> GetWithReactionAsync(string postId, string profileId, CancellationToken cancellationToken = default);
     #endregion // Reaction
+
+    #region Comment
+    Task<Page<Comment>> GetCommentsPageAsync(string postId, string? parentId, PageRequest<Comment> request, CancellationToken cancellationToken = default);
+    Task<int> CountCommentsAsync(string postId, string? parentId, Expression<Func<Comment, bool>>? predicate = null, CancellationToken cancellationToken = default);
+    
+    Task<Post?> GetWithCommentAsync(string postId, string commentId, CancellationToken cancellationToken = default);
+    Task<Post?> GetWithReplyAsync(string postId, string commentId, string replyId, CancellationToken cancellationToken = default);
+    #endregion // Comment
 }

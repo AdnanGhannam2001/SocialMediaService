@@ -90,4 +90,65 @@ public sealed class PostEfRepository : EfRepository<Post, string>, IPostReposito
             .FirstOrDefaultAsync(x => x.Id.Equals(postId), cancellationToken);
     }
     #endregion // Reaction
+
+    #region Comment
+    public async Task<Page<Comment>> GetCommentsPageAsync(string postId, string? parentId, PageRequest<Comment> request, CancellationToken cancellationToken = default)
+    {
+        var postQuery = Queryable
+            .AsNoTracking()
+            .Where(x => x.Id.Equals(postId));
+
+        var query = parentId is null
+            ? postQuery
+                .SelectMany(x => x.Comments)
+                .Where(request.Predicate ?? (_ => true))
+            : postQuery
+                .Include(x => x.Comments)
+                .SelectMany(x => x.Comments.Where(x => x.Id.Equals(parentId)))
+                .SelectMany(x => x.Replies)
+                .Where(request.Predicate ?? (_ => true));
+
+        var orderQuery = request.Desc
+                ? query.OrderByDescending(request.KeySelector ?? (x => x.CreatedAtUtc))
+                : query.OrderBy(request.KeySelector ?? (x => x.CreatedAtUtc));
+
+        query = orderQuery
+            .Skip(request.PageNumber * request.PageSize)
+            .Take(request.PageSize);
+
+        var total = await CountCommentsAsync(postId, parentId, request.Predicate, cancellationToken);
+
+        return new (query.ToList(), total);
+    }
+
+    public Task<int> CountCommentsAsync(string postId, string? parentId, Expression<Func<Comment, bool>>? predicate = null, CancellationToken cancellationToken = default)
+    {
+        var postQuery = Queryable
+            .Where(x => x.Id.Equals(postId));
+
+        var query = parentId is null
+            ? postQuery.SelectMany(x => x.Comments)
+            : postQuery
+                .Include(x => x.Comments)
+                .SelectMany(x => x.Comments.Where(x => x.Id.Equals(parentId)))
+                .SelectMany(x => x.Replies);
+
+        return query.CountAsync(predicate ?? (_ => true), cancellationToken);
+    }
+
+    public Task<Post?> GetWithCommentAsync(string postId, string commentId, CancellationToken cancellationToken = default)
+    {
+        return Queryable
+            .Include(x => x.Comments.Where(x => x.Id.Equals(commentId)))
+            .FirstOrDefaultAsync(x => x.Id.Equals(postId), cancellationToken);
+    }
+
+    public Task<Post?> GetWithReplyAsync(string postId, string commentId, string replyId, CancellationToken cancellationToken = default)
+    {
+        return Queryable
+            .Include(x => x.Comments.Where(x => x.Id.Equals(commentId)))
+                .ThenInclude(x => x.Replies.Where(x => x.Id.Equals(replyId)))
+            .FirstOrDefaultAsync(x => x.Id.Equals(postId), cancellationToken);
+    }
+    #endregion // Comment
 }
