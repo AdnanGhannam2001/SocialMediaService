@@ -2,13 +2,16 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PR2.Shared.Common;
+using SocialMediaService.Application.Features.Commands.AddComment;
 using SocialMediaService.Application.Features.Commands.CreatePost;
 using SocialMediaService.Application.Features.Commands.DeletePost;
 using SocialMediaService.Application.Features.Commands.HidePost;
 using SocialMediaService.Application.Features.Commands.ReactToPost;
+using SocialMediaService.Application.Features.Commands.RemoveComment;
 using SocialMediaService.Application.Features.Commands.UnhidePost;
 using SocialMediaService.Application.Features.Commands.UnreactToPost;
 using SocialMediaService.Application.Features.Commands.UpdatePost;
+using SocialMediaService.Application.Features.Queries.GetCommentsPage;
 using SocialMediaService.Application.Features.Queries.GetHiddenPosts;
 using SocialMediaService.Application.Features.Queries.GetReactionsPage;
 using SocialMediaService.Domain.Aggregates.Posts;
@@ -87,7 +90,7 @@ public sealed class PostsController : ControllerBase
     }
 
     [AllowAnonymous]
-    [HttpGet("{id}")]
+    [HttpGet("{id}/reactions")]
     public async Task<IActionResult> Reactions([FromRoute(Name = "id")] string postId,
         [FromQuery] int pageNumber = 0,
         [FromQuery] int pageSize = 20,
@@ -116,6 +119,45 @@ public sealed class PostsController : ControllerBase
     public async Task<IActionResult> Unreact([FromRoute(Name = "id")] string postId)
     {
         var result = await _mediator.Send(new UnreactToPostCommand(User.GetId()!, postId));
+
+        return this.GetFromResult(result);
+    }
+
+
+    [AllowAnonymous]
+    [HttpGet("{id}/comments")]
+    public async Task<IActionResult> Comments([FromRoute(Name = "id")] string postId,
+        [FromQuery] string? parentId = null,
+        [FromQuery] int pageNumber = 0,
+        [FromQuery] int pageSize = 20,
+        [FromQuery] string search = "")
+    {
+        var pageRequest = new PageRequest<Comment>(pageNumber,
+            pageSize,
+            x => x.Content.Contains(search),
+            x => x.CreatedAtUtc);
+
+        var result = await _mediator.Send(new GetCommentsPageQuery(postId, parentId, User.GetId(), pageRequest));
+
+        return this.GetFromResult(result);
+    }
+
+    [HttpPost("{id}")]
+    public async Task<IActionResult> Comment([FromRoute(Name = "id")] string postId,
+        [FromBody] string content,
+        [FromQuery] string? parentId = null)
+    {
+        var result = await _mediator.Send(new AddCommentCommand(postId, parentId, User.GetId()!, content));
+
+        return this.GetFromResult(result);
+    }
+
+    [HttpDelete("{id}/comments/{commentId}")]
+    public async Task<IActionResult> RemoveComment([FromRoute(Name = "id")] string postId,
+        [FromRoute] string commentId,
+        [FromQuery] string? parentId = null)
+    {
+        var result = await _mediator.Send(new RemoveCommentCommand(postId, parentId, commentId, User.GetId()!));
 
         return this.GetFromResult(result);
     }
