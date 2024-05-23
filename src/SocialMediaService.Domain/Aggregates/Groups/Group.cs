@@ -47,4 +47,24 @@ public sealed class Group : AggregateRoot
     public IReadOnlyCollection<Invite> Invites => _invites;
     public IReadOnlyCollection<Discussion> Discussions => _discussions;
     public IReadOnlyCollection<Post> Posts => _posts;
+
+    public void AddJoinRequest(JoinRequest request)
+    {
+        _joinRequests.Add(request);
+    }
+
+    public void RemoveJoinRequest(JoinRequest request)
+    {
+        _joinRequests.Remove(request);
+    }
+
+    public void AddMember(Member member)
+    {
+        _members.Add(member);
+    }
+
+    public void RemoveMember(Member member)
+    {
+        _members.Remove(member);
+    }
 }
