@@ -1,3 +1,4 @@
+using PR2.Shared.Enums;
 using SocialMediaService.Domain.Aggregates.Groups.ValueObjects;
 using SocialMediaService.Domain.Aggregates.Posts;
 using SocialMediaService.Domain.Bases;
@@ -47,6 +48,37 @@ public sealed class Group : AggregateRoot
     public IReadOnlyCollection<Invite> Invites => _invites;
     public IReadOnlyCollection<Discussion> Discussions => _discussions;
     public IReadOnlyCollection<Post> Posts => _posts;
+
+    public void Update(string? name = null,
+        string? description = null,
+        MemberRoleTypes? inviterRole = null,
+        MemberRoleTypes? postingRole = null,
+        MemberRoleTypes? editDetailsRole = null,
+        GroupVisibilities? visibility = null,
+        string? image = null,
+        string? coverImage = null)
+    {
+        Name = name ?? Name;
+        Description = description ?? Description;
+
+        Settings = new GroupSettings(inviterRole ?? Settings.InviterRole,
+            postingRole ?? Settings.PostingRole,
+            editDetailsRole ?? Settings.EditDetailsRole);
+
+        Visibility = visibility ?? Visibility;
+
+        Image = image is null
+            ? Image
+            : image == string.Empty
+                ? Image = null
+                : new Uri(image);
+
+        CoverImage = coverImage is null
+            ? CoverImage
+            : coverImage == string.Empty
+                ? CoverImage = null
+                : new Uri(coverImage);
+    }
 
     public void AddJoinRequest(JoinRequest request)
     {

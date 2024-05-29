@@ -9,13 +9,15 @@ public sealed class Member
     private Member() { }
     #pragma warning restore CS8618
 
-    public Member(Group group, Profile profile)
+    public Member(Group group, Profile profile, MemberRoleTypes role = MemberRoleTypes.Normal)
     {
         GroupId = group.Id;
         Group = group;
 
         ProfileId = profile.Id;
         Profile = profile;
+
+        Role = role;
 
         JointAtUtc = DateTime.UtcNow;
     }
