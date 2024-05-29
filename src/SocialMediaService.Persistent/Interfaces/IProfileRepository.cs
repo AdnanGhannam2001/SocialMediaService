@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using PR2.Shared.Common;
+using SocialMediaService.Domain.Aggregates.Groups;
 using SocialMediaService.Domain.Aggregates.Profiles;
 
 namespace SocialMediaService.Persistent.Interfaces;
@@ -12,26 +13,26 @@ public interface IProfileRepository
     #endregion // Settings
 
     #region Friendship
-    Task<Page<Friendship>> GetFriendshipsPageAsync(string userId,
+    Task<Page<Friendship>> GetFriendshipsPageAsync(string profileId,
         PageRequest<Friendship> request,
         CancellationToken cancellationToken = default);
 
     Task<Profile?> GetWithFriendshipAsync(string profileId, string friendId, CancellationToken cancellationToken = default);
 
-    Task<int> CountFriendshipsAsync(string userId, Expression<Func<Friendship, bool>>? predicate = null, CancellationToken cancellationToken = default);
+    Task<int> CountFriendshipsAsync(string profileId, Expression<Func<Friendship, bool>>? predicate = null, CancellationToken cancellationToken = default);
     #endregion // Friendship
 
     #region Friendship Requests
-    Task<Page<FriendshipRequest>> GetSentFriendshipRequestsPageAsync(string userId, PageRequest<FriendshipRequest> request, CancellationToken cancellationToken = default);
-    Task<Page<FriendshipRequest>> GetReceivedFriendshipRequestsPageAsync(string userId, PageRequest<FriendshipRequest> request, CancellationToken cancellationToken = default);
+    Task<Page<FriendshipRequest>> GetSentFriendshipRequestsPageAsync(string profileId, PageRequest<FriendshipRequest> request, CancellationToken cancellationToken = default);
+    Task<Page<FriendshipRequest>> GetReceivedFriendshipRequestsPageAsync(string profileId, PageRequest<FriendshipRequest> request, CancellationToken cancellationToken = default);
 
     Task<Profile?> GetWithFriendshipRequestAsync(string senderId, string receiverId, CancellationToken cancellationToken = default);
 
-    Task<int> CountSentFriendshipsRequestAsync(string userId,
+    Task<int> CountSentFriendshipsRequestAsync(string profileId,
         Expression<Func<FriendshipRequest, bool>>? predicate = null,
         CancellationToken cancellationToken = default);
 
-    Task<int> CountReceivedFriendshipsRequestAsync(string userId,
+    Task<int> CountReceivedFriendshipsRequestAsync(string profileId,
         Expression<Func<FriendshipRequest, bool>>? predicate = null,
         CancellationToken cancellationToken = default);
     #endregion // Friendship Requests
@@ -51,4 +52,12 @@ public interface IProfileRepository
         Expression<Func<Follow, bool>>? predicate = null,
         CancellationToken cancellationToken = default);
     #endregion // Follow
+
+    #region Invite
+    Task<Profile?> GetWithInviteAsync(string profileId, string groupId, string senderId, CancellationToken cancellationToken = default);
+    Task<Page<Invite>> GetInvitesPageAsync(string profileId, PageRequest<Invite> request, CancellationToken cancellationToken = default);
+    Task<int> CountInvitesAsync(string profileId,
+        Expression<Func<Invite, bool>>? predicate = null,
+        CancellationToken cancellationToken = default);
+    #endregion // Invite
 }

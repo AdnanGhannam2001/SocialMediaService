@@ -2,6 +2,7 @@ using System.Data;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using PR2.Shared.Common;
+using SocialMediaService.Domain.Aggregates.Groups;
 using SocialMediaService.Domain.Aggregates.Profiles;
 using SocialMediaService.Persistent.Data;
 using SocialMediaService.Persistent.Interfaces;
@@ -23,14 +24,14 @@ public sealed class ProfileEfRepository
     #endregion // Settings
 
     #region Friendship
-    public async Task<Page<Friendship>> GetFriendshipsPageAsync(string userId,
+    public async Task<Page<Friendship>> GetFriendshipsPageAsync(string profileId,
         PageRequest<Friendship> request,
         CancellationToken cancellationToken = default)
     {
         var query = Queryable
             .AsNoTracking()
             .SelectMany(x => x.Friends)
-            .Where(x => x.FriendId.Equals(userId) || x.ProfileId.Equals(userId))
+            .Where(x => x.FriendId.Equals(profileId) || x.ProfileId.Equals(profileId))
             .Where(request.Predicate ?? (_ => true));
 
         var orderQuery = request.KeySelector is not null
@@ -47,7 +48,7 @@ public sealed class ProfileEfRepository
             .Skip(request.PageNumber * request.PageSize)
             .Take(request.PageSize);
 
-        var total = await CountFriendshipsAsync(userId, request.Predicate, cancellationToken);
+        var total = await CountFriendshipsAsync(profileId, request.Predicate, cancellationToken);
 
         return new (query.ToList(), total);
     }
@@ -60,25 +61,25 @@ public sealed class ProfileEfRepository
             .FirstOrDefaultAsync(x => x.Id.Equals(profileId), cancellationToken);
     }
 
-    public Task<int> CountFriendshipsAsync(string userId,
+    public Task<int> CountFriendshipsAsync(string profileId,
         Expression<Func<Friendship, bool>>? predicate = null,
         CancellationToken cancellationToken = default)
     {
         return Queryable
-            .Where(x => x.Id.Equals(userId))
+            .Where(x => x.Id.Equals(profileId))
             .SelectMany(x => x.Friends)
             .CountAsync(predicate ?? (_ => true), cancellationToken);
     }
     #endregion
 
     #region Friendship Requests
-    public async Task<Page<FriendshipRequest>> GetSentFriendshipRequestsPageAsync(string userId,
+    public async Task<Page<FriendshipRequest>> GetSentFriendshipRequestsPageAsync(string profileId,
         PageRequest<FriendshipRequest> request,
         CancellationToken cancellationToken = default)
     {
         var query = Queryable
             .AsNoTracking()
-            .Where(x => x.Id.Equals(userId))
+            .Where(x => x.Id.Equals(profileId))
             .SelectMany(x => x.SentRequests)
             .Where(request.Predicate ?? (_ => true));
 
@@ -95,18 +96,18 @@ public sealed class ProfileEfRepository
             .Skip(request.PageNumber * request.PageSize)
             .Take(request.PageSize);
 
-        var total = await CountSentFriendshipsRequestAsync(userId, request.Predicate, cancellationToken);
+        var total = await CountSentFriendshipsRequestAsync(profileId, request.Predicate, cancellationToken);
 
         return new (query.ToList(), total);
     }
 
-    public async Task<Page<FriendshipRequest>> GetReceivedFriendshipRequestsPageAsync(string userId,
+    public async Task<Page<FriendshipRequest>> GetReceivedFriendshipRequestsPageAsync(string profileId,
         PageRequest<FriendshipRequest> request,
         CancellationToken cancellationToken = default)
     {
         var query = Queryable
             .AsNoTracking()
-            .Where(x => x.Id.Equals(userId))
+            .Where(x => x.Id.Equals(profileId))
             .SelectMany(x => x.ReceivedRequests)
             .Where(request.Predicate ?? (_ => true));
 
@@ -123,7 +124,7 @@ public sealed class ProfileEfRepository
             .Skip(request.PageNumber * request.PageSize)
             .Take(request.PageSize);
 
-        var total = await CountReceivedFriendshipsRequestAsync(userId, request.Predicate, cancellationToken);
+        var total = await CountReceivedFriendshipsRequestAsync(profileId, request.Predicate, cancellationToken);
 
         return new (query.ToList(), total);
     }
@@ -136,22 +137,22 @@ public sealed class ProfileEfRepository
             .FirstOrDefaultAsync(x => x.Id.Equals(senderId), cancellationToken: cancellationToken);
     }
 
-    public Task<int> CountSentFriendshipsRequestAsync(string userId,
+    public Task<int> CountSentFriendshipsRequestAsync(string profileId,
         Expression<Func<FriendshipRequest, bool>>? predicate = null,
         CancellationToken cancellationToken = default)
     {
         return Queryable
-            .Where(x => x.Id.Equals(userId))
+            .Where(x => x.Id.Equals(profileId))
             .SelectMany(x => x.SentRequests)
             .CountAsync(predicate ?? (_ => true), cancellationToken);
     }
 
-    public Task<int> CountReceivedFriendshipsRequestAsync(string userId,
+    public Task<int> CountReceivedFriendshipsRequestAsync(string profileId,
         Expression<Func<FriendshipRequest, bool>>? predicate = null,
         CancellationToken cancellationToken = default)
     {
         return Queryable
-            .Where(x => x.Id.Equals(userId))
+            .Where(x => x.Id.Equals(profileId))
             .SelectMany(x => x.ReceivedRequests)
             .CountAsync(predicate ?? (_ => true), cancellationToken);
     }
@@ -250,4 +251,50 @@ public sealed class ProfileEfRepository
             .CountAsync(predicate ?? (_ => true), cancellationToken);
     }
     #endregion
+
+    #region Invite
+    public Task<Profile?> GetWithInviteAsync(string profileId, string groupId, string senderId, CancellationToken cancellationToken = default)
+    {
+        return Queryable
+            .Include(x => x.ReceivedInvites.Where(x => x.GroupId.Equals(groupId) && x.ProfileId.Equals(profileId) && x.SenderId.Equals(senderId)))
+            .FirstOrDefaultAsync(x => x.Id.Equals(profileId), cancellationToken);
+    }
+
+    public async Task<Page<Invite>> GetInvitesPageAsync(string profileId, PageRequest<Invite> request, CancellationToken cancellationToken = default)
+    {
+        var query = Queryable
+            .AsNoTracking()
+            .Where(x => x.Id.Equals(profileId))
+            .SelectMany(x => x.ReceivedInvites)
+            .Where(request.Predicate ?? (_ => true));
+
+        var orderQuery = request.KeySelector is not null
+            ? request.Desc
+                ? query.OrderByDescending(request.KeySelector)
+                : query.OrderBy(request.KeySelector)
+            : request.Desc
+                ? query.OrderDescending()
+                : query.Order();
+
+        query = orderQuery
+            .Include(x => x.Sender)
+            .Include(x => x.Group)
+            .Skip(request.PageNumber * request.PageSize)
+            .Take(request.PageSize);
+
+        var total = await CountInvitesAsync(profileId, request.Predicate, cancellationToken);
+
+        return new (query.ToList(), total);
+    }
+
+    public Task<int> CountInvitesAsync(string profileId,
+        Expression<Func<Invite, bool>>? predicate = null,
+        CancellationToken cancellationToken = default)
+    {
+        return Queryable
+            .Where(x => x.Id.Equals(profileId))
+            .SelectMany(x => x.ReceivedInvites)
+            .CountAsync(predicate ?? (_ => true), cancellationToken);
+    }
+    #endregion // Invite
 }
