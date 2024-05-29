@@ -155,4 +155,9 @@ public sealed class Profile : AggregateRoot
     {
         _friends.Remove(friendship);
     }
+
+    public void RemoveInvite(Invite invite)
+    {
+        _receivedInvites.Remove(invite);
+    }
 }

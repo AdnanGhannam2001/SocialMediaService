@@ -99,4 +99,9 @@ public sealed class Group : AggregateRoot
     {
         _members.Remove(member);
     }
+
+    public void AddInvite(Invite invite)
+    {
+        _invites.Add(invite);
+    }
 }
