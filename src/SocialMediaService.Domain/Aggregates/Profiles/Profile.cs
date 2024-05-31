@@ -160,4 +160,14 @@ public sealed class Profile : AggregateRoot
     {
         _receivedInvites.Remove(invite);
     }
+
+    public void AddToFavoriteDiscussions(FavoriteDiscussion discussion)
+    {
+        _favoriteDiscussions.Add(discussion);
+    }
+
+    public void RemoveFromFavoriteDiscussions(FavoriteDiscussion discussion)
+    {
+        _favoriteDiscussions.Remove(discussion);
+    }
 }
