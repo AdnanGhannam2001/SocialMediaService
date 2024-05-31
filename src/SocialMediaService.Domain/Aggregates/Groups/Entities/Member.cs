@@ -30,4 +30,9 @@ public sealed class Member
 
     public MemberRoleTypes Role { get; private set; }
     public DateTime JointAtUtc { get; private set; }
+
+    public void ChangeRole(MemberRoleTypes role)
+    {
+        Role = role;
+    }
 }
