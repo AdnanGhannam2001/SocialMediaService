@@ -104,4 +104,9 @@ public sealed class Group : AggregateRoot
     {
         _invites.Add(invite);
     }
+
+    public void Kick(Kicked kicked)
+    {
+        _kicked.Add(kicked);
+    }
 }
