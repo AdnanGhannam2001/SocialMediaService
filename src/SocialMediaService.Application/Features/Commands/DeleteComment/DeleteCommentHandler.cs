@@ -5,20 +5,20 @@ using SocialMediaService.Application.Helpers;
 using SocialMediaService.Domain.Aggregates.Posts;
 using SocialMediaService.Persistent.Interfaces;
 
-namespace SocialMediaService.Application.Features.Commands.RemoveComment;
+namespace SocialMediaService.Application.Features.Commands.DeleteComment;
 
-public sealed class RemoveCommentHandler : IRequestHandler<RemoveCommentCommand, Result<Comment>>
+public sealed class DeleteCommentHandler : IRequestHandler<DeleteCommentCommand, Result<Comment>>
 {
     private readonly IProfileRepository _profileRepo;
     private readonly IPostRepository _postRepo;
 
-    public RemoveCommentHandler(IProfileRepository profileRepo, IPostRepository postRepo)
+    public DeleteCommentHandler(IProfileRepository profileRepo, IPostRepository postRepo)
     {
         _profileRepo = profileRepo;
         _postRepo = postRepo;
     }
 
-    public async Task<Result<Comment>> Handle(RemoveCommentCommand request, CancellationToken cancellationToken)
+    public async Task<Result<Comment>> Handle(DeleteCommentCommand request, CancellationToken cancellationToken)
     {
         var profile = await _profileRepo.GetByIdAsync(request.ProfileId, cancellationToken);
 
