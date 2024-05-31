@@ -109,4 +109,14 @@ public sealed class Group : AggregateRoot
     {
         _kicked.Add(kicked);
     }
+
+    public void AddDiscussion(Discussion discussion)
+    {
+        _discussions.Add(discussion);
+    }
+
+    public void RemoveDiscussion(Discussion discussion)
+    {
+        _discussions.Remove(discussion);
+    }
 }

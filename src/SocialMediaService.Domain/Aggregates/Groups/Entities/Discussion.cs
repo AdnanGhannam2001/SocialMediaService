@@ -40,4 +40,11 @@ public sealed class Discussion : Entity
     public IReadOnlyCollection<Tag> Tags => _tags;
     public IReadOnlyCollection<FavoriteDiscussion> Favorites => _favorites;
     public IReadOnlyCollection<Comment> Comments => _comments;
+
+    public void Update(string? title = null, string? content = null, IEnumerable<string>? tags = null)
+    {
+        Title = title ?? Title;
+        Content = content ?? Content;
+        _tags = tags is null ? _tags : tags.Select(x => new Tag(x)).ToList();
+    }
 }
