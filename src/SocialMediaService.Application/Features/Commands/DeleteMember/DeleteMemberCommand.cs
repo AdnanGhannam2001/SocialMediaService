@@ -3,4 +3,4 @@ using SocialMediaService.Domain.Aggregates.Groups;
 
 namespace SocialMediaService.Application.Features.Commands.DeleteMember;
 
-public sealed record DeleteMemberCommand(string ProfileId, string GroupId, string RequesterId, bool Kick = false, string Reason = "") : ICommand<Member>;
+public sealed record DeleteMemberCommand(string MemberId, string GroupId, string ProfileId, bool Kick = false, string Reason = "") : ICommand<Member>;

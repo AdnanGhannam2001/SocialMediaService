@@ -21,6 +21,20 @@ public sealed class DeleteMemberHandler : IRequestHandler<DeleteMemberCommand, R
 
     public async Task<Result<Member>> Handle(DeleteMemberCommand request, CancellationToken cancellationToken)
     {
+        var memberProfile = await _profileRepo.GetByIdAsync(request.MemberId, cancellationToken);
+
+        if (memberProfile is null)
+        {
+            return new RecordNotFoundException("Member Profile is not found");
+        }
+
+        var group = await _groupRepo.GetWithMemebershipAsync(request.GroupId, memberProfile.Id, cancellationToken);
+
+        if (group is null)
+        {
+            return new RecordNotFoundException("Group is not found");
+        }
+
         var profile = await _profileRepo.GetByIdAsync(request.ProfileId, cancellationToken);
 
         if (profile is null)
@@ -28,25 +42,11 @@ public sealed class DeleteMemberHandler : IRequestHandler<DeleteMemberCommand, R
             return new RecordNotFoundException("Profile is not found");
         }
 
-        var group = await _groupRepo.GetWithMemebershipAsync(request.GroupId, profile.Id, cancellationToken);
-
-        if (group is null)
-        {
-            return new RecordNotFoundException("Group is not found");
-        }
-
-        var requester = await _profileRepo.GetByIdAsync(request.RequesterId, cancellationToken);
-
-        if (requester is null)
-        {
-            return new RecordNotFoundException("Requester profile is not found");
-        }
-
         var member = group.Members.ElementAt(0);
 
-        // Check if member is organizer
+        // Check if profile is organizer
         if (await _groupRepo.CountMembersAsync(group.Id,
-            x => x.Role == MemberRoleTypes.Organizer && x.ProfileId.Equals(request.RequesterId),
+            x => x.Role == MemberRoleTypes.Organizer && x.ProfileId.Equals(request.ProfileId),
             cancellationToken) == 0)
         {
             return new UnauthorizedException("You have to be an organizer or higher to perform this action");
@@ -60,7 +60,7 @@ public sealed class DeleteMemberHandler : IRequestHandler<DeleteMemberCommand, R
 
             if (request.Kick)
             {
-                var kicked = new Kicked(group, profile, requester, request.Reason);
+                var kicked = new Kicked(group, memberProfile, profile, request.Reason);
                 group.Kick(kicked);
             }
 
