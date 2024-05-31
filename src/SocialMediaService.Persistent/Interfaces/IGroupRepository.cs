@@ -21,6 +21,11 @@ public interface IGroupRepository
     Task<Group?> GetWithMemebershipAsync(string id, string memberId, CancellationToken cancellationToken = default);
     #endregion // Membership
 
+    #region Kicked
+    Task<Page<Kicked>> GetKickedPageAsync(string id, PageRequest<Kicked> request, CancellationToken cancellationToken = default);
+    Task<int> CountKickedAsync(string id, Expression<Func<Kicked, bool>>? predicate, CancellationToken cancellationToken = default);
+
     Task<Group?> GetWithKickedAsync(string id, string profileId, CancellationToken cancellationToken = default);
+    #endregion // Kicked
 
 }

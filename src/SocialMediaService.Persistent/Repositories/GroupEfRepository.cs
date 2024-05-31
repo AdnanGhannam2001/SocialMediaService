@@ -95,10 +95,45 @@ public sealed class GroupEfRepository : EfRepository<Group, string>, IGroupRepos
     }
     #endregion // Membership
 
+    #region Kicked
+    public async Task<Page<Kicked>> GetKickedPageAsync(string id, PageRequest<Kicked> request, CancellationToken cancellationToken = default)
+    {
+        var query = Queryable
+            .AsNoTracking()
+            .Where(x => x.Id.Equals(id))
+            .SelectMany(x => x.Kicked)
+            .Where(request.Predicate ?? (_ => true));
+
+        var orderQuery = request.KeySelector is not null
+            ? request.Desc
+                ? query.OrderByDescending(request.KeySelector)
+                : query.OrderBy(request.KeySelector)
+            : request.Desc
+                ? query.OrderByDescending(x => x.KickedAtUtc)
+                : query.OrderBy(x => x.KickedAtUtc);
+
+        query = orderQuery
+            .Skip(request.PageNumber * request.PageSize)
+            .Take(request.PageSize);
+
+        var total = await CountKickedAsync(id, request.Predicate, cancellationToken);
+
+        return new (query.ToList(), total);
+    }
+
+    public Task<int> CountKickedAsync(string id, Expression<Func<Kicked, bool>>? predicate, CancellationToken cancellationToken = default)
+    {
+        return Queryable
+            .Where(x => x.Id.Equals(id))
+            .SelectMany(x => x.Kicked)
+            .CountAsync(predicate ?? (_ => true), cancellationToken);
+    }
+
     public Task<Group?> GetWithKickedAsync(string id, string profileId, CancellationToken cancellationToken = default)
     {
         return Queryable
             .Include(x => x.Kicked.Where(x => x.ProfileId.Equals(profileId) && x.GroupId.Equals(id)))
             .FirstOrDefaultAsync(x => x.Id.Equals(id), cancellationToken);
     }
+    #endregion // Kicked
 }
