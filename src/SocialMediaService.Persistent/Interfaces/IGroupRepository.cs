@@ -28,4 +28,10 @@ public interface IGroupRepository
     Task<Group?> GetWithKickedAsync(string id, string profileId, CancellationToken cancellationToken = default);
     #endregion // Kicked
 
+    #region Discussion
+    Task<Page<Discussion>> GetDiscussionsPageAsync(string id, PageRequest<Discussion> request, CancellationToken cancellationToken = default);
+    Task<int> CountDiscussionsAsync(string id, Expression<Func<Discussion, bool>>? predicate, CancellationToken cancellationToken = default);
+
+    Task<Group?> GetWithDiscussionAsync(string id, string discussionId, CancellationToken cancellationToken = default);
+    #endregion // Discussion
 }
