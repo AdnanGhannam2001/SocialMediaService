@@ -297,4 +297,48 @@ public sealed class ProfileEfRepository
             .CountAsync(predicate ?? (_ => true), cancellationToken);
     }
     #endregion // Invite
+
+    #region Favorite Discussion
+    public Task<Profile?> GetWithFavoriteDiscussionAsync(string profileId, string discussionId, CancellationToken cancellationToken = default)
+    {
+        return Queryable
+            .Include(x => x.FavoriteDiscussions.Where(x => x.ProfileId.Equals(profileId) && x.DiscussionId.Equals(discussionId)))
+            .FirstOrDefaultAsync(x => x.Id.Equals(profileId), cancellationToken);
+    }
+
+    public async Task<Page<FavoriteDiscussion>> GetFavoriteDiscussionsPageAsync(string profileId, PageRequest<FavoriteDiscussion> request, CancellationToken cancellationToken = default)
+    {
+        var query = Queryable
+            .AsNoTracking()
+            .Where(x => x.Id.Equals(profileId))
+            .SelectMany(x => x.FavoriteDiscussions)
+            .Where(request.Predicate ?? (_ => true));
+
+        var orderQuery = request.KeySelector is not null
+            ? request.Desc
+                ? query.OrderByDescending(request.KeySelector)
+                : query.OrderBy(request.KeySelector)
+            : request.Desc
+                ? query.OrderDescending()
+                : query.Order();
+
+        query = orderQuery
+            .Skip(request.PageNumber * request.PageSize)
+            .Take(request.PageSize);
+
+        var total = await CountFavoriteDiscussionsAsync(profileId, request.Predicate, cancellationToken);
+
+        return new (query.ToList(), total);
+    }
+
+    public Task<int> CountFavoriteDiscussionsAsync(string profileId,
+        Expression<Func<FavoriteDiscussion, bool>>? predicate = null,
+        CancellationToken cancellationToken = default)
+    {
+        return Queryable
+            .Where(x => x.Id.Equals(profileId))
+            .SelectMany(x => x.FavoriteDiscussions)
+            .CountAsync(predicate ?? (_ => true), cancellationToken);
+    }
+    #endregion // Favorite Discussion
 }
