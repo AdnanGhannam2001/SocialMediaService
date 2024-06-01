@@ -7,7 +7,7 @@ using SocialMediaService.Application.Features.Commands.CreatePost;
 using SocialMediaService.Application.Features.Commands.DeletePost;
 using SocialMediaService.Application.Features.Commands.HidePost;
 using SocialMediaService.Application.Features.Commands.ReactToPost;
-using SocialMediaService.Application.Features.Commands.RemoveComment;
+using SocialMediaService.Application.Features.Commands.DeleteComment;
 using SocialMediaService.Application.Features.Commands.UnhidePost;
 using SocialMediaService.Application.Features.Commands.UnreactToPost;
 using SocialMediaService.Application.Features.Commands.UpdatePost;
@@ -33,7 +33,7 @@ public sealed class PostsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreateRequest request)
+    public async Task<IActionResult> Create([FromBody] CreatePostRequest request)
     {
         // TODO: Handle Media
         var result = await _mediator.Send(new CreatePostCommand(User.GetId()!, request.Content, request.Visibility));
@@ -41,9 +41,8 @@ public sealed class PostsController : ControllerBase
         return this.GetFromResult(result, 201);
     }
 
-
     [HttpPatch("{id}")]
-    public async Task<IActionResult> Update([FromRoute] string id, [FromBody] CreateRequest request)
+    public async Task<IActionResult> Update([FromRoute] string id, [FromBody] CreatePostRequest request)
     {
         // TODO: Handle Media
         var result = await _mediator.Send(new UpdatePostCommand(User.GetId()!, id, request.Content, request.Visibility));
@@ -51,6 +50,7 @@ public sealed class PostsController : ControllerBase
         return this.GetFromResult(result);
     }
 
+    [HttpDelete("{id}")]
     public async Task<IActionResult> Delete([FromRoute] string id)
     {
         var result = await _mediator.Send(new DeletePostCommand(User.GetId()!, id));
@@ -157,7 +157,7 @@ public sealed class PostsController : ControllerBase
         [FromRoute] string commentId,
         [FromQuery] string? parentId = null)
     {
-        var result = await _mediator.Send(new RemoveCommentCommand(postId, parentId, commentId, User.GetId()!));
+        var result = await _mediator.Send(new DeleteCommentCommand(postId, parentId, commentId, User.GetId()!));
 
         return this.GetFromResult(result);
     }

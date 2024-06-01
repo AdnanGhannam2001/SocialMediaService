@@ -16,8 +16,10 @@ using SocialMediaService.Application.Features.Queries.GetBlockedPage;
 using SocialMediaService.Application.Features.Queries.GetFollowsPage;
 using SocialMediaService.Application.Features.Queries.GetFriendshipRequestsPage;
 using SocialMediaService.Application.Features.Queries.GetFriendshipsPage;
+using SocialMediaService.Application.Features.Queries.GetGroupsPageFor;
 using SocialMediaService.Application.Features.Queries.GetProfile;
 using SocialMediaService.Application.Features.Queries.GetSettings;
+using SocialMediaService.Domain.Aggregates.Groups;
 using SocialMediaService.Domain.Aggregates.Profiles;
 using SocialMediaService.WebApi.Dtos.ProfileDtos;
 using SocialMediaService.WebApi.Extensions;
@@ -54,7 +56,7 @@ public sealed class ProfilesController : ControllerBase
     }
 
     [HttpPatch]
-    public async Task<IActionResult> Update([FromBody] UpdateRequest request)
+    public async Task<IActionResult> Update([FromBody] UpdateProfileRequest request)
     {
         var result = await _mediator.Send(new UpdateProfileCommand(User.GetId()!,
             request.FirstName,
@@ -63,6 +65,7 @@ public sealed class ProfilesController : ControllerBase
             request.Gender,
             request.PhoneNumber,
             request.Bio,
+            null, null,
             request.JobInformations,
             request.Socials));
 
@@ -80,7 +83,7 @@ public sealed class ProfilesController : ControllerBase
     }
 
     [HttpPatch("settings")]
-    public async Task<IActionResult> UpdateSettings(UpdateSettingsRequest request)
+    public async Task<IActionResult> UpdateSettings(UpdateProfileSettingsRequest request)
     {
         var result = await _mediator.Send(new UpdateSettingsCommand(User.GetId()!,
             request.LastName,
@@ -277,4 +280,21 @@ public sealed class ProfilesController : ControllerBase
         return this.GetFromResult(result);
     }
     #endregion // Friendship
+
+    [AllowAnonymous]
+    [HttpGet("groups")]
+    public async Task<IActionResult> ProfileGroups([FromRoute(Name = "id")] string profileId,
+        [FromQuery] int pageNumber = 0,
+        [FromQuery] int pageSize = 20,
+        [FromQuery] string search = "")
+    {
+        var pageRequest = new PageRequest<Group>(pageNumber,
+            pageSize,
+            x => x.Name.Contains(search),
+            x => x.CreatedAtUtc);
+
+        var result = await _mediator.Send(new GetGroupsPageForQuery(profileId, pageRequest, User.GetId()));
+
+        return this.GetFromResult(result);
+    }
 }
