@@ -29,6 +29,7 @@ public sealed class GroupEfRepository : EfRepository<Group, string>, IGroupRepos
                 : query.OrderBy(x => x.SentAtUtc);
 
         query = orderQuery
+            .Include(x => x.Profile)
             .Skip(request.PageNumber * request.PageSize)
             .Take(request.PageSize);
 
@@ -71,6 +72,7 @@ public sealed class GroupEfRepository : EfRepository<Group, string>, IGroupRepos
                 : query.OrderBy(x => x.JointAtUtc);
 
         query = orderQuery
+            .Include(x => x.Profile)
             .Skip(request.PageNumber * request.PageSize)
             .Take(request.PageSize);
 

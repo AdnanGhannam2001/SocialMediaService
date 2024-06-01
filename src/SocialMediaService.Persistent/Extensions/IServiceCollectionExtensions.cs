@@ -16,6 +16,7 @@ public static class IServiceCollectionExtensions
             .AddScoped(typeof(IReadRepository<,>), typeof(EfRepository<,>))
             .AddScoped(typeof(IWriteRepository<,>), typeof(EfRepository<,>))
             .AddScoped(typeof(IProfileRepository), typeof(ProfileEfRepository))
-            .AddScoped(typeof(IPostRepository), typeof(PostEfRepository));
+            .AddScoped(typeof(IPostRepository), typeof(PostEfRepository))
+            .AddScoped(typeof(IGroupRepository), typeof(GroupEfRepository));
     }
 }
