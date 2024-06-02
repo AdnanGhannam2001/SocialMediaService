@@ -3,9 +3,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PR2.Shared.Common;
 using SocialMediaService.Application.Features.Commands.AddToBlockList;
+using SocialMediaService.Application.Features.Commands.AddToFavoriteDiscussions;
 using SocialMediaService.Application.Features.Commands.CancelFriendship;
 using SocialMediaService.Application.Features.Commands.CancelFriendshipRequest;
 using SocialMediaService.Application.Features.Commands.DeleteFromBlockedList;
+using SocialMediaService.Application.Features.Commands.DeleteFromFavoriteDiscussions;
 using SocialMediaService.Application.Features.Commands.FollowAccount;
 using SocialMediaService.Application.Features.Commands.RespondToFriendshipRequest;
 using SocialMediaService.Application.Features.Commands.SendFriendshipRequest;
@@ -13,10 +15,12 @@ using SocialMediaService.Application.Features.Commands.UnfollowAccount;
 using SocialMediaService.Application.Features.Commands.UpdateProfile;
 using SocialMediaService.Application.Features.Commands.UpdateSettings;
 using SocialMediaService.Application.Features.Queries.GetBlockedPage;
+using SocialMediaService.Application.Features.Queries.GetFavoriteDiscussionsPage;
 using SocialMediaService.Application.Features.Queries.GetFollowsPage;
 using SocialMediaService.Application.Features.Queries.GetFriendshipRequestsPage;
 using SocialMediaService.Application.Features.Queries.GetFriendshipsPage;
 using SocialMediaService.Application.Features.Queries.GetGroupsPageFor;
+using SocialMediaService.Application.Features.Queries.GetInvites;
 using SocialMediaService.Application.Features.Queries.GetProfile;
 using SocialMediaService.Application.Features.Queries.GetSettings;
 using SocialMediaService.Domain.Aggregates.Groups;
@@ -297,4 +301,52 @@ public sealed class ProfilesController : ControllerBase
 
         return this.GetFromResult(result);
     }
+
+    [HttpGet("invites")]
+    public async Task<IActionResult> Invites([FromQuery] int pageNumber = 0,
+        [FromQuery] int pageSize = 20,
+        [FromQuery] string search = "")
+    {
+        var pageRequest = new PageRequest<Invite>(pageNumber,
+            pageSize,
+            x => x.Group.Name.Contains(search),
+            x => x.SentAtUtc);
+
+        var result = await _mediator.Send(new GetInvitesPageQuery(User.GetId()!, pageRequest));
+
+        return this.GetFromResult(result);
+    }
+
+    #region Favorite Discussion
+    [HttpGet("favorite-discussions")]
+    public async Task<IActionResult> FavoriteDiscussions([FromQuery] int pageNumber = 0,
+        [FromQuery] int pageSize = 20,
+        [FromQuery] string search = "")
+    {
+        var pageRequest = new PageRequest<FavoriteDiscussion>(pageNumber,
+            pageSize,
+            x => x.Discussion.Title.Contains(search),
+            x => x.AddedAtUtc);
+
+        var result = await _mediator.Send(new GetFavoriteDiscussionsPageQuery(User.GetId()!, pageRequest));
+
+        return this.GetFromResult(result);
+    }
+
+    [HttpPost("favorite-discussions/{id}/{discussionId}")]
+    public async Task<IActionResult> AddToFavoriteDiscussion(string id, string discussionId)
+    {
+        var result = await _mediator.Send(new AddToFavoriteDiscussionsCommand(User.GetId()!, id, discussionId));
+
+        return this.GetFromResult(result);
+    }
+
+    [HttpDelete("favorite-discussions/{discussionId}")]
+    public async Task<IActionResult> RemoveFromFavoriteDiscussion(string discussionId)
+    {
+        var result = await _mediator.Send(new DeleteFromFavoriteDiscussionsCommand(User.GetId()!, discussionId));
+
+        return this.GetFromResult(result);
+    }
+    #endregion // Favorite Discussion
 }
