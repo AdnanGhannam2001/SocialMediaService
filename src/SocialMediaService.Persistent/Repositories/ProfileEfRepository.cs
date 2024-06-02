@@ -323,6 +323,8 @@ public sealed class ProfileEfRepository
                 : query.Order();
 
         query = orderQuery
+            .Include(x => x.Discussion)
+            .Include(x => x.Profile)
             .Skip(request.PageNumber * request.PageSize)
             .Take(request.PageSize);
 

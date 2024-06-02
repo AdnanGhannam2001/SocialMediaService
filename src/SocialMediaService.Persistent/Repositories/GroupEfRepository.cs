@@ -115,6 +115,7 @@ public sealed class GroupEfRepository : EfRepository<Group, string>, IGroupRepos
                 : query.OrderBy(x => x.KickedAtUtc);
 
         query = orderQuery
+            .Include(x => x.Profile)
             .Skip(request.PageNumber * request.PageSize)
             .Take(request.PageSize);
 
