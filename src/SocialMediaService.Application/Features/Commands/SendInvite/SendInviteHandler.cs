@@ -1,6 +1,7 @@
 using MediatR;
 using PR2.Shared.Common;
 using PR2.Shared.Exceptions;
+using SocialMediaService.Application.Helpers;
 using SocialMediaService.Domain.Aggregates.Groups;
 using SocialMediaService.Persistent.Interfaces;
 
@@ -22,9 +23,9 @@ public sealed class SendInviteHandler : IRequestHandler<SendInviteCommand, Resul
     {
         var profile = await _profileRepo.GetWithInviteAsync(request.ProfileId, request.GroupId, request.SenderId, cancellationToken);
 
-        if (profile is null)
+        if (profile is null || await ProfileHelper.IsBlocked(_profileRepo, request.ProfileId, request.SenderId, cancellationToken))
         {
-            return new RecordNotFoundException("Profile is not found");
+            return new RecordNotFoundException("Profile is not found or blocked");
         }
 
         if (profile.ReceivedInvites.Count > 0)
