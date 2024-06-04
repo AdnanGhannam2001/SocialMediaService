@@ -61,12 +61,14 @@ public sealed class PostsController : ControllerBase
     [HttpGet("hidden")]
     public async Task<IActionResult> Hidden([FromQuery] int pageNumber = 0,
         [FromQuery] int pageSize = 20,
-        [FromQuery] string search = "")
+        [FromQuery] string search = "",
+        [FromQuery] bool desc = true)
     {
        var pageRequest = new PageRequest<Post>(pageNumber,
             pageSize,
             x => x.Content.Contains(search),
-            x => x.UpdatedAtUtc);
+            x => x.UpdatedAtUtc,
+            desc);
 
         var result = await _mediator.Send(new GetHiddenPostsQuery(User.GetId()!, pageRequest));
 
@@ -94,12 +96,14 @@ public sealed class PostsController : ControllerBase
     public async Task<IActionResult> Reactions([FromRoute(Name = "id")] string postId,
         [FromQuery] int pageNumber = 0,
         [FromQuery] int pageSize = 20,
-        [FromQuery] ReactionTypes type = ReactionTypes.Like)
+        [FromQuery] ReactionTypes type = ReactionTypes.Like,
+        [FromQuery] bool desc = true)
     {
         var pageRequest = new PageRequest<Reaction>(pageNumber,
             pageSize,
             x => x.Type.Equals(type),
-            x => x.ReactedAtUtc);
+            x => x.ReactedAtUtc,
+            desc);
 
         var result = await _mediator.Send(new GetReactionsPageQuery(postId, pageRequest, User.GetId()));
 
@@ -130,12 +134,14 @@ public sealed class PostsController : ControllerBase
         [FromQuery] string? parentId = null,
         [FromQuery] int pageNumber = 0,
         [FromQuery] int pageSize = 20,
-        [FromQuery] string search = "")
+        [FromQuery] string search = "",
+        [FromQuery] bool desc = true)
     {
         var pageRequest = new PageRequest<Comment>(pageNumber,
             pageSize,
             x => x.Content.Contains(search),
-            x => x.CreatedAtUtc);
+            x => x.CreatedAtUtc,
+            desc);
 
         var result = await _mediator.Send(new GetCommentsPageQuery(postId, parentId, User.GetId(), pageRequest));
 

@@ -91,12 +91,14 @@ public sealed class GroupsController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> Page([FromQuery] int pageNumber = 0,
         [FromQuery] int pageSize = 20,
-        [FromQuery] string search = "")
+        [FromQuery] string search = "",
+        [FromQuery] bool desc = true)
     {
         var pageRequest = new PageRequest<Group>(pageNumber,
             pageSize,
             x => x.Name.Contains(search),
-            x => x.CreatedAtUtc);
+            x => x.CreatedAtUtc,
+            desc);
 
         var result = await _mediator.Send(new GetGroupsPageQuery(pageRequest));
 
@@ -117,12 +119,14 @@ public sealed class GroupsController : ControllerBase
     public async Task<IActionResult> Members(string id,
         [FromQuery] int pageNumber = 0,
         [FromQuery] int pageSize = 20,
-        [FromQuery] string search = "")
+        [FromQuery] string search = "",
+        [FromQuery] bool desc = true)
     {
         var pageRequest = new PageRequest<Member>(pageNumber,
             pageSize,
             x => x.Profile.FirstName.Contains(search) || x.Profile.LastName.Contains(search),
-            x => x.JointAtUtc);
+            x => x.JointAtUtc,
+            desc);
 
         var result = await _mediator.Send(new GetGroupMembersPageQuery(id, User.GetId()!, pageRequest));
 
@@ -150,12 +154,14 @@ public sealed class GroupsController : ControllerBase
     public async Task<IActionResult> JoinRequests([FromRoute(Name = "id")] string groupId,
         [FromQuery] int pageNumber = 0,
         [FromQuery] int pageSize = 20,
-        [FromQuery] string search = "")
+        [FromQuery] string search = "",
+        [FromQuery] bool desc = true)
     {
         var pageRequest = new PageRequest<JoinRequest>(pageNumber,
             pageSize,
             x => x.Profile.FirstName.Contains(search) || x.Profile.LastName.Contains(search),
-            x => x.SentAtUtc);
+            x => x.SentAtUtc,
+            desc);
 
         var result = await _mediator.Send(new GetJoinRequestsPageQuery(groupId, User.GetId()!, pageRequest));
 
@@ -194,12 +200,14 @@ public sealed class GroupsController : ControllerBase
     public async Task<IActionResult> Kicked(string id,
         [FromQuery] int pageNumber = 0,
         [FromQuery] int pageSize = 20,
-        [FromQuery] string search = "")
+        [FromQuery] string search = "",
+        [FromQuery] bool desc = true)
     {
         var page = new PageRequest<Kicked>(pageNumber,
             pageSize,
             x => x.Profile.FirstName.Contains(search) || x.Profile.LastName.Contains(search),
-            x => x.KickedAtUtc);
+            x => x.KickedAtUtc,
+            desc);
 
         var result = await _mediator.Send(new GetKickedPageQuery(id, User.GetId()!, page));
 
@@ -244,12 +252,14 @@ public sealed class GroupsController : ControllerBase
     public async Task<IActionResult> Discussions(string id,
         [FromQuery] int pageNumber = 0,
         [FromQuery] int pageSize = 20,
-        [FromQuery] string search = "")
+        [FromQuery] string search = "",
+        [FromQuery] bool desc = true)
     {
         var page = new PageRequest<Discussion>(pageNumber,
             pageSize,
             x => x.Content.Contains(search),
-            x => x.CreatedAtUtc);
+            x => x.CreatedAtUtc,
+            desc);
 
         var result = await _mediator.Send(new GetDiscussionsPageQuery(id, page, User.GetId()!));
 

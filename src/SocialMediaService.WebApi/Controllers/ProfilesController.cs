@@ -108,12 +108,14 @@ public sealed class ProfilesController : ControllerBase
     [HttpGet("blocked")]
     public async Task<IActionResult> Blocked([FromQuery] int pageNumber = 0,
         [FromQuery] int pageSize = 20,
-        [FromQuery] string search = "")
+        [FromQuery] string search = "",
+        [FromQuery] bool desc = true)
     {
         var pageRequest = new PageRequest<Block>(pageNumber,
             pageSize,
             x => x.Blocked.FirstName.Contains(search) || x.Blocked.LastName.Contains(search),
-            x => x.BlockedAtUtc);
+            x => x.BlockedAtUtc,
+            desc);
 
         var result = await _mediator.Send(new GetBlockedPageQuery(User.GetId()!, pageRequest));
 
@@ -141,12 +143,14 @@ public sealed class ProfilesController : ControllerBase
     [HttpGet("followed")]
     public async Task<IActionResult> Followed([FromQuery] int pageNumber = 0,
         [FromQuery] int pageSize = 20,
-        [FromQuery] string search = "")
+        [FromQuery] string search = "",
+        [FromQuery] bool desc = true)
     {
         var pageRequest = new PageRequest<Follow>(pageNumber,
             pageSize,
             x => x.Followed.FirstName.Contains(search) || x.Followed.LastName.Contains(search),
-            x => x.FollowedAtUtc);
+            x => x.FollowedAtUtc,
+            desc);
 
         var result = await _mediator.Send(new GetFollowsPageQuery(User.GetId()!, pageRequest));
 
@@ -158,12 +162,14 @@ public sealed class ProfilesController : ControllerBase
     public async Task<IActionResult> Following([FromRoute] string id,
         [FromQuery] int pageNumber = 0,
         [FromQuery] int pageSize = 20,
-        [FromQuery] string search = "")
+        [FromQuery] string search = "",
+        [FromQuery] bool desc = true)
     {
         var pageRequest = new PageRequest<Follow>(pageNumber,
             pageSize,
             x => x.Follower.FirstName.Contains(search) || x.Follower.LastName.Contains(search),
-            x => x.FollowedAtUtc);
+            x => x.FollowedAtUtc,
+            desc);
 
         var result = await _mediator.Send(new GetFollowsPageQuery(id, pageRequest));
 
@@ -191,12 +197,14 @@ public sealed class ProfilesController : ControllerBase
     [HttpGet("sent")]
     public async Task<IActionResult> SentFriendshipRequests([FromQuery] int pageNumber = 0,
         [FromQuery] int pageSize = 20,
-        [FromQuery] string search = "")
+        [FromQuery] string search = "",
+        [FromQuery] bool desc = true)
     {
         var pageRequest = new PageRequest<FriendshipRequest>(pageNumber,
             pageSize,
             x => x.Receiver.FirstName.Contains(search) || x.Receiver.LastName.Contains(search),
-            x => x.SentAtUtc);
+            x => x.SentAtUtc,
+            desc);
 
         var result = await _mediator.Send(new GetFriendshipRequestsPageQuery(User.GetId()!, true, pageRequest));
 
@@ -206,12 +214,14 @@ public sealed class ProfilesController : ControllerBase
     [HttpGet("received")]
     public async Task<IActionResult> ReceivedFriendshipRequests([FromQuery] int pageNumber = 0,
         [FromQuery] int pageSize = 20,
-        [FromQuery] string search = "")
+        [FromQuery] string search = "",
+        [FromQuery] bool desc = true)
     {
         var pageRequest = new PageRequest<FriendshipRequest>(pageNumber,
             pageSize,
             x => x.Sender.FirstName.Contains(search) || x.Sender.LastName.Contains(search),
-            x => x.SentAtUtc);
+            x => x.SentAtUtc,
+            desc);
 
         var result = await _mediator.Send(new GetFriendshipRequestsPageQuery(User.GetId()!, false, pageRequest));
 
@@ -247,12 +257,14 @@ public sealed class ProfilesController : ControllerBase
     [HttpGet("friends")]
     public async Task<IActionResult> Friends([FromQuery] int pageNumber = 0,
         [FromQuery] int pageSize = 20,
-        [FromQuery] string search = "")
+        [FromQuery] string search = "",
+        [FromQuery] bool desc = true)
     {
         var pageRequest = new PageRequest<Friendship>(pageNumber,
             pageSize,
             x => x.Friend.FirstName.Contains(search) || x.Friend.LastName.Contains(search),
-            x => x.StartedAtUtc);
+            x => x.StartedAtUtc,
+            desc);
 
         var result = await _mediator.Send(new GetFriendshipsPageQuery(User.GetId()!, pageRequest));
 
@@ -264,12 +276,14 @@ public sealed class ProfilesController : ControllerBase
     public async Task<IActionResult> Friends([FromRoute(Name = "id")] string profileId,
         [FromQuery] int pageNumber = 0,
         [FromQuery] int pageSize = 20,
-        [FromQuery] string search = "")
+        [FromQuery] string search = "",
+        [FromQuery] bool desc = true)
     {
         var pageRequest = new PageRequest<Friendship>(pageNumber,
             pageSize,
             x => x.Friend.FirstName.Contains(search) || x.Friend.LastName.Contains(search),
-            x => x.StartedAtUtc);
+            x => x.StartedAtUtc,
+            desc);
 
         var result = await _mediator.Send(new GetFriendshipsPageQuery(profileId, pageRequest, User.GetId()));
 
@@ -290,12 +304,14 @@ public sealed class ProfilesController : ControllerBase
     public async Task<IActionResult> ProfileGroups([FromRoute(Name = "id")] string profileId,
         [FromQuery] int pageNumber = 0,
         [FromQuery] int pageSize = 20,
-        [FromQuery] string search = "")
+        [FromQuery] string search = "",
+        [FromQuery] bool desc = true)
     {
         var pageRequest = new PageRequest<Group>(pageNumber,
             pageSize,
             x => x.Name.Contains(search),
-            x => x.CreatedAtUtc);
+            x => x.CreatedAtUtc,
+            desc);
 
         var result = await _mediator.Send(new GetGroupsPageForQuery(profileId, pageRequest, User.GetId()));
 
@@ -305,12 +321,14 @@ public sealed class ProfilesController : ControllerBase
     [HttpGet("invites")]
     public async Task<IActionResult> Invites([FromQuery] int pageNumber = 0,
         [FromQuery] int pageSize = 20,
-        [FromQuery] string search = "")
+        [FromQuery] string search = "",
+        [FromQuery] bool desc = true)
     {
         var pageRequest = new PageRequest<Invite>(pageNumber,
             pageSize,
             x => x.Group.Name.Contains(search),
-            x => x.SentAtUtc);
+            x => x.SentAtUtc,
+            desc);
 
         var result = await _mediator.Send(new GetInvitesPageQuery(User.GetId()!, pageRequest));
 
@@ -321,12 +339,14 @@ public sealed class ProfilesController : ControllerBase
     [HttpGet("favorite-discussions")]
     public async Task<IActionResult> FavoriteDiscussions([FromQuery] int pageNumber = 0,
         [FromQuery] int pageSize = 20,
-        [FromQuery] string search = "")
+        [FromQuery] string search = "",
+        [FromQuery] bool desc = true)
     {
         var pageRequest = new PageRequest<FavoriteDiscussion>(pageNumber,
             pageSize,
             x => x.Discussion.Title.Contains(search),
-            x => x.AddedAtUtc);
+            x => x.AddedAtUtc,
+            desc);
 
         var result = await _mediator.Send(new GetFavoriteDiscussionsPageQuery(User.GetId()!, pageRequest));
 
