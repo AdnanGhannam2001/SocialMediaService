@@ -108,6 +108,8 @@ public sealed class Profile : AggregateRoot
         Bio = bio ?? Bio;
         JobInformations = jobInformations ?? JobInformations;
         Socials = socials ?? Socials;
+
+        UpdatedAtUtc = DateTime.UtcNow;
     }
 
     /// <summary>

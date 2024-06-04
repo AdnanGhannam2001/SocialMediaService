@@ -78,6 +78,8 @@ public sealed class Group : AggregateRoot
             : coverImage == string.Empty
                 ? CoverImage = null
                 : new Uri(coverImage);
+
+        UpdatedAtUtc = DateTime.UtcNow;
     }
 
     public void AddJoinRequest(JoinRequest request)

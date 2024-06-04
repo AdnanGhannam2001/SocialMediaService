@@ -46,5 +46,7 @@ public sealed class Discussion : Entity
         Title = title ?? Title;
         Content = content ?? Content;
         _tags = tags is null ? _tags : tags.Select(x => new Tag(x)).ToList();
+
+        UpdatedAtUtc = DateTime.UtcNow;
     }
 }

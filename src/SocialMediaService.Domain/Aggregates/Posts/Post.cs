@@ -62,6 +62,8 @@ public sealed class Post : AggregateRoot
         Content = content;
         Visibility = visibility;
         Media = media;
+
+        UpdatedAtUtc = DateTime.UtcNow;
     }
 
     public void HideTo(Profile profile)
