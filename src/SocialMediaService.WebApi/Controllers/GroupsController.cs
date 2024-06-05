@@ -134,7 +134,7 @@ public sealed class GroupsController : ControllerBase
     }
 
     #region Join Request
-    [HttpPost("{id}/send-request")]
+    [HttpPost("{id}/request")]
     public async Task<IActionResult> SendJoinRequest(string id, [FromBody] SendJoinRequestRequest dto)
     {
         var result = await _mediator.Send(new SendJoinRequestCommand(id, User.GetId()!, dto.Content));
@@ -142,7 +142,7 @@ public sealed class GroupsController : ControllerBase
         return this.GetFromResult(result);
     }
 
-    [HttpDelete("{id}/requests")]
+    [HttpDelete("{id}/request")]
     public async Task<IActionResult> CancelJoinRequest(string id)
     {
         var result = await _mediator.Send(new CancelJoinRequestCommand(id, User.GetId()!));
@@ -178,7 +178,7 @@ public sealed class GroupsController : ControllerBase
     #endregion // Join Request
 
     #region Invite
-    [HttpPost("{id}/send-invite/{profileId}")]
+    [HttpPost("{id}/invite/{profileId}")]
     public async Task<IActionResult> SendInvite(string id, string profileId, [FromBody] string content)
     {
         var result = await _mediator.Send(new SendInviteCommand(profileId, id, User.GetId()!, content));
@@ -186,8 +186,8 @@ public sealed class GroupsController : ControllerBase
         return this.GetFromResult(result);
     }
 
-    [HttpPost("{id}/invites/{senderId}")]
-    public async Task<IActionResult> SendInvite(string id, string senderId, [FromQuery] bool accept)
+    [HttpPatch("{id}/invites/{senderId}")]
+    public async Task<IActionResult> RespondToInvite(string id, string senderId, [FromQuery] bool accept)
     {
         var result = await _mediator.Send(new RespondToInviteCommand(User.GetId()!, id, senderId, accept));
 
@@ -215,7 +215,7 @@ public sealed class GroupsController : ControllerBase
     }
 
     [HttpDelete("{id}/kick/{memberId}")]
-    public async Task<IActionResult> Kick(string id, string memberId, [FromBody] string reason)
+    public async Task<IActionResult> Kick(string id, string memberId, [FromHeader] string reason)
     {
         var result = await _mediator.Send(new DeleteMemberCommand(memberId, id, User.GetId()!, true, reason));
 

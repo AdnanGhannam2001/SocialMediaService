@@ -83,7 +83,7 @@ public sealed class PostsController : ControllerBase
         return this.GetFromResult(result);
     }
 
-    [HttpDelete("{id}/unhide")]
+    [HttpDelete("{id}/hide")]
     public async Task<IActionResult> Unhide([FromRoute(Name = "id")] string postId)
     {
         var result = await _mediator.Send(new UnhidePostCommand(User.GetId()!, postId));
@@ -119,7 +119,7 @@ public sealed class PostsController : ControllerBase
         return this.GetFromResult(result);
     }
 
-    [HttpDelete("{id}/unreact")]
+    [HttpDelete("{id}/react")]
     public async Task<IActionResult> Unreact([FromRoute(Name = "id")] string postId)
     {
         var result = await _mediator.Send(new UnreactToPostCommand(User.GetId()!, postId));

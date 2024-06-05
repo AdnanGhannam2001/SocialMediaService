@@ -22,6 +22,7 @@ using SocialMediaService.Application.Features.Queries.GetFriendshipsPage;
 using SocialMediaService.Application.Features.Queries.GetGroupsPageFor;
 using SocialMediaService.Application.Features.Queries.GetInvites;
 using SocialMediaService.Application.Features.Queries.GetProfile;
+using SocialMediaService.Application.Features.Queries.GetProfilesPage;
 using SocialMediaService.Application.Features.Queries.GetSettings;
 using SocialMediaService.Domain.Aggregates.Groups;
 using SocialMediaService.Domain.Aggregates.Profiles;
@@ -44,7 +45,25 @@ public sealed class ProfilesController : ControllerBase
 
     #region Profile
     [HttpGet]
-    public async Task<IActionResult> Index()
+    [AllowAnonymous]
+    public async Task<IActionResult> Index([FromQuery] int pageNumber = 0,
+        [FromQuery] int pageSize = 20,
+        [FromQuery] string search = "",
+        [FromQuery] bool desc = true)
+    {
+        var pageRequest = new PageRequest<Profile>(pageNumber,
+            pageSize,
+            x => x.FirstName.Contains(search) || x.LastName.Contains(search),
+            x => x.CreatedAtUtc,
+            desc);
+
+        var result = await _mediator.Send(new GetProfilesPageQuery(pageRequest));
+
+        return this.GetFromResult(result);
+    }
+
+    [HttpGet("profile")]
+    public async Task<IActionResult> Profile()
     {
         var result = await _mediator.Send(new GetProfileQuery(User.GetId()!));
 
