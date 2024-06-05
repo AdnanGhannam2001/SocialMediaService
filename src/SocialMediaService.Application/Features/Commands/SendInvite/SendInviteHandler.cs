@@ -52,6 +52,11 @@ public sealed class SendInviteHandler : IRequestHandler<SendInviteCommand, Resul
             return new UnauthorizedException("You can't send an invite to this group");
         }
 
+        if (await _groupRepo.CountMembersAsync(group.Id, x => x.ProfileId.Equals(profile.Id), cancellationToken) > 0)
+        {
+            return new DuplicatedRecordException("User is already a member in this group");
+        }
+
         var invite = new Invite(group, profile, sender, request.Content);
         group.AddInvite(invite);
         await _groupRepo.SaveChangesAsync(cancellationToken);
