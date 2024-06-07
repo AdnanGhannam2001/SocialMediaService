@@ -7,6 +7,8 @@ namespace SocialMediaService.Persistent.Interfaces;
 public interface IPostRepository
     : IWriteRepository<Post, string>, IReadRepository<Post, string>
 {
+    Task<Page<Post>> GetPageWithoutHiddenAsync(string profileId, PageRequest<Post> request, CancellationToken cancellationToken = default);
+
     #region Hidden
     Task<Page<Post>> GetHiddenPageAsync(string profileId, PageRequest<Post> request, CancellationToken cancellationToken = default);
     Task<int> CountHiddenAsync(string profileId, Expression<Func<Post, bool>>? predicate = null, CancellationToken cancellationToken = default);

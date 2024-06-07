@@ -48,7 +48,7 @@ public class EfRepository<T, TKey> : IReadRepository<T, TKey>, IWriteRepository<
 
         // LIMIT ... OFFSET ...
         query = orderQuery
-            .Skip((request.PageNumber - 1) * request.PageSize)
+            .Skip(request.PageNumber * request.PageSize)
             .Take(request.PageSize);
 
         var total = await CountAsync(request.Predicate ?? (_ => true), cancellationToken);
