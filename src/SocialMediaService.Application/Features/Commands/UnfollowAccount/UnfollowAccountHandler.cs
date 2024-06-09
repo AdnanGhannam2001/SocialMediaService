@@ -17,7 +17,7 @@ public sealed class UnfollowAccountHandler : IRequestHandler<UnfollowAccountComm
 
     public async Task<Result<Follow>> Handle(UnfollowAccountCommand request, CancellationToken cancellationToken)
     {
-        var follower = await _repo.GetWithFollowedAsync(request.FollowerId, request.FollowedId, cancellationToken);
+        var follower = await _repo.GetWithFollowingAsync(request.FollowerId, request.FollowedId, cancellationToken);
 
         if (follower is null)
         {

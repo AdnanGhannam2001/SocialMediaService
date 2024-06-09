@@ -56,11 +56,11 @@ public sealed class AddToBlockListHandler : IRequestHandler<AddToBlockListComman
 
         // Delete Follow
         {
-            var p = await _repo.GetWithFollowedAsync(request.BlockerId, request.ProfileId, cancellationToken);
+            var p = await _repo.GetWithFollowingAsync(request.BlockerId, request.ProfileId, cancellationToken);
             if (p!.Following.Count > 0) p.RemoveFollow(p.Following.ElementAt(0));
         }
         {
-            var p = await _repo.GetWithFollowedAsync(request.ProfileId, request.BlockerId, cancellationToken);
+            var p = await _repo.GetWithFollowingAsync(request.ProfileId, request.BlockerId, cancellationToken);
             if (p!.Following.Count > 0) p.RemoveFollow(p.Following.ElementAt(0));
         }
 

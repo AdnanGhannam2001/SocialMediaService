@@ -6,24 +6,34 @@ namespace SocialMediaService.Application.Features.Queries.GetProfile;
 
 public sealed record GetProfileResult(string Id,
     string FirstName,
+    DateTime CreatedAtUtc,
+    DateTime UpdatedAtUtc,
     string? LastName = null,
     DateTime? DateOfBirth = null,
     Genders? Gender = null,
     PhoneNumber? PhoneNumber = null,
     string? Bio = null,
     JobInformations? JobInformations = null,
-    Socials? Socials = null)
+    Socials? Socials = null,
+    Settings? Settings = null,
+    int Followers = 0,
+    int Following = 0)
 {
-    public static GetProfileResult MapProfile(Profile profile)
+    public static GetProfileResult MapProfile(Profile profile, int followers, int following)
     {
         return new (profile.Id,
             profile.FirstName,
+            profile.CreatedAtUtc,
+            profile.UpdatedAtUtc,
             profile.LastName,
             profile.DateOfBirth,
             profile.Gender,
             profile.PhoneNumber,
             profile.Bio,
             profile.JobInformations,
-            profile.Socials);
+            profile.Socials,
+            profile.Settings,
+            followers,
+            following);
     }
 }

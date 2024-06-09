@@ -16,7 +16,7 @@ public sealed class GetFollowsPageHandler : IRequestHandler<GetFollowsPageQuery,
 
     public async Task<Result<Page<Follow>>> Handle(GetFollowsPageQuery request, CancellationToken cancellationToken)
     {
-        var follow = await _repo.GetFollowedPageAsync(request.UserId, request.Request, cancellationToken);
+        var follow = await _repo.GetFollowingPageAsync(request.UserId, request.Request, cancellationToken);
 
         return follow;
     }

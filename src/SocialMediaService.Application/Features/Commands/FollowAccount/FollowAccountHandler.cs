@@ -23,7 +23,7 @@ public sealed class FollowAccountHandler : IRequestHandler<FollowAccountCommand,
             return new RecordNotFoundException("Profile is blocked or not found");
         }
 
-        var follower = await _repo.GetWithFollowedAsync(request.FollowerId, request.ProfileId, cancellationToken);
+        var follower = await _repo.GetWithFollowingAsync(request.FollowerId, request.ProfileId, cancellationToken);
 
         if (follower is null)
         {

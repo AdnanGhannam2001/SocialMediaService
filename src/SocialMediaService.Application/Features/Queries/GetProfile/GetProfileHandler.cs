@@ -1,4 +1,3 @@
-using static System.Diagnostics.Debug;
 using MediatR;
 using PR2.Shared.Common;
 using PR2.Shared.Exceptions;
@@ -33,9 +32,12 @@ public sealed class GetProfileHandler : IRequestHandler<GetProfileQuery, Result<
             return new RecordNotFoundException($"Profile with Id: {request.ProfileId} is not found");
         }
 
+        var followers = await _repo.CountFollowedAsync(profile.Id, null, cancellationToken);
+        var following = await _repo.CountFollowingAsync(profile.Id, null, cancellationToken);
+
         if (!request.CheckOwnership || request.ProfileId == request.RequesterId)
         {
-            return GetProfileResult.MapProfile(profile);
+            return GetProfileResult.MapProfile(profile, followers, following);
         }
 
         // TODO: Test this
@@ -48,20 +50,25 @@ public sealed class GetProfileHandler : IRequestHandler<GetProfileQuery, Result<
             ? InformationVisibilities.Public
             : InformationVisibilities.Friends;
 
-        return MapToResult(profile, visibilitiy);
+        return MapToResult(profile, visibilitiy, followers, following);
     }
 
     // TODO: Maybe Add to ProfileHelper
-    private static GetProfileResult MapToResult(Profile profile, InformationVisibilities visibility)
+    private static GetProfileResult MapToResult(Profile profile, InformationVisibilities visibility, int followers, int following)
     {
         return new (profile.Id,
             profile.FirstName,
+            profile.CreatedAtUtc,
+            profile.UpdatedAtUtc,
             profile.Settings.LastName       <= visibility ? profile.LastName        : null,
             profile.Settings.DateOfBirth    <= visibility ? profile.DateOfBirth     : null,
             profile.Settings.Gender         <= visibility ? profile.Gender          : null,
             profile.Settings.Phone          <= visibility ? profile.PhoneNumber     : null,
             profile.Settings.Bio            <= visibility ? profile.Bio             : null,
             profile.Settings.JobTitle       <= visibility ? profile.JobInformations : null,
-            profile.Settings.Socials        <= visibility ? profile.Socials         : null);
+            profile.Settings.Socials        <= visibility ? profile.Socials         : null,
+            profile.Settings,
+            followers,
+            following);
     }
 }
