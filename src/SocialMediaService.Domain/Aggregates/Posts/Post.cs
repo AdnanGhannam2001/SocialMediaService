@@ -13,7 +13,7 @@ public sealed class Post : AggregateRoot
     private List<Comment> _comments = [];
 
     #pragma warning disable CS8618
-    private Post() { }
+    public Post() { }
     #pragma warning restore CS8618
 
     public Post(Profile profile, string content, PostVisibilities visibility, Media? media = null) : base()

@@ -6,7 +6,7 @@ namespace SocialMediaService.Domain.Aggregates.Posts;
 public sealed class Reaction
 {
     #pragma warning disable CS8618
-    private Reaction() { }
+    public Reaction() { }
     #pragma warning restore CS8618
 
     public Reaction(Post post, Profile profile, ReactionTypes type)

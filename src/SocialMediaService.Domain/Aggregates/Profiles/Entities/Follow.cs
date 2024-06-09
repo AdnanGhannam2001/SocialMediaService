@@ -3,7 +3,7 @@ namespace SocialMediaService.Domain.Aggregates.Profiles;
 public sealed class Follow
 {
     #pragma warning disable CS8618
-    private Follow() { }
+    public Follow() { }
     #pragma warning restore CS8618
 
     public Follow(Profile follower, Profile followed)
