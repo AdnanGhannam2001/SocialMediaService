@@ -207,7 +207,7 @@ public sealed class ProfileEfRepository
     #endregion
 
     #region Follow
-    public Task<Profile?> GetWithFollowedAsync(string followerId, string followedId, CancellationToken cancellationToken = default)
+    public Task<Profile?> GetWithFollowingAsync(string followerId, string followedId, CancellationToken cancellationToken = default)
     {
         return Queryable
             .Include(x => x.Following.Where(
@@ -215,7 +215,7 @@ public sealed class ProfileEfRepository
             .FirstOrDefaultAsync(x => x.Id.Equals(followerId), cancellationToken);
     }
 
-    public async Task<Page<Follow>> GetFollowedPageAsync(string followerId, PageRequest<Follow> request, CancellationToken cancellationToken = default)
+    public async Task<Page<Follow>> GetFollowingPageAsync(string followerId, PageRequest<Follow> request, CancellationToken cancellationToken = default)
     {
         var query = Queryable
             .AsNoTracking()
@@ -236,18 +236,28 @@ public sealed class ProfileEfRepository
             .Skip(request.PageNumber * request.PageSize)
             .Take(request.PageSize);
 
-        var total = await CountFollowedAsync(followerId, request.Predicate, cancellationToken);
+        var total = await CountFollowingAsync(followerId, request.Predicate, cancellationToken);
 
         return new (query.ToList(), total);
     }
 
-    public Task<int> CountFollowedAsync(string followerId,
+    public Task<int> CountFollowingAsync(string followerId,
         Expression<Func<Follow, bool>>? predicate = null,
         CancellationToken cancellationToken = default)
     {
         return Queryable
             .Where(x => x.Id.Equals(followerId))
             .SelectMany(x => x.Following)
+            .CountAsync(predicate ?? (_ => true), cancellationToken);
+    }
+
+    public Task<int> CountFollowedAsync(string followedId,
+        Expression<Func<Follow, bool>>? predicate = null,
+        CancellationToken cancellationToken = default)
+    {
+        return Queryable
+            .Where(x => x.Id.Equals(followedId))
+            .SelectMany(x => x.FollowedBy)
             .CountAsync(predicate ?? (_ => true), cancellationToken);
     }
     #endregion

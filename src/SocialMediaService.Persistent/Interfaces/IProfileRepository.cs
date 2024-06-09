@@ -46,9 +46,12 @@ public interface IProfileRepository
     #endregion // Block
 
     #region Follow
-    Task<Profile?> GetWithFollowedAsync(string followerId, string followedId, CancellationToken cancellationToken = default);
-    Task<Page<Follow>> GetFollowedPageAsync(string followerId, PageRequest<Follow> request, CancellationToken cancellationToken = default);
-    Task<int> CountFollowedAsync(string followerId,
+    Task<Profile?> GetWithFollowingAsync(string followerId, string followedId, CancellationToken cancellationToken = default);
+    Task<Page<Follow>> GetFollowingPageAsync(string followerId, PageRequest<Follow> request, CancellationToken cancellationToken = default);
+    Task<int> CountFollowingAsync(string followerId,
+        Expression<Func<Follow, bool>>? predicate = null,
+        CancellationToken cancellationToken = default);
+    Task<int> CountFollowedAsync(string followedId,
         Expression<Func<Follow, bool>>? predicate = null,
         CancellationToken cancellationToken = default);
     #endregion // Follow

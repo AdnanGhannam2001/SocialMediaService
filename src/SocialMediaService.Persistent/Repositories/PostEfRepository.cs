@@ -2,6 +2,7 @@ using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using PR2.Shared.Common;
 using SocialMediaService.Domain.Aggregates.Posts;
+using SocialMediaService.Domain.Enums;
 using SocialMediaService.Persistent.Data;
 using SocialMediaService.Persistent.Interfaces;
 
@@ -22,11 +23,12 @@ public sealed class PostEfRepository : EfRepository<Post, string>, IPostReposito
             .AsNoTracking()
             .Where(x => x.Id.Equals(profileId))
             .SelectMany(x => x.Friends)
-            .Select(x => x.Profile)
+            .Select(x => x.Friend)
             .SelectMany(x => x.Posts)
             .Where(request.Predicate ?? (_ => true))
             .Include(x => x.HiddenBy.Where(x => x.Id.Equals(profileId)))
-            .Where(x => x.HiddenBy.Count == 0);
+            .Where(x => x.HiddenBy.Count == 0)
+            .Where(x => !x.Visibility.Equals(PostVisibilities.Private));
 
         var orderQuery = request.KeySelector is not null
             ? request.Desc
@@ -37,7 +39,9 @@ public sealed class PostEfRepository : EfRepository<Post, string>, IPostReposito
                 : query.Order();
 
         query = orderQuery
+            .Include(x => x.Profile)
             .Include(x => x.Media)
+            .Include(x => x.Reactions.Where(x => x.ProfileId.Equals(profileId)))
             .Skip(request.PageNumber * request.PageSize)
             .Take(request.PageSize);
 
@@ -146,6 +150,7 @@ public sealed class PostEfRepository : EfRepository<Post, string>, IPostReposito
                 : query.OrderBy(request.KeySelector ?? (x => x.CreatedAtUtc));
 
         query = orderQuery
+            .Include(x => x.Profile)
             .Skip(request.PageNumber * request.PageSize)
             .Take(request.PageSize);
 
