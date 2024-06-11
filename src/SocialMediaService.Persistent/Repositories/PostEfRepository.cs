@@ -48,6 +48,36 @@ public sealed class PostEfRepository : EfRepository<Post, string>, IPostReposito
         return Task.FromResult(new Page<Post>(query.ToList(), 0));
     }
 
+    public Task<Page<Post>> GetProfilePostsPageAsync(string profileId,
+        PageRequest<Post> request,
+        PostVisibilities includingVisibility = PostVisibilities.Public,
+        CancellationToken cancellationToken = default)
+    {
+        var query = _context.Profiles
+            .AsNoTracking()
+            .Where(x => x.Id.Equals(profileId))
+            .SelectMany(x => x.Posts)
+            .Where(request.Predicate ?? (_ => true))
+            .Where(x => !x.Visibility.Equals(includingVisibility));
+
+        var orderQuery = request.KeySelector is not null
+            ? request.Desc
+                ? query.OrderByDescending(request.KeySelector)
+                : query.OrderBy(request.KeySelector)
+            : request.Desc
+                ? query.OrderDescending()
+                : query.Order();
+
+        query = orderQuery
+            .Include(x => x.Profile)
+            .Include(x => x.Media)
+            .Include(x => x.Reactions.Where(x => x.ProfileId.Equals(profileId)))
+            .Skip(request.PageNumber * request.PageSize)
+            .Take(request.PageSize);
+
+        return Task.FromResult(new Page<Post>(query.ToList(), 0));
+    }
+
     #region Hidden
     public async Task<Page<Post>> GetHiddenPageAsync(string profileId, PageRequest<Post> request, CancellationToken cancellationToken = default)
     {

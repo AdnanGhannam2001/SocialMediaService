@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using PR2.Shared.Common;
 using SocialMediaService.Domain.Aggregates.Posts;
+using SocialMediaService.Domain.Enums;
 
 namespace SocialMediaService.Persistent.Interfaces;
 
@@ -8,6 +9,10 @@ public interface IPostRepository
     : IWriteRepository<Post, string>, IReadRepository<Post, string>
 {
     Task<Page<Post>> GetPageWithoutHiddenAsync(string profileId, PageRequest<Post> request, CancellationToken cancellationToken = default);
+    Task<Page<Post>> GetProfilePostsPageAsync(string profileId,
+        PageRequest<Post> request,
+        PostVisibilities includingVisibility = PostVisibilities.Public,
+        CancellationToken cancellationToken = default);
 
     #region Hidden
     Task<Page<Post>> GetHiddenPageAsync(string profileId, PageRequest<Post> request, CancellationToken cancellationToken = default);
