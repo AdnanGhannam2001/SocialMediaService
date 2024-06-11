@@ -5,6 +5,8 @@ using SocialMediaService.WebApi.Implementaions;
 using SocialMediaService.WebApi.JsonConverters;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using SocialMediaService.Persistent.Data.Seed;
+using SocialMediaService.Persistent.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +28,14 @@ builder.Services
 
 var app = builder.Build();
 
+if (args.Contains("--seed"))
+{
+    using var scope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope();
+    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    SeedData.ApplyAsync(context).GetAwaiter().GetResult();
+    return;
+}
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -35,7 +45,14 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 #if DEBUG
-app.UseCors(x => x.AllowAnyOrigin());
+app.UseCors(x =>
+{
+    x
+        .SetIsOriginAllowed(x => true)
+        .AllowAnyMethod()
+        .AllowAnyHeader()
+        .AllowCredentials();
+});
 #endif
 
 app.UseAuthentication();
