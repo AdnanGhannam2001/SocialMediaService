@@ -43,7 +43,7 @@ internal sealed class ValidationPipelineBehavior<TRequest, TResponse>
 
         var resultConstructed = typeof(Result<>).MakeGenericType(returnType);
 
-        var result = Activator.CreateInstance(resultConstructed, new { exceptions });
+        var result = Activator.CreateInstance(resultConstructed, exceptions);
 
         Assert(result != null);
 

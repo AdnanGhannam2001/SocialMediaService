@@ -1,6 +1,5 @@
 using System.Linq.Expressions;
 using MediatR;
-using Microsoft.EntityFrameworkCore.Internal;
 using PR2.Shared.Common;
 using PR2.Shared.Exceptions;
 using SocialMediaService.Application.Helpers;
@@ -46,14 +45,10 @@ public sealed class GetGroupsPageForHandler : IRequestHandler<GetGroupsPageForQu
             }
         }
 
-        Expression<Func<Group, bool>> excludeHidden = x => x.Visibility != GroupVisibilities.Hidden;
-
         var pageRequest = request.RequesterId != profile.Id
             ? new PageRequest<Group>(request.Request.PageNumber,
                 request.Request.PageSize,
-                Expression.Lambda<Func<Group, bool>>(
-                    Expression.AndAlso(request.Request.Predicate ?? (_ => true), excludeHidden),
-                        excludeHidden.Parameters[0]),
+                x => x.Visibility != GroupVisibilities.Hidden,
                 request.Request.KeySelector)
             : request.Request;
 

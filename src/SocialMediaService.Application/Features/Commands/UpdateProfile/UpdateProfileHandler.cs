@@ -32,6 +32,7 @@ public sealed class UpdateProfileHandler : IRequestHandler<UpdateProfileCommand,
 
         try
         {
+            // TODO: Fix: profile.JobInformation.StartDate is getting updated
             profile.Update(request.FirstName,
                 request.LastName,
                 request.DateOfBirth,

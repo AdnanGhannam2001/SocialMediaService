@@ -11,11 +11,9 @@ public class UpdateProfileValidator : AbstractValidator<UpdateProfileCommand>
             .NotEmpty();
 
         RuleFor(x => x.FirstName)
-            .NotEmpty()
             .Length(3, 40);
 
         RuleFor(x => x.LastName)
-            .NotEmpty()
             .Length(3, 40);
 
         RuleFor(x => x.DateOfBirth)
