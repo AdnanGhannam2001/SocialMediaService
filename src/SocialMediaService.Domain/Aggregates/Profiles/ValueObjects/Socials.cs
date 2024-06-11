@@ -21,7 +21,7 @@ public sealed record Socials
     }
 
     private static bool IsValidUrlOrEmpty(string? value)
-        => value is null
+        => string.IsNullOrEmpty(value)
             || (Uri.TryCreate(value, UriKind.Absolute, out var result)
                 && (result.Scheme == Uri.UriSchemeHttp || result.Scheme == Uri.UriSchemeHttps));
 }
