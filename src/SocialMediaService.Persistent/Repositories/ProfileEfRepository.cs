@@ -14,6 +14,33 @@ public sealed class ProfileEfRepository
 {
     public ProfileEfRepository(ApplicationDbContext context) : base(context) { }
 
+    public async Task<Page<Profile>> GetPageWithRelationsAsync(PageRequest<Profile> request,
+        string? profileId = null,
+        CancellationToken cancellationToken = default)
+    {
+        var query = Queryable
+            .AsNoTracking()
+            .Where(request.Predicate ?? (_ => true));
+
+        var orderQuery = request.KeySelector is not null
+            ? request.Desc
+                ? query.OrderByDescending(request.KeySelector)
+                : query.OrderBy(request.KeySelector)
+            : request.Desc
+                ? query.OrderDescending()
+                : query.Order();
+
+        query = orderQuery
+            .Include(x => x.Friends.Where(x => x.FriendId.Equals(profileId) || x.ProfileId.Equals(profileId)))
+            .Include(x => x.FollowedBy.Where(x => x.FollowerId.Equals(profileId)))
+            .Skip(request.PageNumber * request.PageSize)
+            .Take(request.PageSize);
+
+        var total = await CountAsync(request.Predicate ?? (_ => true), cancellationToken);
+
+        return new (query.ToList(), total);
+    }
+
     #region Settings
     public Task<Profile?> GetWithSettingsAsync(string id, CancellationToken cancellationToken = default)
     {

@@ -15,7 +15,7 @@ public interface IGroupRepository
     #endregion // Join Requests
 
     #region Membership
-    Task<Page<Member>> GetMembersPageAsync(string id, PageRequest<Member> request, CancellationToken cancellationToken = default);
+    Task<Page<Member>> GetMembersPageAsync(string id, PageRequest<Member> request, string? profileId = null, CancellationToken cancellationToken = default);
     Task<int> CountMembersAsync(string id, Expression<Func<Member, bool>>? predicate, CancellationToken cancellationToken = default);
 
     Task<Group?> GetWithMemebershipAsync(string id, string memberId, CancellationToken cancellationToken = default);

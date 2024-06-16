@@ -55,7 +55,7 @@ public sealed class GroupEfRepository : EfRepository<Group, string>, IGroupRepos
     #endregion // Join Requests
 
     #region Membership
-    public async Task<Page<Member>> GetMembersPageAsync(string id, PageRequest<Member> request, CancellationToken cancellationToken = default)
+    public async Task<Page<Member>> GetMembersPageAsync(string id, PageRequest<Member> request, string? profileId = null, CancellationToken cancellationToken = default)
     {
         var query = Queryable
             .AsNoTracking()
@@ -73,6 +73,9 @@ public sealed class GroupEfRepository : EfRepository<Group, string>, IGroupRepos
 
         query = orderQuery
             .Include(x => x.Profile)
+                .ThenInclude(x => x.Friends.Where(x => x.FriendId.Equals(profileId) || x.ProfileId.Equals(profileId)))
+            .Include(x => x.Profile)
+                .ThenInclude(x => x.FollowedBy.Where(x => x.FollowerId.Equals(profileId)))
             .Skip(request.PageNumber * request.PageSize)
             .Take(request.PageSize);
 

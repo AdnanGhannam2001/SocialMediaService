@@ -8,6 +8,10 @@ namespace SocialMediaService.Persistent.Interfaces;
 public interface IProfileRepository
     : IWriteRepository<Profile, string>, IReadRepository<Profile, string>
 {
+    Task<Page<Profile>> GetPageWithRelationsAsync(PageRequest<Profile> request,
+        string? profileId = null,
+        CancellationToken cancellationToken = default);
+
     #region Settings
     Task<Profile?> GetWithSettingsAsync(string id, CancellationToken cancellationToken = default);
     #endregion // Settings
