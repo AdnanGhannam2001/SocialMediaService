@@ -25,7 +25,7 @@ public sealed class GetGroupMembersPageHandler : IRequestHandler<GetGroupMembers
             return new RecordNotFoundException("Group is not found");
         }
 
-        var page = await _groupRepo.GetMembersPageAsync(request.GroupId, request.Request, cancellationToken);
+        var page = await _groupRepo.GetMembersPageAsync(request.GroupId, request.Request, request.RequesterId, cancellationToken);
 
         return page;
     }

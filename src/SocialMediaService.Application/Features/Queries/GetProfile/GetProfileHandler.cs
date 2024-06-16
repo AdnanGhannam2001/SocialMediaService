@@ -5,15 +5,19 @@ using SocialMediaService.Domain.Aggregates.Profiles;
 using SocialMediaService.Domain.Enums;
 using SocialMediaService.Persistent.Interfaces;
 using SocialMediaService.Application.Helpers;
+using SocialMediaService.Persistent.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace SocialMediaService.Application.Features.Queries.GetProfile;
 
 public sealed class GetProfileHandler : IRequestHandler<GetProfileQuery, Result<GetProfileResult>>
 {
+    private readonly ApplicationDbContext _context;
     private readonly IProfileRepository _repo;
 
-    public GetProfileHandler(IProfileRepository repo)
+    public GetProfileHandler(ApplicationDbContext context, IProfileRepository repo)
     {
+        _context = context;
         _repo = repo;
     }
 
@@ -25,7 +29,11 @@ public sealed class GetProfileHandler : IRequestHandler<GetProfileQuery, Result<
             return new RecordNotFoundException($"Profile is not found");
         }
 
-        var profile = await _repo.GetWithSettingsAsync(request.ProfileId, cancellationToken);
+        var profile = await _context.Profiles
+            .Include(x => x.Settings)
+            .Include(x => x.Friends.Where(x => x.FriendId.Equals(request.RequesterId) || x.ProfileId.Equals(request.RequesterId)))
+            .Include(x => x.FollowedBy.Where(x => x.FollowerId.Equals(request.RequesterId)))
+            .FirstOrDefaultAsync(x => x.Id.Equals(request.ProfileId), cancellationToken);
 
         if (profile is null)
         {
@@ -53,7 +61,6 @@ public sealed class GetProfileHandler : IRequestHandler<GetProfileQuery, Result<
         return MapToResult(profile, visibilitiy, followers, following);
     }
 
-    // TODO: Maybe Add to ProfileHelper
     private static GetProfileResult MapToResult(Profile profile, InformationVisibilities visibility, int followers, int following)
     {
         return new (profile.Id,

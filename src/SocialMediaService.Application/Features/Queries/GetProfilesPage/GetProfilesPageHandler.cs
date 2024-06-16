@@ -16,7 +16,7 @@ public sealed class GetProfilesPageHandler : IRequestHandler<GetProfilesPageQuer
 
     public async Task<Result<Page<Profile>>> Handle(GetProfilesPageQuery request, CancellationToken cancellationToken)
     {
-        var page = await _profileRepo.GetPageAsync(request.Request, cancellationToken);
+        var page = await _profileRepo.GetPageWithRelationsAsync(request.Request, request.RequesterId, cancellationToken);
 
         return page;
     }

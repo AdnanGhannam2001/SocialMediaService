@@ -1,4 +1,3 @@
-using System.Linq.Expressions;
 using MediatR;
 using PR2.Shared.Common;
 using SocialMediaService.Domain.Aggregates.Groups;
@@ -18,16 +17,12 @@ public sealed class GetGroupsPageHandler : IRequestHandler<GetGroupsPageQuery, R
 
     public async Task<Result<Page<Group>>> Handle(GetGroupsPageQuery request, CancellationToken cancellationToken)
     {
-        Expression<Func<Group, bool>> excludeHidden = x => x.Visibility != GroupVisibilities.Hidden;
-
         var pageRequest = new PageRequest<Group>(request.Request.PageNumber,
                 request.Request.PageSize,
-                Expression.Lambda<Func<Group, bool>>(
-                    Expression.AndAlso(request.Request.Predicate ?? (_ => true), excludeHidden),
-                        excludeHidden.Parameters[0]),
+                x => x.Visibility != GroupVisibilities.Hidden && (x.Name.Contains(request.Search) || x.Description.Contains(request.Search)),
                 request.Request.KeySelector);
 
-        var page = await _groupRepo.GetPageAsync(request.Request, cancellationToken);
+        var page = await _groupRepo.GetPageAsync(pageRequest, cancellationToken);
 
         return page;
     }
