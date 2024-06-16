@@ -16,7 +16,7 @@ public sealed class Group : AggregateRoot
     private List<Post> _posts = [];
 
     #pragma warning disable CS8618
-    private Group() { }
+    public Group() { }
     #pragma warning restore CS8618
 
     public Group(string name,
@@ -120,5 +120,15 @@ public sealed class Group : AggregateRoot
     public void RemoveDiscussion(Discussion discussion)
     {
         _discussions.Remove(discussion);
+    }
+
+    public void AddPost(Post post)
+    {
+        _posts.Add(post);
+    }
+
+    public void RemovePost(Post post)
+    {
+        _posts.Remove(post);
     }
 }
