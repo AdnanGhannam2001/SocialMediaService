@@ -14,7 +14,7 @@ public static partial class SeedData
             .RuleFor(x => x.Visibility, f => f.PickRandom<PostVisibilities>());
 
         var posts = postFaker.Generate(PostsCount);
-        context.AddRange(posts);
+        await context.AddRangeAsync(posts);
         await context.SaveChangesAsync();
 
         var commentFaker = new Faker<Comment>()

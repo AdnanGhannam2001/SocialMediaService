@@ -10,20 +10,32 @@ public static partial class SeedData
     private const int PostsCount = 50;
     private const int CommentsCount = 100;
     private const int ReactionsCount = 100;
-    private static readonly Random Random = new();
+    private const int GroupsCount = 50;
     private static readonly IList<Profile> Profiles = [];
 
-    public static async Task ApplyAsync(ApplicationDbContext context)
+    public static async Task ApplyAsync(ApplicationDbContext context, bool clear = false)
     {
-        await ClearAsync(context);
+        if (clear) await ClearAsync(context);
 
         foreach (var profile in context.Profiles)
         {
             Profiles.Add(profile);
         }
 
-        await SeedProfilesAsync(context);
-        await SeedPostsAsync(context);
+        if (!await context.Friendships.AnyAsync() && !await context.Follows.AnyAsync())
+        {
+            await SeedProfilesAsync(context);
+        }
+
+        if (!await context.Posts.AnyAsync())
+        {
+            await SeedPostsAsync(context);
+        }
+
+        if (!await context.Groups.AnyAsync())
+        {
+            await SeedGroupsAsync(context);
+        }
     }
 
     private static async Task ClearAsync(ApplicationDbContext context)
@@ -33,5 +45,6 @@ public static partial class SeedData
         await context.Posts.ExecuteDeleteAsync();
         await context.Reactions.ExecuteDeleteAsync();
         await context.Comments.ExecuteDeleteAsync();
+        await context.Groups.ExecuteDeleteAsync();
     }
 }
