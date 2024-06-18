@@ -23,12 +23,12 @@ public sealed class PostEfRepository : EfRepository<Post, string>, IPostReposito
             .AsNoTracking()
             .Where(x => x.Id.Equals(profileId))
             .SelectMany(x => x.Friends)
-            .Select(x => x.Friend)
-            .SelectMany(x => x.Posts)
-            .Where(request.Predicate ?? (_ => true))
-            .Include(x => x.HiddenBy.Where(x => x.Id.Equals(profileId)))
-            .Where(x => x.HiddenBy.Count == 0)
-            .Where(x => !x.Visibility.Equals(PostVisibilities.Private));
+                .Select(x => x.Friend)
+                .SelectMany(x => x.Posts)
+                    .Where(request.Predicate ?? (_ => true))
+                    .Include(x => x.HiddenBy.Where(x => x.Id.Equals(profileId)))
+                    .Where(x => x.HiddenBy.Count == 0)
+                    .Where(x => !x.Visibility.Equals(PostVisibilities.Private) && x.GroupId == null);
 
         var orderQuery = request.KeySelector is not null
             ? request.Desc
@@ -58,7 +58,7 @@ public sealed class PostEfRepository : EfRepository<Post, string>, IPostReposito
             .Where(x => x.Id.Equals(profileId))
             .SelectMany(x => x.Posts)
             .Where(request.Predicate ?? (_ => true))
-            .Where(x => !x.Visibility.Equals(includingVisibility));
+            .Where(x => x.Visibility >= includingVisibility && x.GroupId == null);
 
         var orderQuery = request.KeySelector is not null
             ? request.Desc
@@ -85,7 +85,7 @@ public sealed class PostEfRepository : EfRepository<Post, string>, IPostReposito
             .AsNoTracking()
             .Where(request.Predicate ?? (_ => true))
             .Include(x => x.HiddenBy)
-            .Where(x => x.HiddenBy.Any(x => x.Id.Equals(profileId)));
+            .Where(x => x.HiddenBy.Any(x => x.Id.Equals(profileId)) && x.GroupId == null);
 
         var orderQuery = request.Desc
                 ? query.OrderByDescending(request.KeySelector ?? (x => x.CreatedAtUtc))

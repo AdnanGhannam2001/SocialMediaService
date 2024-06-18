@@ -1,12 +1,18 @@
 using System.Linq.Expressions;
 using PR2.Shared.Common;
 using SocialMediaService.Domain.Aggregates.Groups;
+using SocialMediaService.Domain.Aggregates.Posts;
 
 namespace SocialMediaService.Persistent.Interfaces;
 
 public interface IGroupRepository
     : IWriteRepository<Group, string>, IReadRepository<Group, string>
 {
+    #region Posts
+    Task<Page<Post>> GetPostsPageAsync(string id, PageRequest<Post> request, string? profileId = null, CancellationToken cancellationToken = default);
+    Task<int> CountPostsAsync(string id, Expression<Func<Post, bool>>? predicate, CancellationToken cancellationToken = default);
+    #endregion // Posts
+
     #region Join Requests
     Task<Page<JoinRequest>> GetJoinRequestsPageAsync(string id, PageRequest<JoinRequest> request, CancellationToken cancellationToken = default);
     Task<int> CountJoinRequestsAsync(string id, Expression<Func<JoinRequest, bool>>? predicate, CancellationToken cancellationToken = default);

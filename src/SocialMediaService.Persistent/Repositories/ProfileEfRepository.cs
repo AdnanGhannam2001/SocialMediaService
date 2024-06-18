@@ -30,6 +30,7 @@ public sealed class ProfileEfRepository
                 ? query.OrderDescending()
                 : query.Order();
 
+        // TODO exclude blocked
         query = orderQuery
             .Include(x => x.Friends.Where(x => x.FriendId.Equals(profileId) || x.ProfileId.Equals(profileId)))
             .Include(x => x.FollowedBy.Where(x => x.FollowerId.Equals(profileId)))
@@ -71,6 +72,9 @@ public sealed class ProfileEfRepository
 
         query = orderQuery
             .Include(x => x.Friend)
+                .ThenInclude(x => x.FollowedBy.Where(x => x.FollowerId.Equals(profileId)))
+            .Include(x => x.Friend)
+                .ThenInclude(x => x.ReceivedRequests.Where(x => x.SenderId.Equals(profileId)))
             .Include(x => x.Profile)
             .Skip(request.PageNumber * request.PageSize)
             .Take(request.PageSize);
@@ -191,7 +195,7 @@ public sealed class ProfileEfRepository
         return Queryable
             .Include(x => x.Blocked.Where(
                 x => x.BlockerId.Equals(blockerId) && x.BlockedId.Equals(blockedId)))
-            .FirstOrDefaultAsync(x => x.Id.Equals(blockedId), cancellationToken);
+            .FirstOrDefaultAsync(x => x.Id.Equals(blockerId), cancellationToken);
     }
 
     public async Task<Page<Block>> GetBlockedPageAsync(string blockerId,
@@ -238,7 +242,7 @@ public sealed class ProfileEfRepository
     {
         return Queryable
             .Include(x => x.Following.Where(
-                x => x.FollowedId.Equals(followerId) && x.FollowedId.Equals(followedId)))
+                x => x.FollowerId.Equals(followerId) && x.FollowedId.Equals(followedId)))
             .FirstOrDefaultAsync(x => x.Id.Equals(followerId), cancellationToken);
     }
 
@@ -260,6 +264,9 @@ public sealed class ProfileEfRepository
 
         query = orderQuery
             .Include(x => x.Followed)
+                .ThenInclude(x => x.Friends.Where(x => x.FriendId.Equals(followerId) || x.ProfileId.Equals(followerId)))
+            .Include(x => x.Followed)
+                .ThenInclude(x => x.SentRequests.Where(x => x.SenderId.Equals(followerId)))
             .Skip(request.PageNumber * request.PageSize)
             .Take(request.PageSize);
 
@@ -276,6 +283,35 @@ public sealed class ProfileEfRepository
             .Where(x => x.Id.Equals(followerId))
             .SelectMany(x => x.Following)
             .CountAsync(predicate ?? (_ => true), cancellationToken);
+    }
+
+    public async Task<Page<Follow>> GetFollowedPageAsync(string followedId, PageRequest<Follow> request, CancellationToken cancellationToken = default)
+    {
+        var query = Queryable
+            .AsNoTracking()
+            .Where(x => x.Id.Equals(followedId))
+            .SelectMany(x => x.FollowedBy)
+            .Where(request.Predicate ?? (_ => true));
+
+        var orderQuery = request.KeySelector is not null
+            ? request.Desc
+                ? query.OrderByDescending(request.KeySelector)
+                : query.OrderBy(request.KeySelector)
+            : request.Desc
+                ? query.OrderDescending()
+                : query.Order();
+
+        query = orderQuery
+            .Include(x => x.Follower)
+                .ThenInclude(x => x.Friends.Where(x => x.FriendId.Equals(followedId) || x.ProfileId.Equals(followedId)))
+            .Include(x => x.Follower)
+                .ThenInclude(x => x.ReceivedRequests.Where(x => x.SenderId.Equals(followedId)))
+            .Skip(request.PageNumber * request.PageSize)
+            .Take(request.PageSize);
+
+        var total = await CountFollowedAsync(followedId, request.Predicate, cancellationToken);
+
+        return new (query.ToList(), total);
     }
 
     public Task<int> CountFollowedAsync(string followedId,

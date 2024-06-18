@@ -2,6 +2,7 @@ using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using PR2.Shared.Common;
 using SocialMediaService.Domain.Aggregates.Groups;
+using SocialMediaService.Domain.Aggregates.Posts;
 using SocialMediaService.Persistent.Data;
 using SocialMediaService.Persistent.Interfaces;
 
@@ -10,6 +11,46 @@ namespace SocialMediaService.Persistent.Repositories;
 public sealed class GroupEfRepository : EfRepository<Group, string>, IGroupRepository
 {
     public GroupEfRepository(ApplicationDbContext context) : base(context) { }
+
+    #region Posts
+    public async Task<Page<Post>> GetPostsPageAsync(string id, PageRequest<Post> request, string? profileId = null, CancellationToken cancellationToken = default)
+    {
+        var query = Queryable
+            .AsNoTracking()
+            .Where(x => x.Id.Equals(id))
+            .SelectMany(x => x.Posts)
+            .Where(request.Predicate ?? (_ => true));
+
+        var orderQuery = request.KeySelector is not null
+            ? request.Desc
+                ? query.OrderByDescending(request.KeySelector)
+                : query.OrderBy(request.KeySelector)
+            : request.Desc
+                ? query.OrderByDescending(x => x.CreatedAtUtc)
+                : query.OrderBy(x => x.CreatedAtUtc);
+
+        query = orderQuery
+            .Include(x => x.Profile)
+            .Include(x => x.Media)
+            .Include(x => x.Reactions.Where(x => x.ProfileId.Equals(profileId)))
+            .Skip(request.PageNumber * request.PageSize)
+            .Take(request.PageSize);
+
+        var total = await CountPostsAsync(id, request.Predicate, cancellationToken);
+
+        return new (query.ToList(), total);
+
+    }
+
+    public Task<int> CountPostsAsync(string id, Expression<Func<Post, bool>>? predicate, CancellationToken cancellationToken = default)
+    {
+        return Queryable
+            .Where(x => x.Id.Equals(id))    
+            .SelectMany(x => x.Posts)
+            .CountAsync(predicate ?? (_ => true), cancellationToken);
+    }
+    #endregion // Posts
+
 
     #region Join Requests
     public async Task<Page<JoinRequest>> GetJoinRequestsPageAsync(string id, PageRequest<JoinRequest> request, CancellationToken cancellationToken = default)

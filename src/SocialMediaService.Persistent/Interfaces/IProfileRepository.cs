@@ -55,6 +55,8 @@ public interface IProfileRepository
     Task<int> CountFollowingAsync(string followerId,
         Expression<Func<Follow, bool>>? predicate = null,
         CancellationToken cancellationToken = default);
+
+    Task<Page<Follow>> GetFollowedPageAsync(string followedId, PageRequest<Follow> request, CancellationToken cancellationToken = default);
     Task<int> CountFollowedAsync(string followedId,
         Expression<Func<Follow, bool>>? predicate = null,
         CancellationToken cancellationToken = default);
