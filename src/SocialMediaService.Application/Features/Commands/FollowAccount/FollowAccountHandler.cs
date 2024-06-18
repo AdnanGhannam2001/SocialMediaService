@@ -43,7 +43,7 @@ public sealed class FollowAccountHandler : IRequestHandler<FollowAccountCommand,
         }
 
         var follow = new Follow(follower, profile);
-        profile.AddFollow(follow);
+        follower.AddFollow(follow);
         await _repo.SaveChangesAsync(cancellationToken);
 
         return follow;

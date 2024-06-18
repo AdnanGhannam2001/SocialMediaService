@@ -32,7 +32,7 @@ public sealed class GetProfilePostsHandler : IRequestHandler<GetProfilePostsQuer
             ? PostVisibilities.Public
             : request.RequesterId == request.ProfileId
                 ? PostVisibilities.Private
-                : await _profileRepo.CountFriendshipsAsync(request.ProfileId, x => x.FriendId.Equals(request.RequesterId)) > 0
+                : await _profileRepo.CountFriendshipsAsync(request.ProfileId, x => x.FriendId.Equals(request.RequesterId), cancellationToken) > 0
                     ? PostVisibilities.Friends
                     : PostVisibilities.Public;
 

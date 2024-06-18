@@ -64,7 +64,8 @@ public sealed class AddToBlockListHandler : IRequestHandler<AddToBlockListComman
             if (p!.Following.Count > 0) p.RemoveFollow(p.Following.ElementAt(0));
         }
 
-        var block = new Block(blocker, profile, request.Reason);
+        // TODO: Make Block.Reason Optional
+        var block = new Block(blocker, profile, request.Reason ?? "");
         blocker.AddBlocked(block);
 
         await _repo.SaveChangesAsync(cancellationToken);

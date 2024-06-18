@@ -40,8 +40,8 @@ public sealed class RespondToFriendshipRequestHandler : IRequestHandler<RespondT
         {
             Friendship? friendship = null;
 
-            // Add Friendship if Aggreed
-            if (request.Aggreed)
+            // Add Friendship if Accepted
+            if (request.Accept)
             {
                 var receiver = await _repo.GetByIdAsync(request.ReceiverId, cancellationToken);
 
