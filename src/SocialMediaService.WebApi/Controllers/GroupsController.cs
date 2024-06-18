@@ -21,10 +21,12 @@ using SocialMediaService.Application.Features.Queries.GetDiscussion;
 using SocialMediaService.Application.Features.Queries.GetDiscussionsPage;
 using SocialMediaService.Application.Features.Queries.GetGroup;
 using SocialMediaService.Application.Features.Queries.GetGroupMembersPage;
+using SocialMediaService.Application.Features.Queries.GetGroupPostsPage;
 using SocialMediaService.Application.Features.Queries.GetGroupsPage;
 using SocialMediaService.Application.Features.Queries.GetJoinRequestsPage;
 using SocialMediaService.Application.Features.Queries.GetKickedPage;
 using SocialMediaService.Domain.Aggregates.Groups;
+using SocialMediaService.Domain.Aggregates.Posts;
 using SocialMediaService.WebApi.Dtos.GroupDtos;
 using SocialMediaService.WebApi.Extensions;
 
@@ -32,7 +34,7 @@ namespace SocialMediaService.WebApi.Controllers;
 
 [Authorize]
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 public sealed class GroupsController : ControllerBase
 {
     private readonly IMediator _mediator;
@@ -100,7 +102,7 @@ public sealed class GroupsController : ControllerBase
             x => x.CreatedAtUtc,
             desc);
 
-        var result = await _mediator.Send(new GetGroupsPageQuery(pageRequest));
+        var result = await _mediator.Send(new GetGroupsPageQuery(search, pageRequest));
 
         return this.GetFromResult(result);
     }
@@ -110,6 +112,25 @@ public sealed class GroupsController : ControllerBase
     public async Task<IActionResult> Single(string id)
     {
         var result = await _mediator.Send(new GetGroupQuery(id, User.GetId()));
+
+        return this.GetFromResult(result);
+    }
+    
+    [AllowAnonymous]
+    [HttpGet("{id}/posts")]
+    public async Task<IActionResult> Posts(string id,
+        [FromQuery] int pageNumber = 0,
+        [FromQuery] int pageSize = 20,
+        [FromQuery] string search = "",
+        [FromQuery] bool desc = true)
+    {
+       var pageRequest = new PageRequest<Post>(pageNumber,
+            pageSize,
+            x => x.Content.Contains(search),
+            x => x.CreatedAtUtc,
+            desc);
+
+        var result = await _mediator.Send(new GetGroupPostsPageQuery(id, pageRequest, User.GetId()));
 
         return this.GetFromResult(result);
     }
@@ -179,9 +200,9 @@ public sealed class GroupsController : ControllerBase
 
     #region Invite
     [HttpPost("{id}/invite/{profileId}")]
-    public async Task<IActionResult> SendInvite(string id, string profileId, [FromBody] string content)
+    public async Task<IActionResult> SendInvite(string id, string profileId, [FromBody] SendInviteRequest dto)
     {
-        var result = await _mediator.Send(new SendInviteCommand(profileId, id, User.GetId()!, content));
+        var result = await _mediator.Send(new SendInviteCommand(profileId, id, User.GetId()!, dto.Content));
 
         return this.GetFromResult(result);
     }

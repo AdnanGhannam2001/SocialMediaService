@@ -16,7 +16,8 @@ using SocialMediaService.Application.Features.Commands.UpdateProfile;
 using SocialMediaService.Application.Features.Commands.UpdateSettings;
 using SocialMediaService.Application.Features.Queries.GetBlockedPage;
 using SocialMediaService.Application.Features.Queries.GetFavoriteDiscussionsPage;
-using SocialMediaService.Application.Features.Queries.GetFollowsPage;
+using SocialMediaService.Application.Features.Queries.GetFollowedPage;
+using SocialMediaService.Application.Features.Queries.GetFollowingPage;
 using SocialMediaService.Application.Features.Queries.GetFriendshipRequestsPage;
 using SocialMediaService.Application.Features.Queries.GetFriendshipsPage;
 using SocialMediaService.Application.Features.Queries.GetGroupsPageFor;
@@ -57,7 +58,7 @@ public sealed class ProfilesController : ControllerBase
             x => x.CreatedAtUtc,
             desc);
 
-        var result = await _mediator.Send(new GetProfilesPageQuery(pageRequest));
+        var result = await _mediator.Send(new GetProfilesPageQuery(User.GetId(), pageRequest));
 
         return this.GetFromResult(result);
     }
@@ -70,6 +71,7 @@ public sealed class ProfilesController : ControllerBase
         return this.GetFromResult(result);
     }
 
+    [AllowAnonymous]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(string id)
     {
@@ -142,9 +144,9 @@ public sealed class ProfilesController : ControllerBase
     }
 
     [HttpPost("{id}/block")]
-    public async Task<IActionResult> Block([FromRoute(Name = "id")] string profileId, [FromBody] string reason)
+    public async Task<IActionResult> Block([FromRoute(Name = "id")] string profileId, [FromBody] BlockRequest dto)
     {
-        var result = await _mediator.Send(new AddToBlockListCommand(User.GetId()!, profileId, reason));
+        var result = await _mediator.Send(new AddToBlockListCommand(User.GetId()!, profileId, dto.Reason));
 
         return this.GetFromResult(result, StatusCodes.Status201Created);
     }
@@ -171,7 +173,7 @@ public sealed class ProfilesController : ControllerBase
             x => x.FollowedAtUtc,
             desc);
 
-        var result = await _mediator.Send(new GetFollowsPageQuery(User.GetId()!, pageRequest));
+        var result = await _mediator.Send(new GetFollowedPageQuery(User.GetId()!, pageRequest));
 
         return this.GetFromResult(result);
     }
@@ -190,7 +192,7 @@ public sealed class ProfilesController : ControllerBase
             x => x.FollowedAtUtc,
             desc);
 
-        var result = await _mediator.Send(new GetFollowsPageQuery(id, pageRequest));
+        var result = await _mediator.Send(new GetFollowingPageQuery(id, pageRequest));
 
         return this.GetFromResult(result);
     }
@@ -264,9 +266,9 @@ public sealed class ProfilesController : ControllerBase
     }
 
     [HttpPost("{id}/respond")]
-    public async Task<IActionResult> Respond([FromRoute(Name = "id")] string profileId, bool aggreed = true)
+    public async Task<IActionResult> Respond([FromRoute(Name = "id")] string profileId, [FromQuery] bool accept = true)
     {
-        var result = await _mediator.Send(new RespondToFriendshipRequestCommand(profileId, User.GetId()!, aggreed));
+        var result = await _mediator.Send(new RespondToFriendshipRequestCommand(profileId, User.GetId()!, accept));
 
         return this.GetFromResult(result, 204);
     }
@@ -318,8 +320,25 @@ public sealed class ProfilesController : ControllerBase
     }
     #endregion // Friendship
 
+    [HttpGet("profile/groups")]
+    public async Task<IActionResult> Groups([FromQuery] int pageNumber = 0,
+        [FromQuery] int pageSize = 20,
+        [FromQuery] string search = "",
+        [FromQuery] bool desc = true)
+    {
+        var pageRequest = new PageRequest<Group>(pageNumber,
+            pageSize,
+            x => x.Name.Contains(search),
+            x => x.CreatedAtUtc,
+            desc);
+
+        var result = await _mediator.Send(new GetGroupsPageForQuery(User.GetId()!, pageRequest));
+
+        return this.GetFromResult(result);
+    }
+
     [AllowAnonymous]
-    [HttpGet("groups")]
+    [HttpGet("{id}/groups")]
     public async Task<IActionResult> ProfileGroups([FromRoute(Name = "id")] string profileId,
         [FromQuery] int pageNumber = 0,
         [FromQuery] int pageSize = 20,

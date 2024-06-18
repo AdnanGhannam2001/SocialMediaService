@@ -11,7 +11,11 @@ internal static class ControllerBaseExtensions
     {
         if (result.IsSuccess)
         {
-            return controller.StatusCode(successCode, result.Value);
+            return successCode switch
+            {
+                204 => controller.NoContent(),
+                _ => controller.StatusCode(successCode, result.Value)
+            };
         }
 
         if (result.Exceptions.Length > 1)

@@ -18,6 +18,8 @@ using SocialMediaService.Domain.Aggregates.Posts;
 using SocialMediaService.Domain.Enums;
 using SocialMediaService.WebApi.Dtos.PostDtos;
 using SocialMediaService.WebApi.Extensions;
+using SocialMediaService.Application.Features.Queries.GetPostsPage;
+using SocialMediaService.Application.Features.Queries.GetProfilePosts;
 namespace SocialMediaService.WebApi.Controllers;
 
 [Authorize]
@@ -30,6 +32,58 @@ public sealed class PostsController : ControllerBase
     public PostsController(IMediator mediator)
     {
         _mediator = mediator;
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Index([FromQuery] int pageNumber = 0,
+        [FromQuery] int pageSize = 20,
+        [FromQuery] string search = "",
+        [FromQuery] bool desc = true)
+    {
+       var pageRequest = new PageRequest<Post>(pageNumber,
+            pageSize,
+            x => x.Content.Contains(search),
+            x => x.CreatedAtUtc,
+            desc);
+
+        var result = await _mediator.Send(new GetPostsPageQuery(User.GetId()!, pageRequest));
+
+        return this.GetFromResult(result);
+    }
+
+    [HttpGet("profile")]
+    public async Task<IActionResult> MyPosts([FromQuery] int pageNumber = 0,
+        [FromQuery] int pageSize = 20,
+        [FromQuery] string search = "",
+        [FromQuery] bool desc = true)
+    {
+       var pageRequest = new PageRequest<Post>(pageNumber,
+            pageSize,
+            x => x.Content.Contains(search),
+            x => x.CreatedAtUtc,
+            desc);
+
+        var result = await _mediator.Send(new GetProfilePostsQuery(User.GetId()!, pageRequest));
+
+        return this.GetFromResult(result);
+    }
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> ProfilePosts([FromRoute(Name = "id")] string profileId,
+        [FromQuery] int pageNumber = 0,
+        [FromQuery] int pageSize = 20,
+        [FromQuery] string search = "",
+        [FromQuery] bool desc = true)
+    {
+       var pageRequest = new PageRequest<Post>(pageNumber,
+            pageSize,
+            x => x.Content.Contains(search),
+            x => x.CreatedAtUtc,
+            desc);
+
+        var result = await _mediator.Send(new GetProfilePostsQuery(profileId, pageRequest, User.GetId()!));
+
+        return this.GetFromResult(result);
     }
 
     [HttpPost]
@@ -67,7 +121,7 @@ public sealed class PostsController : ControllerBase
        var pageRequest = new PageRequest<Post>(pageNumber,
             pageSize,
             x => x.Content.Contains(search),
-            x => x.UpdatedAtUtc,
+            x => x.CreatedAtUtc,
             desc);
 
         var result = await _mediator.Send(new GetHiddenPostsQuery(User.GetId()!, pageRequest));
@@ -150,10 +204,10 @@ public sealed class PostsController : ControllerBase
 
     [HttpPost("{id}")]
     public async Task<IActionResult> Comment([FromRoute(Name = "id")] string postId,
-        [FromBody] string content,
+        [FromBody] CommentRequest dto,
         [FromQuery] string? parentId = null)
     {
-        var result = await _mediator.Send(new AddCommentCommand(postId, parentId, User.GetId()!, content));
+        var result = await _mediator.Send(new AddCommentCommand(postId, parentId, User.GetId()!, dto.Content));
 
         return this.GetFromResult(result);
     }
