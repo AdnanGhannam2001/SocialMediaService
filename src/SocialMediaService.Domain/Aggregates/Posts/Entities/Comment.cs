@@ -34,17 +34,6 @@ public sealed class Comment : Entity
         Content = content;
     }
 
-    public Comment(Discussion discussion, Profile profile, string content) : base()
-    {
-        DiscussionId = discussion.Id;
-        Discussion = discussion;
-
-        ProfileId = profile.Id;
-        Profile = profile;
-
-        Content = content;
-    }
-
     public string ProfileId { get; private set; }
     public Profile Profile { get; private set; }
 
@@ -53,9 +42,6 @@ public sealed class Comment : Entity
 
     public string? ParentId { get; private set; }
     public Comment? Parent { get; private set; }
-
-    public string? DiscussionId { get; private set; }
-    public Discussion? Discussion { get; private set; }
 
     public string Content { get; private set; }
 

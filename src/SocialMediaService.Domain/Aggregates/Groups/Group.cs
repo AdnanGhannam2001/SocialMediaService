@@ -12,7 +12,6 @@ public sealed class Group : AggregateRoot
     private List<Kicked> _kicked = [];
     private List<JoinRequest> _joinRequests = [];
     private List<Invite> _invites = [];
-    private List<Discussion> _discussions = [];
     private List<Post> _posts = [];
 
     #pragma warning disable CS8618
@@ -46,7 +45,6 @@ public sealed class Group : AggregateRoot
     public IReadOnlyCollection<Kicked> Kicked => _kicked;
     public IReadOnlyCollection<JoinRequest> JoinRequests => _joinRequests;
     public IReadOnlyCollection<Invite> Invites => _invites;
-    public IReadOnlyCollection<Discussion> Discussions => _discussions;
     public IReadOnlyCollection<Post> Posts => _posts;
 
     public void Update(string? name = null,
@@ -110,16 +108,6 @@ public sealed class Group : AggregateRoot
     public void Kick(Kicked kicked)
     {
         _kicked.Add(kicked);
-    }
-
-    public void AddDiscussion(Discussion discussion)
-    {
-        _discussions.Add(discussion);
-    }
-
-    public void RemoveDiscussion(Discussion discussion)
-    {
-        _discussions.Remove(discussion);
     }
 
     public void AddPost(Post post)

@@ -26,8 +26,7 @@ public sealed class Profile : AggregateRoot
     private List<JoinRequest> _joinRequests = [];
     private List<Invite> _sentInvites = [];
     private List<Invite> _receivedInvites = [];
-    private List<Discussion> _discussions = [];
-    private List<FavoriteDiscussion> _favoriteDiscussions = [];
+    private List<SavedPost> _savedPosts = [];
 
     #pragma warning disable CS8618
     private Profile() { }
@@ -88,8 +87,7 @@ public sealed class Profile : AggregateRoot
     public IReadOnlyCollection<JoinRequest> JoinRequests => _joinRequests.AsReadOnly();
     public IReadOnlyCollection<Invite> SentInvites => _sentInvites.AsReadOnly();
     public IReadOnlyCollection<Invite> ReceivedInvites => _receivedInvites.AsReadOnly();
-    public IReadOnlyCollection<Discussion> Discussions => _discussions.AsReadOnly();
-    public IReadOnlyCollection<FavoriteDiscussion> FavoriteDiscussions => _favoriteDiscussions.AsReadOnly();
+    public IReadOnlyCollection<SavedPost> SavedPosts => _savedPosts.AsReadOnly();
 
     public void Update(string? firstName = null,
         string? lastName = null,
@@ -163,13 +161,13 @@ public sealed class Profile : AggregateRoot
         _receivedInvites.Remove(invite);
     }
 
-    public void AddToFavoriteDiscussions(FavoriteDiscussion discussion)
+    public void SavePost(SavedPost savedPost)
     {
-        _favoriteDiscussions.Add(discussion);
+        _savedPosts.Add(savedPost);
     }
 
-    public void RemoveFromFavoriteDiscussions(FavoriteDiscussion discussion)
+    public void UnsavePost(SavedPost savedPost)
     {
-        _favoriteDiscussions.Remove(discussion);
+        _savedPosts.Remove(savedPost);
     }
 }
