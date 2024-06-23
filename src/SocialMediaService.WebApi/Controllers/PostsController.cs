@@ -12,7 +12,6 @@ using SocialMediaService.Application.Features.Commands.UnhidePost;
 using SocialMediaService.Application.Features.Commands.UnreactToPost;
 using SocialMediaService.Application.Features.Commands.UpdatePost;
 using SocialMediaService.Application.Features.Queries.GetCommentsPage;
-using SocialMediaService.Application.Features.Queries.GetHiddenPosts;
 using SocialMediaService.Application.Features.Queries.GetReactionsPage;
 using SocialMediaService.Domain.Aggregates.Posts;
 using SocialMediaService.Domain.Enums;
@@ -20,6 +19,7 @@ using SocialMediaService.WebApi.Dtos.PostDtos;
 using SocialMediaService.WebApi.Extensions;
 using SocialMediaService.Application.Features.Queries.GetPostsPage;
 using SocialMediaService.Application.Features.Queries.GetProfilePosts;
+using SocialMediaService.Application.Enums;
 namespace SocialMediaService.WebApi.Controllers;
 
 [Authorize]
@@ -35,7 +35,7 @@ public sealed class PostsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> Index([FromQuery] int pageNumber = 0,
+    public async Task<IActionResult> FollowedPosts([FromQuery] int pageNumber = 0,
         [FromQuery] int pageSize = 20,
         [FromQuery] string search = "",
         [FromQuery] bool desc = true)
@@ -47,6 +47,23 @@ public sealed class PostsController : ControllerBase
             desc);
 
         var result = await _mediator.Send(new GetPostsPageQuery(User.GetId()!, pageRequest));
+
+        return this.GetFromResult(result);
+    }
+
+    [HttpGet("friends")]
+    public async Task<IActionResult> FriendsPosts([FromQuery] int pageNumber = 0,
+        [FromQuery] int pageSize = 20,
+        [FromQuery] string search = "",
+        [FromQuery] bool desc = true)
+    {
+       var pageRequest = new PageRequest<Post>(pageNumber,
+            pageSize,
+            x => x.Content.Contains(search),
+            x => x.CreatedAtUtc,
+            desc);
+
+        var result = await _mediator.Send(new GetPostsPageQuery(User.GetId()!, pageRequest, PostsTypes.FriendsPosts));
 
         return this.GetFromResult(result);
     }
@@ -124,7 +141,7 @@ public sealed class PostsController : ControllerBase
             x => x.CreatedAtUtc,
             desc);
 
-        var result = await _mediator.Send(new GetHiddenPostsQuery(User.GetId()!, pageRequest));
+        var result = await _mediator.Send(new GetPostsPageQuery(User.GetId()!, pageRequest, PostsTypes.HiddenPosts));
 
         return this.GetFromResult(result);
     }
