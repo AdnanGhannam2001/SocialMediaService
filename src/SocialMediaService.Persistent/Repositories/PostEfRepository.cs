@@ -17,7 +17,38 @@ public sealed class PostEfRepository : EfRepository<Post, string>, IPostReposito
         _context = context;
     }
 
-    public Task<Page<Post>> GetPageWithoutHiddenAsync(string profileId, PageRequest<Post> request, CancellationToken cancellationToken = default)
+    public Task<Page<Post>> GetFollowedPostsPageAsync(string profileId, PageRequest<Post> request, CancellationToken cancellationToken = default)
+    {
+        var query = _context.Profiles
+            .AsNoTracking()
+            .Where(x => x.Id.Equals(profileId))
+            .SelectMany(x => x.Following)
+                .Select(x => x.Followed)
+                .SelectMany(x => x.Posts)
+                    .Where(request.Predicate ?? (_ => true))
+                    .Include(x => x.HiddenBy.Where(x => x.Id.Equals(profileId)))
+                    .Where(x => x.HiddenBy.Count == 0)
+                    .Where(x => x.Visibility.Equals(PostVisibilities.Public) && x.GroupId == null);
+
+        var orderQuery = request.KeySelector is not null
+            ? request.Desc
+                ? query.OrderByDescending(request.KeySelector)
+                : query.OrderBy(request.KeySelector)
+            : request.Desc
+                ? query.OrderDescending()
+                : query.Order();
+
+        query = orderQuery
+            .Include(x => x.Profile)
+            .Include(x => x.Media)
+            .Include(x => x.Reactions.Where(x => x.ProfileId.Equals(profileId)))
+            .Skip(request.PageNumber * request.PageSize)
+            .Take(request.PageSize);
+
+        return Task.FromResult(new Page<Post>(query.ToList(), 0));
+    }
+
+    public Task<Page<Post>> GetFriendsPostsPageAsync(string profileId, PageRequest<Post> request, CancellationToken cancellationToken = default)
     {
         var query = _context.Profiles
             .AsNoTracking()
@@ -92,6 +123,9 @@ public sealed class PostEfRepository : EfRepository<Post, string>, IPostReposito
                 : query.OrderBy(request.KeySelector ?? (x => x.CreatedAtUtc));
 
         query = orderQuery
+            .Include(x => x.Profile)
+            .Include(x => x.Media)
+            .Include(x => x.Reactions.Where(x => x.ProfileId.Equals(profileId)))
             .Skip(request.PageNumber * request.PageSize)
             .Take(request.PageSize);
 

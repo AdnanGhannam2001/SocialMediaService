@@ -8,7 +8,8 @@ namespace SocialMediaService.Persistent.Interfaces;
 public interface IPostRepository
     : IWriteRepository<Post, string>, IReadRepository<Post, string>
 {
-    Task<Page<Post>> GetPageWithoutHiddenAsync(string profileId, PageRequest<Post> request, CancellationToken cancellationToken = default);
+    Task<Page<Post>> GetFollowedPostsPageAsync(string profileId, PageRequest<Post> request, CancellationToken cancellationToken = default);
+    Task<Page<Post>> GetFriendsPostsPageAsync(string profileId, PageRequest<Post> request, CancellationToken cancellationToken = default);
     Task<Page<Post>> GetProfilePostsPageAsync(string profileId,
         PageRequest<Post> request,
         PostVisibilities includingVisibility = PostVisibilities.Public,
