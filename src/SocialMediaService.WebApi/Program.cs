@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using SocialMediaService.Persistent.Data.Seed;
 using SocialMediaService.Persistent.Data;
 using SocialMediaService.Infrastructure.Extensions;
+using MassTransit;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,7 +23,9 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services
+#if DEBUG && !NO_RABBIT_MQ
     .AddInfrastructure()
+#endif
     .AddPersistent(builder.Configuration.GetConnectionString("PostgresConnection"))
     .AddApplication()
     .AddAuth(builder.Configuration.GetSection(nameof(OpenIdConnectOptions)))
@@ -34,7 +37,8 @@ if (args.Contains("--seed"))
 {
     using var scope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope();
     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    SeedData.ApplyAsync(context).GetAwaiter().GetResult();
+    var messagePublisher = scope.ServiceProvider.GetRequiredService<IPublishEndpoint>();
+    SeedData.ApplyAsync(context, messagePublisher).GetAwaiter().GetResult();
     return;
 }
 
