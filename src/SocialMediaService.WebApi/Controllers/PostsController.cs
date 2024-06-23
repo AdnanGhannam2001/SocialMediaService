@@ -20,6 +20,7 @@ using SocialMediaService.WebApi.Extensions;
 using SocialMediaService.Application.Features.Queries.GetPostsPage;
 using SocialMediaService.Application.Features.Queries.GetProfilePosts;
 using SocialMediaService.Application.Enums;
+using SocialMediaService.Domain.Aggregates.Profiles;
 namespace SocialMediaService.WebApi.Controllers;
 
 [Authorize]
@@ -67,6 +68,24 @@ public sealed class PostsController : ControllerBase
 
         return this.GetFromResult(result);
     }
+
+    [HttpGet("saved-posts")]
+    public async Task<IActionResult> SavedPosts([FromQuery] int pageNumber = 0,
+        [FromQuery] int pageSize = 20,
+        [FromQuery] string search = "",
+        [FromQuery] bool desc = true)
+    {
+       var pageRequest = new PageRequest<Post>(pageNumber,
+            pageSize,
+            x => x.Content.Contains(search),
+            x => x.CreatedAtUtc,
+            desc);
+
+        var result = await _mediator.Send(new GetPostsPageQuery(User.GetId()!, pageRequest, PostsTypes.SavedPosts));
+
+        return this.GetFromResult(result);
+    }
+
 
     [HttpGet("profile")]
     public async Task<IActionResult> MyPosts([FromQuery] int pageNumber = 0,

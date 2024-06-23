@@ -5,9 +5,7 @@ using PR2.Shared.Common;
 using PR2.Shared.Enums;
 using SocialMediaService.Application.Features.Commands.CancelJoinRequest;
 using SocialMediaService.Application.Features.Commands.ChangeMemberRole;
-using SocialMediaService.Application.Features.Commands.CreateDiscussion;
 using SocialMediaService.Application.Features.Commands.CreateGroup;
-using SocialMediaService.Application.Features.Commands.DeleteDiscussion;
 using SocialMediaService.Application.Features.Commands.DeleteGroup;
 using SocialMediaService.Application.Features.Commands.DeleteMember;
 using SocialMediaService.Application.Features.Commands.LeaveGroup;
@@ -15,10 +13,7 @@ using SocialMediaService.Application.Features.Commands.RespondToInvite;
 using SocialMediaService.Application.Features.Commands.RespondToJoinRequest;
 using SocialMediaService.Application.Features.Commands.SendInvite;
 using SocialMediaService.Application.Features.Commands.SendJoinRequest;
-using SocialMediaService.Application.Features.Commands.UpdateDiscussion;
 using SocialMediaService.Application.Features.Commands.UpdateGroup;
-using SocialMediaService.Application.Features.Queries.GetDiscussion;
-using SocialMediaService.Application.Features.Queries.GetDiscussionsPage;
 using SocialMediaService.Application.Features.Queries.GetGroup;
 using SocialMediaService.Application.Features.Queries.GetGroupMembersPage;
 using SocialMediaService.Application.Features.Queries.GetGroupPostsPage;
@@ -267,56 +262,4 @@ public sealed class GroupsController : ControllerBase
 
         return this.GetFromResult(result);
     }
-
-    #region Discussion
-    [HttpGet("{id}/discussions")]
-    public async Task<IActionResult> Discussions(string id,
-        [FromQuery] int pageNumber = 0,
-        [FromQuery] int pageSize = 20,
-        [FromQuery] string search = "",
-        [FromQuery] bool desc = true)
-    {
-        var page = new PageRequest<Discussion>(pageNumber,
-            pageSize,
-            x => x.Content.Contains(search),
-            x => x.CreatedAtUtc,
-            desc);
-
-        var result = await _mediator.Send(new GetDiscussionsPageQuery(id, page, User.GetId()!));
-
-        return this.GetFromResult(result);
-    }
-
-    [HttpPost("{id}/discussions")]
-    public async Task<IActionResult> CreateDiscussion(string id, [FromBody] CreateDiscussionRequest dto)
-    {
-        var result = await _mediator.Send(new CreateDiscussionCommand(User.GetId()!, id, dto.Title, dto.Content, dto.Tags));
-
-        return this.GetFromResult(result);
-    }
-
-    [HttpGet("{id}/discussions/{discussionId}")]
-    public async Task<IActionResult> Discussion(string id, string discussionId)
-    {
-        var result = await _mediator.Send(new GetDiscussionQuery(id, discussionId, User.GetId()!));
-
-        return this.GetFromResult(result);
-    }
-
-    [HttpPatch("{id}/discussions/{discussionId}")]
-    public async Task<IActionResult> UpdateDiscussion(string id, string discussionId, [FromBody] CreateDiscussionRequest dto)
-    {
-        var result = await _mediator.Send(new UpdateDiscussionCommand(id, discussionId, User.GetId()!, dto.Title, dto.Content, dto.Tags));
-
-        return this.GetFromResult(result);
-    }
-
-    [HttpDelete("{id}/discussions/{discussionId}")]
-    public async Task<IActionResult> DeleteDiscussion(string id, string discussionId)
-    {
-        var result = await _mediator.Send(new DeleteDiscussionCommand(id, discussionId, User.GetId()!));
-
-        return this.GetFromResult(result);
-    }
-    #endregion // Discussion
 }
