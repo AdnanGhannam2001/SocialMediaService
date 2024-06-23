@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\SocialMediaService.Domain\SocialMediaService.Domain.csproj" />
     <ProjectReference Include="..\SocialMediaService.Persistent\SocialMediaService.Persistent.csproj" />
+    <ProjectReference Include="..\SocialMediaService.Infrastructure\SocialMediaService.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>

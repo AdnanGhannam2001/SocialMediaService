@@ -7,6 +7,7 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using SocialMediaService.Persistent.Data.Seed;
 using SocialMediaService.Persistent.Data;
+using SocialMediaService.Infrastructure.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +22,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services
+    .AddInfrastructure()
     .AddPersistent(builder.Configuration.GetConnectionString("PostgresConnection"))
     .AddApplication()
     .AddAuth(builder.Configuration.GetSection(nameof(OpenIdConnectOptions)))

@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocialMediaService.WebApi",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocialMediaService.Application", "src\SocialMediaService.Application\SocialMediaService.Application.csproj", "{9548B4D6-CFD9-4ACD-9103-99E0B8CBA9C0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocialMediaService.Infrastructure", "src\SocialMediaService.Infrastructure\SocialMediaService.Infrastructure.csproj", "{C2D12598-896D-4C2E-979B-F2E32C34DAE0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -38,11 +40,16 @@ Global
 		{9548B4D6-CFD9-4ACD-9103-99E0B8CBA9C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9548B4D6-CFD9-4ACD-9103-99E0B8CBA9C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9548B4D6-CFD9-4ACD-9103-99E0B8CBA9C0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C2D12598-896D-4C2E-979B-F2E32C34DAE0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C2D12598-896D-4C2E-979B-F2E32C34DAE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C2D12598-896D-4C2E-979B-F2E32C34DAE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C2D12598-896D-4C2E-979B-F2E32C34DAE0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{13FA282B-526B-495A-B922-D5160A482B65} = {A8C09051-16C9-477E-906D-9C39BC99107C}
 		{5D09BE49-23DF-452F-9E8B-6FFE4AC73509} = {A8C09051-16C9-477E-906D-9C39BC99107C}
 		{3DE9CBD3-B5F9-46F4-891D-A1FAA7F8EC20} = {A8C09051-16C9-477E-906D-9C39BC99107C}
 		{9548B4D6-CFD9-4ACD-9103-99E0B8CBA9C0} = {A8C09051-16C9-477E-906D-9C39BC99107C}
+		{C2D12598-896D-4C2E-979B-F2E32C34DAE0} = {A8C09051-16C9-477E-906D-9C39BC99107C}
 	EndGlobalSection
 EndGlobal

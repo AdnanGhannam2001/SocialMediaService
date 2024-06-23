@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SocialMediaService.Domain\SocialMediaService.Domain.csproj" />
+    <ProjectReference Include="..\SocialMediaService.Infrastructure\SocialMediaService.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>
