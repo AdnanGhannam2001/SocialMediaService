@@ -10,6 +10,7 @@ public interface IPostRepository
 {
     Task<Page<Post>> GetFollowedPostsPageAsync(string profileId, PageRequest<Post> request, CancellationToken cancellationToken = default);
     Task<Page<Post>> GetFriendsPostsPageAsync(string profileId, PageRequest<Post> request, CancellationToken cancellationToken = default);
+    Task<Page<Post>> GetSavedPostsPageAsync(string profileId, PageRequest<Post> request, CancellationToken cancellationToken = default);
     Task<Page<Post>> GetProfilePostsPageAsync(string profileId,
         PageRequest<Post> request,
         PostVisibilities includingVisibility = PostVisibilities.Public,

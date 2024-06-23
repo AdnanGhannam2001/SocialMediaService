@@ -16,7 +16,7 @@ public sealed class ApplicationDbContext : DbContext
     public DbSet<FriendshipRequest> FriendshipRequests { get; set; }
     public DbSet<Friendship> Friendships { get; set; }
     public DbSet<Follow> Follows { get; set; }
-    public DbSet<FavoriteDiscussion> FavoriteDiscussions { get; set; }
+    public DbSet<SavedPost> SavedPosts { get; set; }
     public DbSet<Block> Blocks { get; set; }
 
     public DbSet<Post> Posts { get; set; }
@@ -24,12 +24,10 @@ public sealed class ApplicationDbContext : DbContext
     public DbSet<Comment> Comments { get; set; }
 
     public DbSet<Group> Groups { get; set; }
-    public DbSet<Discussion> Discussions { get; set; }
     public DbSet<Invite> Invites { get; set; }
     public DbSet<JoinRequest> JoinRequests { get; set; }
     public DbSet<Kicked> KickedList { get; set; }
     public DbSet<Member> Members { get; set; }
-    public DbSet<Tag> Tags { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -47,7 +45,7 @@ public sealed class ApplicationDbContext : DbContext
             modelBuilder.Entity<FriendshipRequest>().HasKey(x => new { x.SenderId, x.ReceiverId });
             modelBuilder.Entity<Friendship>().HasKey(x => new { x.FriendId, x.ProfileId });
             modelBuilder.Entity<Follow>().HasKey(x => new { x.FollowedId, x.FollowerId });
-            modelBuilder.Entity<FavoriteDiscussion>().HasKey(x => new { x.ProfileId, x.DiscussionId });
+            modelBuilder.Entity<SavedPost>().HasKey(x => new { x.ProfileId, x.PostId });
             modelBuilder.Entity<Block>().HasKey(x => new { x.BlockedId, x.BlockerId });
         }
         

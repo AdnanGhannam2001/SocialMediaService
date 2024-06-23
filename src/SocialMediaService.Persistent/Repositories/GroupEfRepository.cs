@@ -183,46 +183,4 @@ public sealed class GroupEfRepository : EfRepository<Group, string>, IGroupRepos
             .FirstOrDefaultAsync(x => x.Id.Equals(id), cancellationToken);
     }
     #endregion // Kicked
-
-    #region Discussion
-    public async Task<Page<Discussion>> GetDiscussionsPageAsync(string id, PageRequest<Discussion> request, CancellationToken cancellationToken = default)
-    {
-        var query = Queryable
-            .AsNoTracking()
-            .Where(x => x.Id.Equals(id))
-            .SelectMany(x => x.Discussions)
-            .Where(request.Predicate ?? (_ => true));
-
-        var orderQuery = request.KeySelector is not null
-            ? request.Desc
-                ? query.OrderByDescending(request.KeySelector)
-                : query.OrderBy(request.KeySelector)
-            : request.Desc
-                ? query.OrderByDescending(x => x.CreatedAtUtc)
-                : query.OrderBy(x => x.CreatedAtUtc);
-
-        query = orderQuery
-            .Skip(request.PageNumber * request.PageSize)
-            .Take(request.PageSize);
-
-        var total = await CountDiscussionsAsync(id, request.Predicate, cancellationToken);
-
-        return new (query.ToList(), total);
-    }
-
-    public Task<int> CountDiscussionsAsync(string id, Expression<Func<Discussion, bool>>? predicate, CancellationToken cancellationToken = default)
-    {
-        return Queryable
-            .Where(x => x.Id.Equals(id))
-            .SelectMany(x => x.Discussions)
-            .CountAsync(predicate ?? (_ => true), cancellationToken);
-    }
-
-    public Task<Group?> GetWithDiscussionAsync(string id, string discussionId, CancellationToken cancellationToken = default)
-    {
-        return Queryable
-            .Include(x => x.Discussions.Where(x => x.Id.Equals(discussionId)))
-            .FirstOrDefaultAsync(x => x.Id.Equals(id), cancellationToken);
-    }
-    #endregion // Discussion
 }

@@ -71,10 +71,6 @@ public interface IProfileRepository
     #endregion // Invite
 
     #region Favorite Discussion
-    Task<Profile?> GetWithFavoriteDiscussionAsync(string profileId, string discussionId, CancellationToken cancellationToken = default);
-    Task<Page<FavoriteDiscussion>> GetFavoriteDiscussionsPageAsync(string profileId, PageRequest<FavoriteDiscussion> request, CancellationToken cancellationToken = default);
-    Task<int> CountFavoriteDiscussionsAsync(string profileId,
-        Expression<Func<FavoriteDiscussion, bool>>? predicate = null,
-        CancellationToken cancellationToken = default);
+    Task<Profile?> GetWithSavedPostAsync(string profileId, string discussionId, CancellationToken cancellationToken = default);
     #endregion // Favorite Discussion
 }

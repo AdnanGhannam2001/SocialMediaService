@@ -43,11 +43,6 @@ internal sealed class GroupEntityTypeConfiguration : IEntityTypeConfiguration<Gr
             .HasForeignKey(x => x.GroupId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasMany(x => x.Discussions)
-            .WithOne(x => x.Group)
-            .HasForeignKey(x => x.GroupId)
-            .OnDelete(DeleteBehavior.Cascade);
-
         builder.OwnsOne(x => x.Settings);
     }
 }

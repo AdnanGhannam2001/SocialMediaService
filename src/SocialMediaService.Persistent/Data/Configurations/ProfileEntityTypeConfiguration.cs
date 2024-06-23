@@ -133,12 +133,7 @@ internal sealed class ProfileEntityTypeConfiguration : IEntityTypeConfiguration<
            .HasForeignKey(x => x.ProfileId)
            .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasMany(x => x.Discussions)
-           .WithOne(x => x.Profile)
-           .HasForeignKey(x => x.ProfileId)
-           .OnDelete(DeleteBehavior.Cascade);
-
-        builder.HasMany(x => x.FavoriteDiscussions)
+        builder.HasMany(x => x.SavedPosts)
            .WithOne(x => x.Profile)
            .HasForeignKey(x => x.ProfileId)
            .OnDelete(DeleteBehavior.Cascade);
