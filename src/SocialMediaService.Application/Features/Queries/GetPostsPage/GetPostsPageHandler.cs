@@ -1,6 +1,8 @@
+using System.Diagnostics;
 using MediatR;
 using PR2.Shared.Common;
 using PR2.Shared.Exceptions;
+using SocialMediaService.Application.Enums;
 using SocialMediaService.Domain.Aggregates.Posts;
 using SocialMediaService.Persistent.Interfaces;
 
@@ -27,7 +29,14 @@ public sealed class GetPostsPageHandler : IRequestHandler<GetPostsPageQuery, Res
             return new RecordNotFoundException("Profile is not found");
         }
 
-        var page = await _postRepo.GetPageWithoutHiddenAsync(request.ProfileId, request.Request, cancellationToken);
+        var page = request.Type switch
+        {
+            PostsTypes.FollowedPosts => await _postRepo.GetFollowedPostsPageAsync(request.ProfileId, request.Request, cancellationToken),
+            PostsTypes.FriendsPosts => await _postRepo.GetFriendsPostsPageAsync(request.ProfileId, request.Request, cancellationToken),
+            PostsTypes.FavoritePosts => throw new NotImplementedException(),
+            PostsTypes.HiddenPosts => await _postRepo.GetHiddenPageAsync(profile.Id, request.Request, cancellationToken),
+            _ => throw new UnreachableException()
+        };
 
         return page;
     }

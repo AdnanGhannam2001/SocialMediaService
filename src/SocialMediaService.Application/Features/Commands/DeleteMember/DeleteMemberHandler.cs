@@ -46,7 +46,7 @@ public sealed class DeleteMemberHandler : IRequestHandler<DeleteMemberCommand, R
 
         // Check if profile is organizer
         if (await _groupRepo.CountMembersAsync(group.Id,
-            x => x.Role == MemberRoleTypes.Organizer && x.ProfileId.Equals(request.ProfileId),
+            x => (x.Role <= MemberRoleTypes.Organizer) && x.ProfileId.Equals(request.ProfileId),
             cancellationToken) == 0)
         {
             return new UnauthorizedException("You have to be an organizer or higher to perform this action");

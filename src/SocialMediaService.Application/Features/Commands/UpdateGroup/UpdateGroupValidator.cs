@@ -12,12 +12,18 @@ public sealed class UpdateGroupValidator : AbstractValidator<UpdateGroupCommand>
         RuleFor(x => x.GroupId)
             .NotEmpty();
 
-        RuleFor(x => x.Name)
-            .NotEmpty()
-            .MaximumLength(50);
+        When(x => x.Name != null, () =>
+        {
+            RuleFor(x => x.Name)
+                .NotEmpty()
+                .MaximumLength(50);
+        });
 
-        RuleFor(x => x.Description)
-            .NotEmpty()
-            .MaximumLength(250);
+        When(x => x.Description != null, () =>
+        {
+            RuleFor(x => x.Description)
+                .NotEmpty()
+                .MaximumLength(250);
+        });
     }
 }
