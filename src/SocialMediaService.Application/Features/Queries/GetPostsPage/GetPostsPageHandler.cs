@@ -33,7 +33,7 @@ public sealed class GetPostsPageHandler : IRequestHandler<GetPostsPageQuery, Res
         {
             PostsTypes.FollowedPosts => await _postRepo.GetFollowedPostsPageAsync(request.ProfileId, request.Request, cancellationToken),
             PostsTypes.FriendsPosts => await _postRepo.GetFriendsPostsPageAsync(request.ProfileId, request.Request, cancellationToken),
-            PostsTypes.FavoritePosts => throw new NotImplementedException(),
+            PostsTypes.SavedPosts => await _postRepo.GetSavedPostsPageAsync(request.ProfileId, request.Request, cancellationToken),
             PostsTypes.HiddenPosts => await _postRepo.GetHiddenPageAsync(profile.Id, request.Request, cancellationToken),
             _ => throw new UnreachableException()
         };

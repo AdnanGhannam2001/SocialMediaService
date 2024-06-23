@@ -4,6 +4,6 @@ public enum PostsTypes : byte
 {
     FollowedPosts,
     FriendsPosts,
-    FavoritePosts,
+    SavedPosts,
     HiddenPosts,
 }
