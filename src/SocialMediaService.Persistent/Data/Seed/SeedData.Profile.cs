@@ -1,11 +1,14 @@
 using Bogus;
+using MassTransit;
+using PR2.Contracts.Events;
 using SocialMediaService.Domain.Aggregates.Profiles;
+using SocialMediaService.Infrastructure.Services;
 
 namespace SocialMediaService.Persistent.Data.Seed;
 
 public static partial class SeedData
 {
-    private static async Task SeedProfilesAsync(ApplicationDbContext context)
+    private static async Task SeedProfilesAsync(ApplicationDbContext context, IPublishEndpoint messagePublisher)
     {
         for (var i = 0; i < FriendshipsCount && i < Profiles.Count; ++i)
         {
@@ -16,7 +19,12 @@ public static partial class SeedData
 
             var friendship = friendshipFaker.Generate();
 
-            if (friendship.Profile.Id != friendship.Friend.Id) Profiles[i].AddFriend(friendship);
+            if (friendship.Profile.Id != friendship.Friend.Id)
+            {
+                Profiles[i].AddFriend(friendship);
+                var message = new FriendshipCreatedEvent(friendship.Profile.Id, friendship.Friend.Id);
+                await messagePublisher.Publish(message);
+            }
         }
 
         for (var i = 0; i < FollowsCount && i < Profiles.Count; ++i)

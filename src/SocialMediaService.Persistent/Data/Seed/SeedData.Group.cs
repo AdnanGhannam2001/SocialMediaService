@@ -1,15 +1,18 @@
 using Bogus;
+using MassTransit;
+using PR2.Contracts.Events;
 using PR2.Shared.Enums;
 using SocialMediaService.Domain.Aggregates.Groups;
 using SocialMediaService.Domain.Aggregates.Groups.ValueObjects;
 using SocialMediaService.Domain.Aggregates.Posts;
 using SocialMediaService.Domain.Enums;
+using SocialMediaService.Infrastructure.Services;
 
 namespace SocialMediaService.Persistent.Data.Seed;
 
 public static partial class SeedData
 {
-    private static async Task SeedGroupsAsync(ApplicationDbContext context)
+    private static async Task SeedGroupsAsync(ApplicationDbContext context, IPublishEndpoint messagePublisher)
     {
         var random = new Random();
 
@@ -21,14 +24,15 @@ public static partial class SeedData
 
         var groups = groupFaker.Generate(GroupsCount);
         
-        // Create Admin for each Group
         foreach (var group in groups)
         {
-            group.AddMember(new Member(group, Profiles[random.Next(0, Profiles.Count)], MemberRoleTypes.Admin));
+            // Create Admin for each Group
+            var admin = Profiles[random.Next(0, Profiles.Count)];
+            group.AddMember(new Member(group, admin, MemberRoleTypes.Admin));
+            await context.AddAsync(group);
+            var message = new GroupCreatedEvent(group.Id, admin.Id);
+            await messagePublisher.Publish(message);
         }
-
-        await context.AddRangeAsync(groups);
-        await context.SaveChangesAsync();
 
         var memberFaker = new Faker<Member>()
             .RuleFor(x => x.Profile, f => f.PickRandom(Profiles))
@@ -43,6 +47,8 @@ public static partial class SeedData
                 if (!group.Members.Any(x => x.Profile.Id.Equals(member.Profile.Id)))
                 {
                     group.AddMember(member);
+                    var message = new MemberJoinedEvent(group.Id, member.Profile.Id, Enum.GetName(member.Role)!);
+                    await messagePublisher.Publish(message);
                 }
             }
         }

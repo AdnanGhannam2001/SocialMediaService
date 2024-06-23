@@ -1,5 +1,7 @@
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using SocialMediaService.Domain.Aggregates.Profiles;
+using SocialMediaService.Infrastructure.Services;
 
 namespace SocialMediaService.Persistent.Data.Seed;
 
@@ -11,20 +13,17 @@ public static partial class SeedData
     private const int CommentsCount = 100;
     private const int ReactionsCount = 100;
     private const int GroupsCount = 50;
-    private static readonly IList<Profile> Profiles = [];
+    private static IList<Profile> Profiles = [];
 
-    public static async Task ApplyAsync(ApplicationDbContext context, bool clear = false)
+    public static async Task ApplyAsync(ApplicationDbContext context, IPublishEndpoint messagePublisher, bool clear = false)
     {
         if (clear) await ClearAsync(context);
 
-        foreach (var profile in context.Profiles)
-        {
-            Profiles.Add(profile);
-        }
+        Profiles = await context.Profiles.ToListAsync();
 
         if (!await context.Friendships.AnyAsync() && !await context.Follows.AnyAsync())
         {
-            await SeedProfilesAsync(context);
+            await SeedProfilesAsync(context, messagePublisher);
         }
 
         if (!await context.Posts.AnyAsync())
@@ -34,7 +33,7 @@ public static partial class SeedData
 
         if (!await context.Groups.AnyAsync())
         {
-            await SeedGroupsAsync(context);
+            await SeedGroupsAsync(context, messagePublisher);
         }
     }
 
