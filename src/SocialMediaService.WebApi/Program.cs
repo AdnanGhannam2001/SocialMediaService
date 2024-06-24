@@ -68,4 +68,6 @@ app.MapGrpcService<ProfileServiceImpl>();
 
 app.MapControllers();
 
+app.Map("test", () => "123").RequireAuthorization();
+
 app.Run();

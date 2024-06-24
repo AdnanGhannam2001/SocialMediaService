@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http.Extensions;
 
 namespace SocialMediaService.WebApi.Extensions;
@@ -7,12 +8,15 @@ internal static class IServiceCollectionExtensions
 {
     public static IServiceCollection AddAuth(this IServiceCollection services, IConfigurationSection configurationSection)
     {
+        services.AddDataProtection()
+            .SetApplicationName("SocialMedia");
+
         services.AddAuthentication(opt =>
             {
-                opt.DefaultScheme = "WebApiCookies";
+                opt.DefaultScheme = "SocialMediaCookies";
                 opt.DefaultChallengeScheme = "oidc";
             })
-            .AddCookie("WebApiCookies")
+            .AddCookie("SocialMediaCookies")
             .AddOpenIdConnect("oidc", config =>
             {
                 configurationSection.Bind(config);
