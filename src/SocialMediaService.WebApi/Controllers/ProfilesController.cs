@@ -389,4 +389,12 @@ public sealed class ProfilesController : ControllerBase
         return this.GetFromResult(result);
     }
     #endregion // Saved Post
+
+    [AllowAnonymous]
+    [HttpGet("auth")]
+    public async Task<IActionResult> Auth()
+    {
+        Console.WriteLine("____________");
+        return Challenge("oidc");
+    }
 }

@@ -29,6 +29,7 @@ builder.Services
     .AddPersistent(builder.Configuration.GetConnectionString("PostgresConnection"))
     .AddApplication()
     .AddAuth(builder.Configuration.GetSection(nameof(OpenIdConnectOptions)))
+    .AddCors()
     .AddGrpc();
 
 var app = builder.Build();
@@ -50,7 +51,6 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-#if DEBUG
 app.UseCors(x =>
 {
     x
@@ -59,7 +59,6 @@ app.UseCors(x =>
         .AllowAnyHeader()
         .AllowCredentials();
 });
-#endif
 
 app.UseAuthentication();
 app.UseAuthorization();
@@ -67,7 +66,5 @@ app.UseAuthorization();
 app.MapGrpcService<ProfileServiceImpl>();
 
 app.MapControllers();
-
-app.Map("test", () => "123").RequireAuthorization();
 
 app.Run();

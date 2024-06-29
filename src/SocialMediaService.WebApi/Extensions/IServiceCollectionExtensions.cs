@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.Extensions.Primitives;
 
 namespace SocialMediaService.WebApi.Extensions;
 
@@ -20,12 +21,26 @@ internal static class IServiceCollectionExtensions
             .AddOpenIdConnect("oidc", config =>
             {
                 configurationSection.Bind(config);
+
                 config.Events = new OpenIdConnectEvents()
                 {
                     OnRedirectToIdentityProvider = context =>
                     {
-                        context.Response.StatusCode = StatusCodes.Status307TemporaryRedirect;
-                        context.Properties.RedirectUri = "http://localhost:4200/profiles/profile";
+                        var uri = new Uri(context.Request.GetDisplayUrl());
+
+                        if (uri.Segments.LastOrDefault() != "login")
+                        {
+                            context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                            context.HandleResponse();
+
+                            return Task.CompletedTask;
+                        }
+
+                        var redirectUri = context.Request.Query.FirstOrDefault(x => x.Key.Equals("redirect_uri"));
+                        if (!redirectUri.Equals(new KeyValuePair<string, StringValues>()))
+                        {
+                            context.Properties.RedirectUri = redirectUri.Value.FirstOrDefault();
+                        }
 
                         return Task.CompletedTask;
                     },
