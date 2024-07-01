@@ -8,6 +8,8 @@ namespace SocialMediaService.Persistent.Interfaces;
 public interface IGroupRepository
     : IWriteRepository<Group, string>, IReadRepository<Group, string>
 {
+    Task<IEnumerable<T>> GetGroupsByIdsAsync<T>(IEnumerable<string> ids, Expression<Func<Group, T>> selector, CancellationToken cancellationToken = default);
+
     #region Posts
     Task<Page<Post>> GetPostsPageAsync(string id, PageRequest<Post> request, string? profileId = null, CancellationToken cancellationToken = default);
     Task<int> CountPostsAsync(string id, Expression<Func<Post, bool>>? predicate, CancellationToken cancellationToken = default);

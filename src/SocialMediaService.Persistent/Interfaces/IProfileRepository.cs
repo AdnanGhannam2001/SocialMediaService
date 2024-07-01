@@ -12,6 +12,8 @@ public interface IProfileRepository
         string? profileId = null,
         CancellationToken cancellationToken = default);
 
+    Task<IEnumerable<T>> GetProfilesByIdsAsync<T>(IEnumerable<string> ids, Expression<Func<Profile, T>> selector, CancellationToken cancellationToken = default);
+
     #region Settings
     Task<Profile?> GetWithSettingsAsync(string id, CancellationToken cancellationToken = default);
     #endregion // Settings

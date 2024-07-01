@@ -42,6 +42,15 @@ public sealed class ProfileEfRepository
         return new (query.ToList(), total);
     }
 
+    public Task<IEnumerable<T>> GetProfilesByIdsAsync<T>(IEnumerable<string> ids, Expression<Func<Profile, T>> selector, CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult(
+            Queryable
+                .Where(x => ids.Contains(x.Id))
+                .Select(selector)
+                .AsEnumerable());
+    }
+
     #region Settings
     public Task<Profile?> GetWithSettingsAsync(string id, CancellationToken cancellationToken = default)
     {

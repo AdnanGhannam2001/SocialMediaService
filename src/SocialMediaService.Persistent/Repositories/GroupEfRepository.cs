@@ -12,6 +12,15 @@ public sealed class GroupEfRepository : EfRepository<Group, string>, IGroupRepos
 {
     public GroupEfRepository(ApplicationDbContext context) : base(context) { }
 
+    public Task<IEnumerable<T>> GetGroupsByIdsAsync<T>(IEnumerable<string> ids, Expression<Func<Group, T>> selector, CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult(
+            Queryable
+                .Where(x => ids.Contains(x.Id))
+                .Select(selector)
+                .AsEnumerable());
+    }
+
     #region Posts
     public async Task<Page<Post>> GetPostsPageAsync(string id, PageRequest<Post> request, string? profileId = null, CancellationToken cancellationToken = default)
     {
