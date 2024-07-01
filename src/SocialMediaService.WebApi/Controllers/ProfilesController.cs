@@ -22,6 +22,7 @@ using SocialMediaService.Application.Features.Queries.GetFriendshipsPage;
 using SocialMediaService.Application.Features.Queries.GetGroupsPageFor;
 using SocialMediaService.Application.Features.Queries.GetInvites;
 using SocialMediaService.Application.Features.Queries.GetProfile;
+using SocialMediaService.Application.Features.Queries.GetProfilesNamesByIds;
 using SocialMediaService.Application.Features.Queries.GetProfilesPage;
 using SocialMediaService.Application.Features.Queries.GetSettings;
 using SocialMediaService.Domain.Aggregates.Groups;
@@ -58,6 +59,14 @@ public sealed class ProfilesController : ControllerBase
             desc);
 
         var result = await _mediator.Send(new GetProfilesPageQuery(User.GetId(), pageRequest));
+
+        return this.GetFromResult(result);
+    }
+
+    [HttpGet("ids")]
+    public async Task<IActionResult> GetNamesByIds([FromHeader] IEnumerable<string> ids)
+    {
+        var result = await _mediator.Send(new GetProfilesNamesByIdsQuery(ids));
 
         return this.GetFromResult(result);
     }

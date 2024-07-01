@@ -17,6 +17,7 @@ using SocialMediaService.Application.Features.Commands.UpdateGroup;
 using SocialMediaService.Application.Features.Queries.GetGroup;
 using SocialMediaService.Application.Features.Queries.GetGroupMembersPage;
 using SocialMediaService.Application.Features.Queries.GetGroupPostsPage;
+using SocialMediaService.Application.Features.Queries.GetGroupsNamesByIds;
 using SocialMediaService.Application.Features.Queries.GetGroupsPage;
 using SocialMediaService.Application.Features.Queries.GetJoinRequestsPage;
 using SocialMediaService.Application.Features.Queries.GetKickedPage;
@@ -37,6 +38,14 @@ public sealed class GroupsController : ControllerBase
     public GroupsController(IMediator mediator)
     {
         _mediator = mediator;
+    }
+
+    [HttpGet("ids")]
+    public async Task<IActionResult> GetNamesByIds([FromHeader] IEnumerable<string> ids)
+    {
+        var result = await _mediator.Send(new GetGroupsNamesByIdsQuery(ids));
+
+        return this.GetFromResult(result);
     }
 
     [HttpPost]
