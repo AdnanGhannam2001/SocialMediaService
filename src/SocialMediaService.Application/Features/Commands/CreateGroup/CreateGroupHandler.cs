@@ -1,4 +1,6 @@
+using MassTransit;
 using MediatR;
+using PR2.Contracts.Events;
 using PR2.Shared.Common;
 using PR2.Shared.Enums;
 using PR2.Shared.Exceptions;
@@ -12,12 +14,15 @@ public sealed class CreateGroupHandler : IRequestHandler<CreateGroupCommand, Res
 {
     private readonly IProfileRepository _profileRepo;
     private readonly IGroupRepository _groupRepo;
+    private readonly IPublishEndpoint _publisher;
 
     public CreateGroupHandler(IProfileRepository profileRepo,
-        IGroupRepository groupRepo)
+        IGroupRepository groupRepo,
+        IPublishEndpoint publisher)
     {
         _profileRepo = profileRepo;
         _groupRepo = groupRepo;
+        _publisher = publisher;
     }
 
     public async Task<Result<Group>> Handle(CreateGroupCommand request, CancellationToken cancellationToken)
@@ -41,6 +46,9 @@ public sealed class CreateGroupHandler : IRequestHandler<CreateGroupCommand, Res
         group.AddMember(member);
 
         await _groupRepo.AddAsync(group, cancellationToken);
+
+        var message = new GroupCreatedEvent(group.Id, profile.Id);
+        await _publisher.Publish(message, cancellationToken);
 
         return group;
     }

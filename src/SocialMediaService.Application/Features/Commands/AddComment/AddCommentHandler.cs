@@ -1,4 +1,6 @@
+using MassTransit;
 using MediatR;
+using PR2.Contracts.Events;
 using PR2.Shared.Common;
 using PR2.Shared.Exceptions;
 using SocialMediaService.Application.Helpers;
@@ -11,11 +13,15 @@ public sealed class AddCommentHandler : IRequestHandler<AddCommentCommand, Resul
 {
     private readonly IProfileRepository _profileRepo;
     private readonly IPostRepository _postRepo;
+    private readonly IPublishEndpoint _publisher;
 
-    public AddCommentHandler(IProfileRepository profileRepo, IPostRepository postRepo)
+    public AddCommentHandler(IProfileRepository profileRepo,
+        IPostRepository postRepo,
+        IPublishEndpoint publisher)
     {
         _profileRepo = profileRepo;
         _postRepo = postRepo;
+        _publisher = publisher;
     }
 
     public async Task<Result<Comment>> Handle(AddCommentCommand request, CancellationToken cancellationToken)
@@ -55,6 +61,9 @@ public sealed class AddCommentHandler : IRequestHandler<AddCommentCommand, Resul
             var parent = post.Comments.ElementAt(0);
             comment = new Comment(parent, profile, request.Content);
             parent.AddReply(comment);
+
+            var notification = new NotifyEvent(post.ProfileId, $"{profile.FirstName} Commented on your post", $"");
+            await _publisher.Publish(notification, cancellationToken);
         }
 
         await _postRepo.SaveChangesAsync(cancellationToken);

@@ -1,4 +1,6 @@
+using MassTransit;
 using MediatR;
+using PR2.Contracts.Events;
 using PR2.Shared.Common;
 using PR2.Shared.Exceptions;
 using SocialMediaService.Application.Helpers;
@@ -11,12 +13,15 @@ public sealed class SendInviteHandler : IRequestHandler<SendInviteCommand, Resul
 {
     private readonly IProfileRepository _profileRepo;
     private readonly IGroupRepository _groupRepo;
+    private readonly IPublishEndpoint _publisher;
 
     public SendInviteHandler(IProfileRepository profileRepo,
-        IGroupRepository groupRepo)
+        IGroupRepository groupRepo,
+        IPublishEndpoint publisher)
     {
         _profileRepo = profileRepo;
         _groupRepo = groupRepo;
+        _publisher = publisher;
     }
 
     public async Task<Result<Invite>> Handle(SendInviteCommand request, CancellationToken cancellationToken)
@@ -60,6 +65,11 @@ public sealed class SendInviteHandler : IRequestHandler<SendInviteCommand, Resul
         var invite = new Invite(group, profile, sender, request.Content);
         group.AddInvite(invite);
         await _groupRepo.SaveChangesAsync(cancellationToken);
+
+        var notification = new NotifyEvent(sender.Id,
+            $"You got an invite to '{group.Name}' group from {sender.FirstName}",
+            $"group/{group.Id}");
+        await _publisher.Publish(notification, cancellationToken);
 
         return invite;
     }

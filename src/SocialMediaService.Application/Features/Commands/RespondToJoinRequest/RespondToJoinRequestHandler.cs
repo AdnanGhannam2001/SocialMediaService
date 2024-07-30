@@ -1,4 +1,6 @@
+using MassTransit;
 using MediatR;
+using PR2.Contracts.Events;
 using PR2.Shared.Common;
 using PR2.Shared.Enums;
 using PR2.Shared.Exceptions;
@@ -12,12 +14,15 @@ public sealed class RespondToJoinRequestHandler : IRequestHandler<RespondToJoinR
 {
     private readonly IProfileRepository _profileRepo;
     private readonly IGroupRepository _groupRepo;
+    private readonly IPublishEndpoint _publisher;
 
     public RespondToJoinRequestHandler(IProfileRepository profileRepo,
-        IGroupRepository groupRepo)
+        IGroupRepository groupRepo,
+        IPublishEndpoint publisher)
     {
         _profileRepo = profileRepo;
         _groupRepo = groupRepo;
+        _publisher = publisher;
     }
 
     public async Task<Result<Unit>> Handle(RespondToJoinRequestCommand request, CancellationToken cancellationToken)
@@ -68,9 +73,17 @@ public sealed class RespondToJoinRequestHandler : IRequestHandler<RespondToJoinR
             {
                 var member = new Member(group, requester);
                 group.AddMember(member);
+
+                var message = new MemberJoinedEvent(group.Id, member.ProfileId, member.Role.ToString());
+                await _publisher.Publish(message, cancellationToken);
             }
 
             await _groupRepo.SaveChangesAsync(cancellationToken);
+
+            var notification = new NotifyEvent(requester.Id,
+                $"Your join request on {group.Name} got " + (request.Accept ? "accepted" : "rejected"),
+                $"groups/{group.Id}");
+            await _publisher.Publish(notification, cancellationToken);
         }
 
         return Unit.Value;

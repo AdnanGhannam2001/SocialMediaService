@@ -1,4 +1,6 @@
+using MassTransit;
 using MediatR;
+using PR2.Contracts.Events;
 using PR2.Shared.Common;
 using PR2.Shared.Exceptions;
 using SocialMediaService.Application.Helpers;
@@ -10,10 +12,12 @@ namespace SocialMediaService.Application.Features.Commands.FollowAccount;
 public sealed class FollowAccountHandler : IRequestHandler<FollowAccountCommand, Result<Follow>>
 {
     private readonly IProfileRepository _repo;
+    private readonly IPublishEndpoint _publisher;
 
-    public FollowAccountHandler(IProfileRepository repo)
+    public FollowAccountHandler(IProfileRepository repo, IPublishEndpoint publisher)
     {
         _repo = repo;
+        _publisher = publisher;
     }
 
     public async Task<Result<Follow>> Handle(FollowAccountCommand request, CancellationToken cancellationToken)
@@ -45,6 +49,11 @@ public sealed class FollowAccountHandler : IRequestHandler<FollowAccountCommand,
         var follow = new Follow(follower, profile);
         follower.AddFollow(follow);
         await _repo.SaveChangesAsync(cancellationToken);
+
+        var notification = new NotifyEvent(profile.Id,
+            $"You got followed by {follower.Id}",
+            $"profiles/{follower.Id}");
+        await _publisher.Publish(notification, cancellationToken);
 
         return follow;
     }

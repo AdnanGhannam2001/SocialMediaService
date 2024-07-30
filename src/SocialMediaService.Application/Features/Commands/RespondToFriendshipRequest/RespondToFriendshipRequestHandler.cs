@@ -5,6 +5,8 @@ using PR2.Shared.Common;
 using PR2.Shared.Exceptions;
 using SocialMediaService.Domain.Aggregates.Profiles;
 using SocialMediaService.Persistent.Interfaces;
+using MassTransit;
+using PR2.Contracts.Events;
 
 namespace SocialMediaService.Application.Features.Commands.RespondToFriendshipRequest;
 
@@ -12,12 +14,15 @@ public sealed class RespondToFriendshipRequestHandler : IRequestHandler<RespondT
 {
     private readonly ILogger<RespondToFriendshipRequestHandler> _logger;
     private readonly IProfileRepository _repo;
+    private readonly IPublishEndpoint _publisher;
 
     public RespondToFriendshipRequestHandler(ILogger<RespondToFriendshipRequestHandler> logger,
-        IProfileRepository repo)
+        IProfileRepository repo,
+        IPublishEndpoint publisher)
     {
         _logger = logger;
         _repo = repo;
+        _publisher = publisher;
     }
 
     public async Task<Result<Unit>> Handle(RespondToFriendshipRequestCommand request, CancellationToken cancellationToken)
@@ -39,16 +44,17 @@ public sealed class RespondToFriendshipRequestHandler : IRequestHandler<RespondT
         try
         {
             Friendship? friendship = null;
+            var receiver = await _repo.GetByIdAsync(request.ReceiverId, cancellationToken);
+            Assert(receiver is not null);
 
             // Add Friendship if Accepted
             if (request.Accept)
             {
-                var receiver = await _repo.GetByIdAsync(request.ReceiverId, cancellationToken);
-
-                Assert(receiver is not null);
-
                 friendship = new Friendship(sender, receiver);
                 sender.AddFriend(friendship);
+
+                var message = new FriendshipCreatedEvent(receiver.Id, sender.Id);
+                await _publisher.Publish(message, cancellationToken);
             }
 
             sender.RemoveFriendshipRequest(sender.SentRequests.ElementAt(0));
@@ -56,6 +62,11 @@ public sealed class RespondToFriendshipRequestHandler : IRequestHandler<RespondT
             await _repo.SaveChangesAsync(cancellationToken);
 
             await transaction.CommitAsync(cancellationToken);
+
+            var notification = new NotifyEvent(sender.Id,
+                $"{receiver.FirstName} " + (request.Accept ? "accepted" : "rejected") + " your friendship request",
+                $"profiles/{receiver.Id}");
+            await _publisher.Publish(notification, cancellationToken);
 
             return Unit.Value;
         }

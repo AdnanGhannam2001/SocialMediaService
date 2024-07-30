@@ -1,4 +1,6 @@
+using MassTransit;
 using MediatR;
+using PR2.Contracts.Events;
 using PR2.Shared.Common;
 using PR2.Shared.Exceptions;
 using SocialMediaService.Application.Helpers;
@@ -11,11 +13,15 @@ public sealed class ReactToPostHandler : IRequestHandler<ReactToPostCommand, Res
 {
     private readonly IProfileRepository _profileRepo;
     private readonly IPostRepository _postRepo;
+    private readonly IPublishEndpoint _publisher;
 
-    public ReactToPostHandler(IProfileRepository profileRepo, IPostRepository postRepo)
+    public ReactToPostHandler(IProfileRepository profileRepo,
+        IPostRepository postRepo,
+        IPublishEndpoint publisher)
     {
         _profileRepo = profileRepo;
         _postRepo = postRepo;
+        _publisher = publisher;
     }
 
     public async Task<Result<Reaction>> Handle(ReactToPostCommand request, CancellationToken cancellationToken)
@@ -49,6 +55,11 @@ public sealed class ReactToPostHandler : IRequestHandler<ReactToPostCommand, Res
 
         post.React(reaction);
         await _postRepo.SaveChangesAsync(cancellationToken);
+
+        var notification = new NotifyEvent(post.Profile.Id,
+            $"{profile.FirstName} reacted on your post",
+            $"profiles/{profile.Id}");
+        await _publisher.Publish(notification, cancellationToken);
 
         return reaction;
     }

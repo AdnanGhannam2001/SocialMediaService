@@ -1,4 +1,6 @@
+using MassTransit;
 using MediatR;
+using PR2.Contracts.Events;
 using PR2.Shared.Common;
 using PR2.Shared.Exceptions;
 using SocialMediaService.Domain.Aggregates.Groups;
@@ -10,12 +12,15 @@ public sealed class RespondToInviteHandler : IRequestHandler<RespondToInviteComm
 {
     private readonly IProfileRepository _profileRepo;
     private readonly IGroupRepository _groupRepo;
+    private readonly IPublishEndpoint _publisher;
 
     public RespondToInviteHandler(IProfileRepository profileRepo,
-        IGroupRepository groupRepo)
+        IGroupRepository groupRepo,
+        IPublishEndpoint publisher)
     {
         _profileRepo = profileRepo;
         _groupRepo = groupRepo;
+        _publisher = publisher;
     }
 
     public async Task<Result<Invite>> Handle(RespondToInviteCommand request, CancellationToken cancellationToken)
@@ -50,6 +55,9 @@ public sealed class RespondToInviteHandler : IRequestHandler<RespondToInviteComm
             {
                 var member = new Member(group, profile);
                 group.AddMember(member);
+
+                var message = new MemberJoinedEvent(group.Id, member.ProfileId, member.Role.ToString());
+                await _publisher.Publish(message, cancellationToken);
             }
 
             await _groupRepo.SaveChangesAsync(cancellationToken);

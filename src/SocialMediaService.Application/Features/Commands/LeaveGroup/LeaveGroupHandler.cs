@@ -1,4 +1,6 @@
+using MassTransit;
 using MediatR;
+using PR2.Contracts.Events;
 using PR2.Shared.Common;
 using PR2.Shared.Enums;
 using PR2.Shared.Exceptions;
@@ -10,12 +12,15 @@ public sealed class LeaveGroupHandler : IRequestHandler<LeaveGroupCommand, Resul
 {
     private readonly IProfileRepository _profileRepo;
     private readonly IGroupRepository _groupRepo;
+    private readonly IPublishEndpoint _publisher;
 
     public LeaveGroupHandler(IProfileRepository profileRepo,
-        IGroupRepository groupRepo)
+        IGroupRepository groupRepo,
+        IPublishEndpoint publisher)
     {
         _profileRepo = profileRepo;
         _groupRepo = groupRepo;
+        _publisher = publisher;
     }
 
     public async Task<Result<Unit>> Handle(LeaveGroupCommand request, CancellationToken cancellationToken)
@@ -45,6 +50,9 @@ public sealed class LeaveGroupHandler : IRequestHandler<LeaveGroupCommand, Resul
         
         group.RemoveMember(member);
         await _groupRepo.SaveChangesAsync(cancellationToken);
+
+        var message = new MemberLeavedEvent(group.Id, member.ProfileId);
+        await _publisher.Publish(message, cancellationToken);
 
         return Unit.Value;
     }

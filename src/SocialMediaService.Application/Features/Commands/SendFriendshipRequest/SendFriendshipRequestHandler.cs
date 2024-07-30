@@ -5,16 +5,21 @@ using PR2.Shared.Exceptions;
 using SocialMediaService.Application.Helpers;
 using SocialMediaService.Domain.Aggregates.Profiles;
 using SocialMediaService.Persistent.Interfaces;
+using MassTransit;
+using PR2.Contracts.Events;
 
 namespace SocialMediaService.Application.Features.Commands.SendFriendshipRequest;
 
 public sealed class SendFriendshipRequestHandler : IRequestHandler<SendFriendshipRequestCommand, Result<FriendshipRequest>>
 {
     private readonly IProfileRepository _repo;
+    private readonly IPublishEndpoint _publisher;
 
-    public SendFriendshipRequestHandler(IProfileRepository repo)
+    public SendFriendshipRequestHandler(IProfileRepository repo,
+        IPublishEndpoint publisher)
     {
         _repo = repo;
+        _publisher = publisher;
     }
 
     public async  Task<Result<FriendshipRequest>> Handle(SendFriendshipRequestCommand request, CancellationToken cancellationToken)
@@ -55,6 +60,11 @@ public sealed class SendFriendshipRequestHandler : IRequestHandler<SendFriendshi
             var friendshipRequest = new FriendshipRequest(sender, receiver);
             sender.AddFriendshipRequest(friendshipRequest);
             await _repo.SaveChangesAsync(cancellationToken);
+
+            var notification = new NotifyEvent(receiver.Id,
+                $"You got a friendship request from {sender.FirstName}",
+                $"sender/{sender.Id}");
+            await _publisher.Publish(notification, cancellationToken);
 
             return friendshipRequest;
         }

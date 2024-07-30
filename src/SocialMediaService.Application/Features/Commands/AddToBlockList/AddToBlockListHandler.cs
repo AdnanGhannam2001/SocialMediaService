@@ -1,4 +1,6 @@
+using MassTransit;
 using MediatR;
+using PR2.Contracts.Events;
 using PR2.Shared.Common;
 using PR2.Shared.Exceptions;
 using SocialMediaService.Application.Helpers;
@@ -10,10 +12,13 @@ namespace SocialMediaService.Application.Features.Commands.AddToBlockList;
 public sealed class AddToBlockListHandler : IRequestHandler<AddToBlockListCommand, Result<Block>>
 {
     private readonly IProfileRepository _repo;
+    private readonly IPublishEndpoint _publisher;
 
-    public AddToBlockListHandler(IProfileRepository repo)
+    public AddToBlockListHandler(IProfileRepository repo,
+        IPublishEndpoint publisher)
     {
         _repo = repo;
+        _publisher = publisher;
     }
 
     public async Task<Result<Block>> Handle(AddToBlockListCommand request, CancellationToken cancellationToken)
@@ -51,7 +56,13 @@ public sealed class AddToBlockListHandler : IRequestHandler<AddToBlockListComman
             var p = await _repo.GetWithFriendshipAsync(request.ProfileId, request.BlockerId, cancellationToken)
                 ?? await _repo.GetWithFriendshipAsync(request.BlockerId, request.ProfileId, cancellationToken);
 
-            if (p!.Friends.Count > 0) p.RemoveFriend(p.Friends.ElementAt(0));
+            if (p!.Friends.Count > 0)
+            {
+                var friendship = p!.Friends.ElementAt(0);
+                p.RemoveFriend(friendship);
+                var message = new FriendshipDeletedEvent(friendship.ProfileId, friendship.FriendId);
+                await _publisher.Publish(message, cancellationToken);
+            }
         }
 
         // Delete Follow
