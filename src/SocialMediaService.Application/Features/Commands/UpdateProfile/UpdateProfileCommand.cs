@@ -12,7 +12,5 @@ public sealed record UpdateProfileCommand(string Id,
     Genders? Gender = null,
     string? PhoneNumber = null,
     string? Bio = null,
-    string? Image = null,
-    string? CoverImage = null,
     JobInformations? JobInformations = null,
     Socials? Socials = null) : ICommand<Profile>;

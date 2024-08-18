@@ -2,6 +2,8 @@ using MediatR;
 using PR2.Shared.Common;
 using PR2.Shared.Exceptions;
 using SocialMediaService.Domain.Aggregates.Posts;
+using SocialMediaService.Domain.Aggregates.Posts.ValueObjects;
+using SocialMediaService.Domain.Enums;
 using SocialMediaService.Persistent.Interfaces;
 
 namespace SocialMediaService.Application.Features.Commands.UpdatePost;
@@ -39,7 +41,10 @@ public sealed class UpdatePostHandler : IRequestHandler<UpdatePostCommand, Resul
             return new UnauthorizedException("You can't update other's posts");
         }
 
-        post.Update(request.Content, request.Visibility, request.Media);
+        post.Update(request.Content,
+            request.Visibility,
+            request.MediaType is null ? null : new Media((MediaTypes) request.MediaType));
+
         await _postRepo.UpdateAsync(post, cancellationToken);
 
         return post;

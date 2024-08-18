@@ -2,6 +2,8 @@ using MediatR;
 using PR2.Shared.Common;
 using PR2.Shared.Exceptions;
 using SocialMediaService.Domain.Aggregates.Posts;
+using SocialMediaService.Domain.Aggregates.Posts.ValueObjects;
+using SocialMediaService.Domain.Enums;
 using SocialMediaService.Persistent.Interfaces;
 
 namespace SocialMediaService.Application.Features.Commands.CreatePost;
@@ -27,7 +29,10 @@ public sealed class CreatePostHandler : IRequestHandler<CreatePostCommand, Resul
             return new RecordNotFoundException("Profile is not found");
         }
 
-        var post = new Post(profile, request.Content, request.Visibility, request.Media);
+        var post = new Post(profile,
+            request.Content,
+            request.Visibility,
+            request.MediaType is null ? null : new Media((MediaTypes) request.MediaType));
 
         await _postRepo.AddAsync(post, cancellationToken);
 
