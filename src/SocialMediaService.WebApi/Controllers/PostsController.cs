@@ -20,7 +20,11 @@ using SocialMediaService.WebApi.Extensions;
 using SocialMediaService.Application.Features.Queries.GetPostsPage;
 using SocialMediaService.Application.Features.Queries.GetProfilePosts;
 using SocialMediaService.Application.Enums;
-using SocialMediaService.Domain.Aggregates.Profiles;
+using SocialMediaService.WebApi.Services;
+using MassTransit.Configuration;
+using SocialMediaService.WebApi.Configurations;
+using Microsoft.Extensions.Options;
+
 namespace SocialMediaService.WebApi.Controllers;
 
 [Authorize]
@@ -123,27 +127,61 @@ public sealed class PostsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreatePostRequest request)
+    public async Task<IActionResult> Create([FromForm] CreatePostRequest request,
+        [FromForm] IFormFile? file,
+        [FromServices] FilesService filesService,
+        [FromServices] IOptions<Storage> options)
     {
-        // TODO: Handle Media
-        var result = await _mediator.Send(new CreatePostCommand(User.GetId()!, request.Content, request.Visibility));
+        var mediaType = filesService.GetFileMediaType(file);
+
+        var result = await _mediator.Send(new CreatePostCommand(User.GetId()!,
+            request.Content,
+            request.Visibility,
+            mediaType));
+
+        if (file is not null && result.IsSuccess)
+        {
+            await filesService.SaveFileAsync(file, options.Value.FilesOptions["PostsMedia"], result.Value.Id);
+        }
 
         return this.GetFromResult(result, 201);
     }
 
     [HttpPatch("{id}")]
-    public async Task<IActionResult> Update([FromRoute] string id, [FromBody] CreatePostRequest request)
+    public async Task<IActionResult> Update([FromRoute] string id,
+        [FromForm] CreatePostRequest request,
+        [FromForm] IFormFile? file,
+        [FromServices] FilesService filesService,
+        [FromServices] IOptions<Storage> options)
     {
-        // TODO: Handle Media
-        var result = await _mediator.Send(new UpdatePostCommand(User.GetId()!, id, request.Content, request.Visibility));
+        var mediaType = filesService.GetFileMediaType(file);
+
+        var result = await _mediator.Send(new UpdatePostCommand(User.GetId()!,
+            id,
+            request.Content,
+            request.Visibility,
+            mediaType));
+
+        if (file is not null && result.IsSuccess)
+        {
+            filesService.DeleteFile(options.Value.FilesOptions["PostsMedia"].Path, result.Value.Id);
+            await filesService.SaveFileAsync(file, options.Value.FilesOptions["PostsMedia"], result.Value.Id);
+        }
 
         return this.GetFromResult(result);
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete([FromRoute] string id)
+    public async Task<IActionResult> Delete([FromRoute] string id,
+        [FromServices] IOptions<Storage> options,
+        [FromServices] FilesService filesService)
     {
         var result = await _mediator.Send(new DeletePostCommand(User.GetId()!, id));
+
+        if (result.IsSuccess && result.Value.Media is not null)
+        {
+            filesService.DeleteFile(options.Value.FilesOptions["PostsMedia"].Path, result.Value.Id);
+        }
 
         return this.GetFromResult(result);
     }

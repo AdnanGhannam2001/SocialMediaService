@@ -130,7 +130,7 @@ public sealed class ProfilesController : ControllerBase
         [FromServices] IOptions<Storage> storage,
         [FromServices] FilesService filesService)
     {
-        var result = filesService.DeleteImage(storage.Value.FilesOptions["ProfilesImages"].Path, User.GetId()!);
+        var result = filesService.DeleteFile(storage.Value.FilesOptions["ProfilesImages"].Path, User.GetId()!);
         return this.GetFromResult(result);
     }
 
@@ -139,7 +139,7 @@ public sealed class ProfilesController : ControllerBase
         [FromServices] IOptions<Storage> storage,
         [FromServices] FilesService filesService)
     {
-        var result = filesService.DeleteImage(storage.Value.FilesOptions["CoverImages"].Path, User.GetId()!);
+        var result = filesService.DeleteFile(storage.Value.FilesOptions["CoverImages"].Path, User.GetId()!);
         return this.GetFromResult(result);
     }
     #endregion // Profile
