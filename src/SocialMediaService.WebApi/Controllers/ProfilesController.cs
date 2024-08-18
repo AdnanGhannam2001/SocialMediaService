@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using PR2.Shared.Common;
 using SocialMediaService.Application.Features.Commands.AddToBlockList;
 using SocialMediaService.Application.Features.Commands.CancelFriendship;
@@ -27,8 +28,10 @@ using SocialMediaService.Application.Features.Queries.GetProfilesPage;
 using SocialMediaService.Application.Features.Queries.GetSettings;
 using SocialMediaService.Domain.Aggregates.Groups;
 using SocialMediaService.Domain.Aggregates.Profiles;
+using SocialMediaService.WebApi.Configurations;
 using SocialMediaService.WebApi.Dtos.ProfileDtos;
 using SocialMediaService.WebApi.Extensions;
+using SocialMediaService.WebApi.Services;
 
 namespace SocialMediaService.WebApi.Controllers;
 
@@ -98,10 +101,45 @@ public sealed class ProfilesController : ControllerBase
             request.Gender,
             request.PhoneNumber,
             request.Bio,
-            null, null,
             request.JobInformations,
             request.Socials));
 
+        return this.GetFromResult(result);
+    }
+
+    [HttpPost("profile/image")]
+    public async Task<IActionResult> ChangeImage(IFormFile file,
+        [FromServices] IOptions<Storage> storage,
+        [FromServices] FilesService filesService)
+    {
+        var result = await filesService.SaveImageAsync(file, storage.Value.FilesOptions["ProfilesImages"], User.GetId()!);
+        return this.GetFromResult(result);
+    }
+
+    [HttpPost("profile/cover-image")]
+    public async Task<IActionResult> ChangeCoverImage(IFormFile file,
+        [FromServices] IOptions<Storage> storage,
+        [FromServices] FilesService filesService)
+    {
+        var result = await filesService.SaveImageAsync(file, storage.Value.FilesOptions["CoverImages"], User.GetId()!);
+        return this.GetFromResult(result);
+    }
+    
+    [HttpDelete("profile/image")]
+    public IActionResult DeleteImage(
+        [FromServices] IOptions<Storage> storage,
+        [FromServices] FilesService filesService)
+    {
+        var result = filesService.DeleteImage(storage.Value.FilesOptions["ProfilesImages"].Path, User.GetId()!);
+        return this.GetFromResult(result);
+    }
+
+    [HttpDelete("profile/cover-image")]
+    public IActionResult DeleteCoverImage(
+        [FromServices] IOptions<Storage> storage,
+        [FromServices] FilesService filesService)
+    {
+        var result = filesService.DeleteImage(storage.Value.FilesOptions["CoverImages"].Path, User.GetId()!);
         return this.GetFromResult(result);
     }
     #endregion // Profile
@@ -398,12 +436,4 @@ public sealed class ProfilesController : ControllerBase
         return this.GetFromResult(result);
     }
     #endregion // Saved Post
-
-    [AllowAnonymous]
-    [HttpGet("auth")]
-    public async Task<IActionResult> Auth()
-    {
-        Console.WriteLine("____________");
-        return Challenge("oidc");
-    }
 }

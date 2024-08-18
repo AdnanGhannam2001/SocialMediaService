@@ -9,6 +9,7 @@ using SocialMediaService.Persistent.Data.Seed;
 using SocialMediaService.Persistent.Data;
 using SocialMediaService.Infrastructure.Extensions;
 using MassTransit;
+using SocialMediaService.WebApi.Configurations;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +23,8 @@ builder.Services.AddControllers()
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.Configure<Storage>(builder.Configuration.GetSection("Storage"));
+
 builder.Services
 #if DEBUG && !NO_RABBIT_MQ
     .AddInfrastructure()
@@ -29,6 +32,7 @@ builder.Services
     .AddPersistent(builder.Configuration.GetConnectionString("PostgresConnection"))
     .AddApplication()
     .AddAuth(builder.Configuration.GetSection(nameof(OpenIdConnectOptions)))
+    .RegisterServices()
     .AddCors()
     .AddGrpc();
 

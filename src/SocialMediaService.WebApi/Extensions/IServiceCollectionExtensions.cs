@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.Primitives;
+using SocialMediaService.WebApi.Services;
 
 namespace SocialMediaService.WebApi.Extensions;
 
@@ -50,5 +51,10 @@ internal static class IServiceCollectionExtensions
         services.AddAuthorization();
 
         return services;
+    }
+
+    public static IServiceCollection RegisterServices(this IServiceCollection services)
+    {
+        return services.AddScoped<FilesService>();
     }
 }
