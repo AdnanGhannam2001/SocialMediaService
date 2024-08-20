@@ -54,9 +54,7 @@ public sealed class GroupsController : ControllerBase
         var result = await _mediator.Send(new CreateGroupCommand(User.GetId()!,
             dto.Name,
             dto.Description,
-            dto.Visibility,
-            dto.Image,
-            dto.CoverImage));
+            dto.Visibility));
 
         return this.GetFromResult(result);
     }

@@ -51,6 +51,8 @@ public sealed class Profile : AggregateRoot
         DateOfBirth = dateOfBirth;
         Gender = gender;
         Bio = bio;
+        Image = false;
+        CoverImage = false;
         JobInformations = jobInformations ?? new();
         Socials = socials ?? new();
         Settings = settings;
@@ -63,8 +65,8 @@ public sealed class Profile : AggregateRoot
     public DateTime DateOfBirth { get; private set; }
     public Genders Gender { get; private set; }
     public string? Bio { get; private set; }
-    public Uri? Image { get; private set; }
-    public Uri? CoverImage { get; private set; }
+    public bool Image { get; private set; }
+    public bool CoverImage { get; private set; }
     public JobInformations JobInformations { get; private set; }
     public Socials Socials { get; private set; }
     public Settings Settings { get; private set; }
@@ -95,6 +97,8 @@ public sealed class Profile : AggregateRoot
         Genders? gender = null,
         string? phoneNumber = null,
         string? bio = null,
+        bool? image = null,
+        bool? coverImage = null,
         JobInformations? jobInformations = null,
         Socials? socials = null)
     {
@@ -106,6 +110,9 @@ public sealed class Profile : AggregateRoot
         Bio = bio ?? Bio;
         JobInformations = jobInformations ?? JobInformations;
         Socials = socials ?? Socials;
+
+        Image = image is null ? Image : (bool)image;
+        CoverImage = coverImage is null ? CoverImage : (bool)coverImage;
 
         UpdatedAtUtc = DateTime.UtcNow;
     }

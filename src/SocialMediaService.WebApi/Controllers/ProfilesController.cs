@@ -101,6 +101,7 @@ public sealed class ProfilesController : ControllerBase
             request.Gender,
             request.PhoneNumber,
             request.Bio,
+            null, null,
             request.JobInformations,
             request.Socials));
 
@@ -108,37 +109,59 @@ public sealed class ProfilesController : ControllerBase
     }
 
     [HttpPost("profile/image")]
-    public async Task<IActionResult> ChangeImage(IFormFile file,
+    public async Task<IActionResult> ChangeImage(IFormFile image,
         [FromServices] IOptions<Storage> storage,
         [FromServices] FilesService filesService)
     {
-        var result = await filesService.SaveImageAsync(file, storage.Value.FilesOptions["ProfilesImages"], User.GetId()!);
-        return this.GetFromResult(result);
+        var options = storage.Value.FilesOptions["ProfilesImages"];
+        var imageValidationResult = filesService.Validate(image, options);
+
+        if (!imageValidationResult.IsSuccess)
+        {
+            return this.GetFromResult(imageValidationResult);
+        }
+
+        await _mediator.Send(new UpdateProfileCommand(User.GetId()!, Image: true));
+
+        var filename = await filesService.SaveImageAsync(image, options, User.GetId()!);
+        return Ok(filename);
     }
 
     [HttpPost("profile/cover-image")]
-    public async Task<IActionResult> ChangeCoverImage(IFormFile file,
+    public async Task<IActionResult> ChangeCoverImage(IFormFile image,
         [FromServices] IOptions<Storage> storage,
         [FromServices] FilesService filesService)
     {
-        var result = await filesService.SaveImageAsync(file, storage.Value.FilesOptions["CoverImages"], User.GetId()!);
-        return this.GetFromResult(result);
+        var options = storage.Value.FilesOptions["CoverImages"];
+        var imageValidationResult = filesService.Validate(image, options);
+
+        if (!imageValidationResult.IsSuccess)
+        {
+            return this.GetFromResult(imageValidationResult);
+        }
+
+        await _mediator.Send(new UpdateProfileCommand(User.GetId()!, CoverImage: true));
+
+        var filename = await filesService.SaveImageAsync(image, options, User.GetId()!);
+        return Ok(filename);
     }
-    
+
     [HttpDelete("profile/image")]
-    public IActionResult DeleteImage(
+    public async Task<IActionResult> DeleteImage(
         [FromServices] IOptions<Storage> storage,
         [FromServices] FilesService filesService)
     {
+        await _mediator.Send(new UpdateProfileCommand(User.GetId()!, Image: false));
         var result = filesService.DeleteFile(storage.Value.FilesOptions["ProfilesImages"].Path, User.GetId()!);
         return this.GetFromResult(result);
     }
 
     [HttpDelete("profile/cover-image")]
-    public IActionResult DeleteCoverImage(
+    public async Task<IActionResult> DeleteCoverImage(
         [FromServices] IOptions<Storage> storage,
         [FromServices] FilesService filesService)
     {
+        await _mediator.Send(new UpdateProfileCommand(User.GetId()!, CoverImage: false));
         var result = filesService.DeleteFile(storage.Value.FilesOptions["CoverImages"].Path, User.GetId()!);
         return this.GetFromResult(result);
     }

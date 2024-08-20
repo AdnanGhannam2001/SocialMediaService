@@ -9,27 +9,33 @@ using FileName = string;
 
 public sealed class FilesService
 {
-    public Task<Result<FileName>> SaveImageAsync(IFormFile file, Storage.FileOptions options, string name)
+    public Result<bool> Validate(IFormFile file, Storage.FileOptions options)
     {
         var extension = Path.GetExtension(file.FileName).ToLower();
 
         if (!options.AllowedExtension.Contains(extension))
         {
-            return Task.FromResult(
-                new Result<FileName>(
-                    new DataValidationException("Image", "Invalid file extension")));
+            return new Result<bool>(
+                    new DataValidationException("File", "Invalid file extension"));
         }
 
+        if (options.MaxAllowedSize < file.Length)
+        {
+            return new Result<bool>(
+                    new DataValidationException("File", "File is too big"));
+        }
+
+        return true;
+    }
+
+    public Task<FileName> SaveImageAsync(IFormFile file, Storage.FileOptions options, string name)
+    {
+        var extension = Path.GetExtension(file.FileName).ToLower();
         return SaveFileAsync(file, options, name + extension);
     }
 
-    public async Task<Result<FileName>> SaveFileAsync(IFormFile file, Storage.FileOptions options, string name)
+    public async Task<FileName> SaveFileAsync(IFormFile file, Storage.FileOptions options, string name)
     {
-        if (options.MaxAllowedSize < file.Length)
-        {
-            return new(new DataValidationException("File", "File is too big"));
-        }
-
         var fullPath = Path.Combine(options.Path, name);
         Directory.CreateDirectory(options.Path);
         using var stream = File.Create(fullPath);

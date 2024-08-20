@@ -8,12 +8,10 @@ public sealed record Media
     private Media() { }
     #pragma warning restore CS8618
 
-    public Media(MediaTypes type, Uri uri)
+    public Media(MediaTypes type)
     {
         Type = type;
-        Uri = uri;
     }
 
     public MediaTypes Type { get; }
-    public Uri Uri { get; }
 }

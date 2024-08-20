@@ -14,29 +14,27 @@ public sealed class Group : AggregateRoot
     private List<Invite> _invites = [];
     private List<Post> _posts = [];
 
-    #pragma warning disable CS8618
+#pragma warning disable CS8618
     public Group() { }
-    #pragma warning restore CS8618
+#pragma warning restore CS8618
 
     public Group(string name,
         string description,
         GroupSettings settings,
-        GroupVisibilities visibility = GroupVisibilities.Public,
-        Uri? image = null,
-        Uri? coverImage = null) : base()
+        GroupVisibilities visibility = GroupVisibilities.Public) : base()
     {
         Name = name;
         Description = description;
         Visibility = visibility;
-        Image = image;
-        CoverImage = coverImage;
+        Image = false;
+        CoverImage = false;
         Settings = settings;
     }
 
     public string Name { get; private set; }
     public string Description { get; private set; }
-    public Uri? Image { get; private set; }
-    public Uri? CoverImage { get; private set; }
+    public bool Image { get; private set; }
+    public bool CoverImage { get; private set; }
     public GroupVisibilities Visibility { get; private set; }
 
     public GroupSettings Settings { get; private set; }
@@ -53,8 +51,8 @@ public sealed class Group : AggregateRoot
         MemberRoleTypes? postingRole = null,
         MemberRoleTypes? editDetailsRole = null,
         GroupVisibilities? visibility = null,
-        string? image = null,
-        string? coverImage = null)
+        bool? image = null,
+        bool? coverImage = null)
     {
         Name = name ?? Name;
         Description = description ?? Description;
@@ -65,17 +63,8 @@ public sealed class Group : AggregateRoot
 
         Visibility = visibility ?? Visibility;
 
-        Image = image is null
-            ? Image
-            : image == string.Empty
-                ? Image = null
-                : new Uri(image);
-
-        CoverImage = coverImage is null
-            ? CoverImage
-            : coverImage == string.Empty
-                ? CoverImage = null
-                : new Uri(coverImage);
+        Image = image is null ? Image : (bool)image;
+        CoverImage = coverImage is null ? CoverImage : (bool)coverImage;
 
         UpdatedAtUtc = DateTime.UtcNow;
     }

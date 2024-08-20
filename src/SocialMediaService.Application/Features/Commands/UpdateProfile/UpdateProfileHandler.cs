@@ -39,6 +39,8 @@ public sealed class UpdateProfileHandler : IRequestHandler<UpdateProfileCommand,
                 request.Gender,
                 request.PhoneNumber,
                 request.Bio,
+                request.Image,
+                request.CoverImage,
                 request.JobInformations,
                 request.Socials);
 

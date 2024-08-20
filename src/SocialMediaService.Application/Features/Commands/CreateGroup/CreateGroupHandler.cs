@@ -38,9 +38,7 @@ public sealed class CreateGroupHandler : IRequestHandler<CreateGroupCommand, Res
         var group = new Group(request.Name,
             request.Description,
             settings,
-            request.Visibility,
-            request.Image      is null ? null : new Uri(request.Image),
-            request.CoverImage is null ? null : new Uri(request.CoverImage));
+            request.Visibility);
 
         var member = new Member(group, profile, MemberRoleTypes.Admin);
         group.AddMember(member);

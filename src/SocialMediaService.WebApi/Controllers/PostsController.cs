@@ -130,10 +130,21 @@ public sealed class PostsController : ControllerBase
     public async Task<IActionResult> Create([FromForm] CreatePostRequest request,
         [FromForm] IFormFile? file,
         [FromServices] FilesService filesService,
-        [FromServices] IOptions<Storage> options)
+        [FromServices] IOptions<Storage> storage)
     {
-        var mediaType = filesService.GetFileMediaType(file);
+        var options = storage.Value.FilesOptions["PostsMedia"];
 
+        if (file is not null)
+        {
+            var fileValidationResult = filesService.Validate(file, options);
+
+            if (!fileValidationResult.IsSuccess)
+            {
+                return this.GetFromResult(fileValidationResult);
+            }
+        }
+
+        var mediaType = filesService.GetFileMediaType(file);
         var result = await _mediator.Send(new CreatePostCommand(User.GetId()!,
             request.Content,
             request.Visibility,
@@ -141,7 +152,7 @@ public sealed class PostsController : ControllerBase
 
         if (file is not null && result.IsSuccess)
         {
-            await filesService.SaveFileAsync(file, options.Value.FilesOptions["PostsMedia"], result.Value.Id);
+            await filesService.SaveFileAsync(file, options, result.Value.Id);
         }
 
         return this.GetFromResult(result, 201);
@@ -152,10 +163,21 @@ public sealed class PostsController : ControllerBase
         [FromForm] CreatePostRequest request,
         [FromForm] IFormFile? file,
         [FromServices] FilesService filesService,
-        [FromServices] IOptions<Storage> options)
+        [FromServices] IOptions<Storage> storage)
     {
-        var mediaType = filesService.GetFileMediaType(file);
+        var options = storage.Value.FilesOptions["PostsMedia"];
 
+        if (file is not null)
+        {
+            var fileValidationResult = filesService.Validate(file, options);
+
+            if (!fileValidationResult.IsSuccess)
+            {
+                return this.GetFromResult(fileValidationResult);
+            }
+        }
+
+        var mediaType = filesService.GetFileMediaType(file);
         var result = await _mediator.Send(new UpdatePostCommand(User.GetId()!,
             id,
             request.Content,
@@ -164,8 +186,8 @@ public sealed class PostsController : ControllerBase
 
         if (file is not null && result.IsSuccess)
         {
-            filesService.DeleteFile(options.Value.FilesOptions["PostsMedia"].Path, result.Value.Id);
-            await filesService.SaveFileAsync(file, options.Value.FilesOptions["PostsMedia"], result.Value.Id);
+            filesService.DeleteFile(options.Path, result.Value.Id);
+            await filesService.SaveFileAsync(file, options, result.Value.Id);
         }
 
         return this.GetFromResult(result);
