@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using PR2.Shared.Common;
 using PR2.Shared.Enums;
 using SocialMediaService.Application.Features.Commands.CancelJoinRequest;
@@ -23,8 +24,10 @@ using SocialMediaService.Application.Features.Queries.GetJoinRequestsPage;
 using SocialMediaService.Application.Features.Queries.GetKickedPage;
 using SocialMediaService.Domain.Aggregates.Groups;
 using SocialMediaService.Domain.Aggregates.Posts;
+using SocialMediaService.WebApi.Configurations;
 using SocialMediaService.WebApi.Dtos.GroupDtos;
 using SocialMediaService.WebApi.Extensions;
+using SocialMediaService.WebApi.Services;
 
 namespace SocialMediaService.WebApi.Controllers;
 
@@ -88,6 +91,68 @@ public sealed class GroupsController : ControllerBase
     {
         var result = await _mediator.Send(new DeleteGroupCommand(id, User.GetId()!));
 
+        return this.GetFromResult(result);
+    }
+
+    [HttpPost("{id}/image")]
+    public async Task<IActionResult> ChangeImage(IFormFile image,
+        [FromRoute(Name = "id")] string groupId,
+        [FromServices] IOptions<Storage> storage,
+        [FromServices] FilesService filesService)
+    {
+        var options = storage.Value.FilesOptions["GroupsImages"];
+        var imageValidationResult = filesService.Validate(image, options);
+
+        if (!imageValidationResult.IsSuccess)
+        {
+            return this.GetFromResult(imageValidationResult);
+        }
+
+        await _mediator.Send(new UpdateGroupCommand(User.GetId()!, groupId, Image: true));
+
+        var filename = await filesService.SaveImageAsync(image, options, User.GetId()!);
+        return Ok(filename);
+    }
+
+    [HttpPost("{id}/cover-image")]
+    public async Task<IActionResult> ChangeCoverImage(IFormFile image,
+        [FromRoute(Name = "id")] string groupId,
+        [FromServices] IOptions<Storage> storage,
+        [FromServices] FilesService filesService)
+    {
+        var options = storage.Value.FilesOptions["GroupsCoverImages"];
+        var imageValidationResult = filesService.Validate(image, options);
+
+        if (!imageValidationResult.IsSuccess)
+        {
+            return this.GetFromResult(imageValidationResult);
+        }
+
+        await _mediator.Send(new UpdateGroupCommand(User.GetId()!, groupId, CoverImage: true));
+
+        var filename = await filesService.SaveImageAsync(image, options, User.GetId()!);
+        return Ok(filename);
+    }
+
+    [HttpDelete("{id}/image")]
+    public async Task<IActionResult> DeleteImage(
+        [FromRoute(Name = "id")] string groupId,
+        [FromServices] IOptions<Storage> storage,
+        [FromServices] FilesService filesService)
+    {
+        await _mediator.Send(new UpdateGroupCommand(User.GetId()!, groupId, Image: false));
+        var result = filesService.DeleteFile(storage.Value.FilesOptions["GroupsImages"].Path, User.GetId()!);
+        return this.GetFromResult(result);
+    }
+
+    [HttpDelete("{id}/cover-image")]
+    public async Task<IActionResult> DeleteCoverImage(
+        [FromRoute(Name = "id")] string groupId,
+        [FromServices] IOptions<Storage> storage,
+        [FromServices] FilesService filesService)
+    {
+        await _mediator.Send(new UpdateGroupCommand(User.GetId()!, groupId, CoverImage: false));
+        var result = filesService.DeleteFile(storage.Value.FilesOptions["GroupsCoverImages"].Path, User.GetId()!);
         return this.GetFromResult(result);
     }
 
