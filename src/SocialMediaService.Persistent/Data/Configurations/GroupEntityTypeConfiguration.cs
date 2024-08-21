@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SocialMediaService.Domain.Aggregates.Groups;
+using SocialMediaService.Domain.Aggregates.Groups.ValueObjects;
 
 namespace SocialMediaService.Persistent.Data.Configurations;
 
@@ -43,6 +44,6 @@ internal sealed class GroupEntityTypeConfiguration : IEntityTypeConfiguration<Gr
             .HasForeignKey(x => x.GroupId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.OwnsOne(x => x.Settings);
+        builder.OwnsOne(x => x.Settings, b => b.ToTable("GroupsSettings"));
     }
 }

@@ -12,8 +12,8 @@ using SocialMediaService.Persistent.Data;
 namespace SocialMediaService.Persistent.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240820073721_ChangeImageType")]
-    partial class ChangeImageType
+    [Migration("20240821070636_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -368,9 +368,6 @@ namespace SocialMediaService.Persistent.Migrations
                     b.Property<bool>("Image")
                         .HasColumnType("boolean");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasMaxLength(30)
@@ -469,7 +466,7 @@ namespace SocialMediaService.Persistent.Migrations
 
                             b1.HasKey("GroupId");
 
-                            b1.ToTable("Groups");
+                            b1.ToTable("GroupsSettings", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("GroupId");
@@ -616,7 +613,7 @@ namespace SocialMediaService.Persistent.Migrations
 
                             b1.HasKey("PostId");
 
-                            b1.ToTable("Posts");
+                            b1.ToTable("PostsMedia", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("PostId");

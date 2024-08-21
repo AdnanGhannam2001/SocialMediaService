@@ -18,8 +18,6 @@ internal sealed class ProfileEntityTypeConfiguration : IEntityTypeConfiguration<
             .Property(x => x.LastName)
             .HasMaxLength(30);
 
-        builder.HasQueryFilter(x => x.IsActive);
-
         builder
             .Property(x => x.Bio)
             .HasMaxLength(500);

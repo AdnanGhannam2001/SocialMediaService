@@ -365,9 +365,6 @@ namespace SocialMediaService.Persistent.Migrations
                     b.Property<bool>("Image")
                         .HasColumnType("boolean");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasMaxLength(30)
@@ -466,7 +463,7 @@ namespace SocialMediaService.Persistent.Migrations
 
                             b1.HasKey("GroupId");
 
-                            b1.ToTable("Groups");
+                            b1.ToTable("GroupsSettings", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("GroupId");
@@ -613,7 +610,7 @@ namespace SocialMediaService.Persistent.Migrations
 
                             b1.HasKey("PostId");
 
-                            b1.ToTable("Posts");
+                            b1.ToTable("PostsMedia", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("PostId");

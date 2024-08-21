@@ -18,8 +18,8 @@ namespace SocialMediaService.Persistent.Migrations
                     Id = table.Column<string>(type: "text", nullable: false),
                     Name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     Description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
-                    Image = table.Column<string>(type: "text", nullable: true),
-                    CoverImage = table.Column<string>(type: "text", nullable: true),
+                    Image = table.Column<bool>(type: "boolean", nullable: false),
+                    CoverImage = table.Column<bool>(type: "boolean", nullable: false),
                     Visibility = table.Column<byte>(type: "smallint", nullable: false),
                     CreatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
@@ -36,11 +36,12 @@ namespace SocialMediaService.Persistent.Migrations
                     Id = table.Column<string>(type: "text", nullable: false),
                     FirstName = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
                     LastName = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
-                    PhoneNumber_Value = table.Column<string>(type: "text", nullable: false),
-                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    PhoneNumber_Value = table.Column<string>(type: "text", nullable: true),
                     DateOfBirth = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Gender = table.Column<byte>(type: "smallint", nullable: false),
-                    Bio = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                    Bio = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    Image = table.Column<bool>(type: "boolean", nullable: false),
+                    CoverImage = table.Column<bool>(type: "boolean", nullable: false),
                     JobInformations_JobTitle = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
                     JobInformations_Company = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
                     Socials_Facebook = table.Column<string>(type: "character varying(25)", maxLength: 25, nullable: true),
@@ -55,17 +56,20 @@ namespace SocialMediaService.Persistent.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Tags",
+                name: "GroupsSettings",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "text", nullable: false),
-                    Label = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
-                    CreatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    GroupId = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Tags", x => x.Id);
+                    table.PrimaryKey("PK_GroupsSettings", x => x.GroupId);
+                    table.ForeignKey(
+                        name: "FK_GroupsSettings_Groups_GroupId",
+                        column: x => x.GroupId,
+                        principalTable: "Groups",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -89,35 +93,6 @@ namespace SocialMediaService.Persistent.Migrations
                     table.ForeignKey(
                         name: "FK_Blocks_Profiles_BlockerId",
                         column: x => x.BlockerId,
-                        principalTable: "Profiles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Discussions",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "text", nullable: false),
-                    Title = table.Column<string>(type: "text", nullable: false),
-                    Content = table.Column<string>(type: "text", nullable: false),
-                    ProfileId = table.Column<string>(type: "text", nullable: false),
-                    GroupId = table.Column<string>(type: "text", nullable: false),
-                    CreatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Discussions", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Discussions_Groups_GroupId",
-                        column: x => x.GroupId,
-                        principalTable: "Groups",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Discussions_Profiles_ProfileId",
-                        column: x => x.ProfileId,
                         principalTable: "Profiles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -374,55 +349,6 @@ namespace SocialMediaService.Persistent.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "DiscussionsTags",
-                columns: table => new
-                {
-                    DiscussionsId = table.Column<string>(type: "text", nullable: false),
-                    TagsId = table.Column<string>(type: "text", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_DiscussionsTags", x => new { x.DiscussionsId, x.TagsId });
-                    table.ForeignKey(
-                        name: "FK_DiscussionsTags_Discussions_DiscussionsId",
-                        column: x => x.DiscussionsId,
-                        principalTable: "Discussions",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_DiscussionsTags_Tags_TagsId",
-                        column: x => x.TagsId,
-                        principalTable: "Tags",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "FavoriteDiscussions",
-                columns: table => new
-                {
-                    ProfileId = table.Column<string>(type: "text", nullable: false),
-                    DiscussionId = table.Column<string>(type: "text", nullable: false),
-                    AddedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_FavoriteDiscussions", x => new { x.ProfileId, x.DiscussionId });
-                    table.ForeignKey(
-                        name: "FK_FavoriteDiscussions_Discussions_DiscussionId",
-                        column: x => x.DiscussionId,
-                        principalTable: "Discussions",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_FavoriteDiscussions_Profiles_ProfileId",
-                        column: x => x.ProfileId,
-                        principalTable: "Profiles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Comments",
                 columns: table => new
                 {
@@ -430,7 +356,6 @@ namespace SocialMediaService.Persistent.Migrations
                     ProfileId = table.Column<string>(type: "text", nullable: false),
                     PostId = table.Column<string>(type: "text", nullable: true),
                     ParentId = table.Column<string>(type: "text", nullable: true),
-                    DiscussionId = table.Column<string>(type: "text", nullable: true),
                     Content = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
                     CreatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
@@ -442,12 +367,6 @@ namespace SocialMediaService.Persistent.Migrations
                         name: "FK_Comments_Comments_ParentId",
                         column: x => x.ParentId,
                         principalTable: "Comments",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Comments_Discussions_DiscussionId",
-                        column: x => x.DiscussionId,
-                        principalTable: "Discussions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -489,6 +408,23 @@ namespace SocialMediaService.Persistent.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "PostsMedia",
+                columns: table => new
+                {
+                    PostId = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PostsMedia", x => x.PostId);
+                    table.ForeignKey(
+                        name: "FK_PostsMedia_Posts_PostId",
+                        column: x => x.PostId,
+                        principalTable: "Posts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Reactions",
                 columns: table => new
                 {
@@ -514,15 +450,35 @@ namespace SocialMediaService.Persistent.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "SavedPosts",
+                columns: table => new
+                {
+                    ProfileId = table.Column<string>(type: "text", nullable: false),
+                    PostId = table.Column<string>(type: "text", nullable: false),
+                    SavedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SavedPosts", x => new { x.ProfileId, x.PostId });
+                    table.ForeignKey(
+                        name: "FK_SavedPosts_Posts_PostId",
+                        column: x => x.PostId,
+                        principalTable: "Posts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_SavedPosts_Profiles_ProfileId",
+                        column: x => x.ProfileId,
+                        principalTable: "Profiles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Blocks_BlockerId",
                 table: "Blocks",
                 column: "BlockerId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Comments_DiscussionId",
-                table: "Comments",
-                column: "DiscussionId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Comments_ParentId",
@@ -538,26 +494,6 @@ namespace SocialMediaService.Persistent.Migrations
                 name: "IX_Comments_ProfileId",
                 table: "Comments",
                 column: "ProfileId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Discussions_GroupId",
-                table: "Discussions",
-                column: "GroupId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Discussions_ProfileId",
-                table: "Discussions",
-                column: "ProfileId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_DiscussionsTags_TagsId",
-                table: "DiscussionsTags",
-                column: "TagsId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_FavoriteDiscussions_DiscussionId",
-                table: "FavoriteDiscussions",
-                column: "DiscussionId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Follows_FollowerId",
@@ -623,6 +559,11 @@ namespace SocialMediaService.Persistent.Migrations
                 name: "IX_Reactions_ProfileId",
                 table: "Reactions",
                 column: "ProfileId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SavedPosts_PostId",
+                table: "SavedPosts",
+                column: "PostId");
         }
 
         /// <inheritdoc />
@@ -635,12 +576,6 @@ namespace SocialMediaService.Persistent.Migrations
                 name: "Comments");
 
             migrationBuilder.DropTable(
-                name: "DiscussionsTags");
-
-            migrationBuilder.DropTable(
-                name: "FavoriteDiscussions");
-
-            migrationBuilder.DropTable(
                 name: "Follows");
 
             migrationBuilder.DropTable(
@@ -648,6 +583,9 @@ namespace SocialMediaService.Persistent.Migrations
 
             migrationBuilder.DropTable(
                 name: "Friendships");
+
+            migrationBuilder.DropTable(
+                name: "GroupsSettings");
 
             migrationBuilder.DropTable(
                 name: "HiddenPosts");
@@ -665,16 +603,16 @@ namespace SocialMediaService.Persistent.Migrations
                 name: "Members");
 
             migrationBuilder.DropTable(
+                name: "PostsMedia");
+
+            migrationBuilder.DropTable(
                 name: "Reactions");
 
             migrationBuilder.DropTable(
+                name: "SavedPosts");
+
+            migrationBuilder.DropTable(
                 name: "SettingsList");
-
-            migrationBuilder.DropTable(
-                name: "Tags");
-
-            migrationBuilder.DropTable(
-                name: "Discussions");
 
             migrationBuilder.DropTable(
                 name: "Posts");

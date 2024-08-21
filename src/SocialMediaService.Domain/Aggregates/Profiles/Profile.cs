@@ -47,7 +47,6 @@ public sealed class Profile : AggregateRoot
         FirstName = firstName;
         LastName = lastName;
         PhoneNumber = phoneNumber;
-        IsActive = false;
         DateOfBirth = dateOfBirth;
         Gender = gender;
         Bio = bio;
@@ -61,7 +60,6 @@ public sealed class Profile : AggregateRoot
     public string FirstName { get; private set; }
     public string LastName { get; private set; }
     public PhoneNumber? PhoneNumber { get; private set; }
-    public bool IsActive { get; private set; }
     public DateTime DateOfBirth { get; private set; }
     public Genders Gender { get; private set; }
     public string? Bio { get; private set; }

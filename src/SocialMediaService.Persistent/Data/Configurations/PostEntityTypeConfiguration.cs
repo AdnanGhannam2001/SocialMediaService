@@ -25,6 +25,6 @@ internal sealed class PostEntityTypeConfiguration : IEntityTypeConfiguration<Pos
             .HasForeignKey(x => x.PostId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.OwnsOne(x => x.Media);
+        builder.OwnsOne(x => x.Media, b => b.ToTable("PostsMedia"));
     }
 }
