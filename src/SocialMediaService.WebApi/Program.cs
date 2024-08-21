@@ -10,6 +10,7 @@ using SocialMediaService.Persistent.Data;
 using SocialMediaService.Infrastructure.Extensions;
 using MassTransit;
 using SocialMediaService.WebApi.Configurations;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 

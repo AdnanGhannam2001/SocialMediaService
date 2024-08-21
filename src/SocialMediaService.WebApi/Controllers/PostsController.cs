@@ -128,7 +128,7 @@ public sealed class PostsController : ControllerBase
 
     [HttpPost]
     public async Task<IActionResult> Create([FromForm] CreatePostRequest request,
-        [FromForm] IFormFile? file,
+        IFormFile? file,
         [FromServices] FilesService filesService,
         [FromServices] IOptions<Storage> storage)
     {
@@ -161,7 +161,7 @@ public sealed class PostsController : ControllerBase
     [HttpPatch("{id}")]
     public async Task<IActionResult> Update([FromRoute] string id,
         [FromForm] CreatePostRequest request,
-        [FromForm] IFormFile? file,
+        IFormFile? file,
         [FromServices] FilesService filesService,
         [FromServices] IOptions<Storage> storage)
     {

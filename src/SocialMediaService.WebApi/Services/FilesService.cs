@@ -9,6 +9,13 @@ using FileName = string;
 
 public sealed class FilesService
 {
+    private readonly IHostEnvironment _environment;
+
+    public FilesService(IHostEnvironment environment)
+    {
+        _environment = environment;
+    }
+
     public Result<bool> Validate(IFormFile file, Storage.FileOptions options)
     {
         var extension = Path.GetExtension(file.FileName).ToLower();
@@ -36,7 +43,8 @@ public sealed class FilesService
 
     public async Task<FileName> SaveFileAsync(IFormFile file, Storage.FileOptions options, string name)
     {
-        var fullPath = Path.Combine(options.Path, name);
+        var extension = Path.GetExtension(file.FileName).ToLower();
+        var fullPath = Path.Combine(_environment.ContentRootPath, options.Path, name + extension);
         Directory.CreateDirectory(options.Path);
         using var stream = File.Create(fullPath);
         await file.CopyToAsync(stream);

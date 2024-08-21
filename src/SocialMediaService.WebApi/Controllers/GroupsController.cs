@@ -110,7 +110,7 @@ public sealed class GroupsController : ControllerBase
 
         await _mediator.Send(new UpdateGroupCommand(User.GetId()!, groupId, Image: true));
 
-        var filename = await filesService.SaveImageAsync(image, options, User.GetId()!);
+        var filename = await filesService.SaveImageAsync(image, options, groupId);
         return Ok(filename);
     }
 
@@ -130,7 +130,7 @@ public sealed class GroupsController : ControllerBase
 
         await _mediator.Send(new UpdateGroupCommand(User.GetId()!, groupId, CoverImage: true));
 
-        var filename = await filesService.SaveImageAsync(image, options, User.GetId()!);
+        var filename = await filesService.SaveImageAsync(image, options, groupId);
         return Ok(filename);
     }
 
@@ -141,7 +141,7 @@ public sealed class GroupsController : ControllerBase
         [FromServices] FilesService filesService)
     {
         await _mediator.Send(new UpdateGroupCommand(User.GetId()!, groupId, Image: false));
-        var result = filesService.DeleteFile(storage.Value.FilesOptions["GroupsImages"].Path, User.GetId()!);
+        var result = filesService.DeleteFile(storage.Value.FilesOptions["GroupsImages"].Path, groupId);
         return this.GetFromResult(result);
     }
 
@@ -152,7 +152,7 @@ public sealed class GroupsController : ControllerBase
         [FromServices] FilesService filesService)
     {
         await _mediator.Send(new UpdateGroupCommand(User.GetId()!, groupId, CoverImage: false));
-        var result = filesService.DeleteFile(storage.Value.FilesOptions["GroupsCoverImages"].Path, User.GetId()!);
+        var result = filesService.DeleteFile(storage.Value.FilesOptions["GroupsCoverImages"].Path, groupId);
         return this.GetFromResult(result);
     }
 
