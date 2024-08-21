@@ -67,6 +67,8 @@ public sealed class GetProfileHandler : IRequestHandler<GetProfileQuery, Result<
             profile.FirstName,
             profile.CreatedAtUtc,
             profile.UpdatedAtUtc,
+            profile.Image,
+            profile.CoverImage,
             profile.Settings.LastName       <= visibility ? profile.LastName        : null,
             profile.Settings.DateOfBirth    <= visibility ? profile.DateOfBirth     : null,
             profile.Settings.Gender         <= visibility ? profile.Gender          : null,
