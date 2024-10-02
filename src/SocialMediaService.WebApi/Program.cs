@@ -10,7 +10,7 @@ using SocialMediaService.Persistent.Data;
 using SocialMediaService.Infrastructure.Extensions;
 using MassTransit;
 using SocialMediaService.WebApi.Configurations;
-using Microsoft.Extensions.FileProviders;
+using SocialMediaService.Infrastructure.Constants;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,8 +29,8 @@ builder.Services.Configure<Storage>(builder.Configuration.GetSection("Storage"))
 builder.Services
 #if DEBUG && !NO_RABBIT_MQ
     .AddInfrastructure()
-#endif
-    .AddPersistent(builder.Configuration.GetConnectionString("PostgresConnection"))
+#endif //DEBUG && !NO_RABBIT_MQ
+    .AddPersistent(builder.Configuration.GetConnectionString(DatabaseConstants.ConnectionStringName))
     .AddApplication()
     .AddAuth(builder.Configuration.GetSection(nameof(OpenIdConnectOptions)))
     .RegisterServices()

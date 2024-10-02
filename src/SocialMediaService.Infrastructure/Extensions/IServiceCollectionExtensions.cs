@@ -1,6 +1,7 @@
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using SocialMediaService.Infrastructure.Services;
+using static SocialMediaService.Infrastructure.Constants.DatabaseConstants;
 
 namespace SocialMediaService.Infrastructure.Extensions;
 
