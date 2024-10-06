@@ -15,7 +15,7 @@ public static partial class SeedData
     private const int GroupsCount = 50;
     private static IList<Profile> Profiles = [];
 
-    public static async Task ApplyAsync(ApplicationDbContext context, IPublishEndpoint messagePublisher, bool clear = false)
+    public static async Task ApplyAsync(ApplicationDbContext context, IPublishEndpoint messagePublisher, bool clear = true)
     {
         if (clear) await ClearAsync(context);
 
@@ -39,11 +39,11 @@ public static partial class SeedData
 
     private static async Task ClearAsync(ApplicationDbContext context)
     {
-        await context.Friendships.ExecuteDeleteAsync();
-        await context.Follows.ExecuteDeleteAsync();
-        await context.Posts.ExecuteDeleteAsync();
-        await context.Reactions.ExecuteDeleteAsync();
-        await context.Comments.ExecuteDeleteAsync();
-        await context.Groups.ExecuteDeleteAsync();
+        if (await context.Friendships.AnyAsync()) await context.Friendships.ExecuteDeleteAsync();
+        if (await context.Follows.AnyAsync()) await context.Follows.ExecuteDeleteAsync();
+        if (await context.Posts.AnyAsync()) await context.Posts.ExecuteDeleteAsync();
+        if (await context.Reactions.AnyAsync()) await context.Reactions.ExecuteDeleteAsync();
+        if (await context.Comments.AnyAsync()) await context.Comments.ExecuteDeleteAsync();
+        if (await context.Groups.AnyAsync()) await context.Groups.ExecuteDeleteAsync();
     }
 }

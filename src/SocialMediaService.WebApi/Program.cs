@@ -11,6 +11,7 @@ using SocialMediaService.Infrastructure.Extensions;
 using MassTransit;
 using SocialMediaService.WebApi.Configurations;
 using SocialMediaService.Infrastructure.Constants;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,9 +28,9 @@ builder.Services.AddSwaggerGen();
 builder.Services.Configure<Storage>(builder.Configuration.GetSection("Storage"));
 
 builder.Services
-#if DEBUG && !NO_RABBIT_MQ
-    .AddInfrastructure()
-#endif //DEBUG && !NO_RABBIT_MQ
+#if !NO_RABBIT_MQ
+    .AddInfrastructure(builder.Configuration.GetSection(DatabaseConstants.RabbitMqSettings))
+#endif // !NO_RABBIT_MQ
     .AddPersistent(builder.Configuration.GetConnectionString(DatabaseConstants.ConnectionStringName))
     .AddApplication()
     .AddAuth(builder.Configuration.GetSection(nameof(OpenIdConnectOptions)))
@@ -39,13 +40,19 @@ builder.Services
 
 var app = builder.Build();
 
-if (args.Contains("--seed"))
+// TODO move & add option for `delete`
 {
     using var scope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope();
     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    var messagePublisher = scope.ServiceProvider.GetRequiredService<IPublishEndpoint>();
-    SeedData.ApplyAsync(context, messagePublisher).GetAwaiter().GetResult();
-    return;
+
+    context.Database.Migrate();
+
+    if (args.Contains("--seed"))
+    {
+        var messagePublisher = scope.ServiceProvider.GetRequiredService<IPublishEndpoint>();
+        SeedData.ApplyAsync(context, messagePublisher).GetAwaiter().GetResult();
+        return;
+    }
 }
 
 if (app.Environment.IsDevelopment())
@@ -69,6 +76,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapGrpcService<ProfileServiceImpl>();
+
+app.Map("test", () => "WORKS");
 
 app.MapControllers();
 
