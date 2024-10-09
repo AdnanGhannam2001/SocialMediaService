@@ -5,10 +5,7 @@ using SocialMediaService.WebApi.Implementaions;
 using SocialMediaService.WebApi.JsonConverters;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using SocialMediaService.Persistent.Data.Seed;
-using SocialMediaService.Persistent.Data;
 using SocialMediaService.Infrastructure.Extensions;
-using MassTransit;
 using SocialMediaService.WebApi.Configurations;
 using SocialMediaService.Infrastructure.Constants;
 using Microsoft.EntityFrameworkCore;
@@ -40,20 +37,8 @@ builder.Services
 
 var app = builder.Build();
 
-// TODO move & add option for `delete`
-{
-    using var scope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope();
-    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-
-    context.Database.Migrate();
-
-    if (args.Contains("--seed"))
-    {
-        var messagePublisher = scope.ServiceProvider.GetRequiredService<IPublishEndpoint>();
-        SeedData.ApplyAsync(context, messagePublisher).GetAwaiter().GetResult();
-        return;
-    }
-}
+app.Setup();
+app.HandleArguments(args);
 
 if (app.Environment.IsDevelopment())
 {
@@ -76,9 +61,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapGrpcService<ProfileServiceImpl>();
-
 app.Map("test", () => "WORKS");
-
 app.MapControllers();
 
 app.Run();
