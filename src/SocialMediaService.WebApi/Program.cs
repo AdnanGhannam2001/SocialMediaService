@@ -29,9 +29,9 @@ builder.Services.Configure<Storage>(builder.Configuration.GetSection("Storage"))
 
 builder.Services
 #if !NO_RABBIT_MQ
-    .AddInfrastructure(builder.Configuration.GetSection(DatabaseConstants.RabbitMqSettings))
+    .AddInfrastructure(builder.Configuration.GetSection(CommonConstants.RabbitMqSettings))
 #endif // !NO_RABBIT_MQ
-    .AddPersistent(builder.Configuration.GetConnectionString(DatabaseConstants.ConnectionStringName))
+    .AddPersistent(builder.Configuration.GetConnectionString(CommonConstants.ConnectionStringName))
     .AddApplication()
     .AddAuth(builder.Configuration.GetSection(nameof(OpenIdConnectOptions)))
     .RegisterServices()

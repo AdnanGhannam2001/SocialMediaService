@@ -1,7 +1,6 @@
 namespace SocialMediaService.Infrastructure.Constants;
 
-// TODO Rename
-public static class DatabaseConstants
+public static class CommonConstants
 {
 #if DOCKER
     public const string ConnectionStringName = "DockerPostgresConnection";

@@ -30,7 +30,6 @@ public sealed class ProfileEfRepository
                 ? query.OrderDescending()
                 : query.Order();
 
-        // TODO exclude blocked
         query = orderQuery
             .Include(x => x.Friends.Where(x => x.FriendId.Equals(profileId) || x.ProfileId.Equals(profileId)))
             .Include(x => x.FollowedBy.Where(x => x.FollowerId.Equals(profileId)))
