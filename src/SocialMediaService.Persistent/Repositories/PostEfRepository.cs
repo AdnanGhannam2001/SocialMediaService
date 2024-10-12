@@ -197,6 +197,7 @@ public sealed class PostEfRepository : EfRepository<Post, string>, IPostReposito
                 : query.Order();
 
         query = orderQuery
+            .Include(x => x.Profile)
             .Skip(request.PageNumber * request.PageSize)
             .Take(request.PageSize);
 

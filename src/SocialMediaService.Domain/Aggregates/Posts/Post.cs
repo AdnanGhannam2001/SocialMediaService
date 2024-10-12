@@ -6,7 +6,7 @@ using SocialMediaService.Domain.Enums;
 
 namespace SocialMediaService.Domain.Aggregates.Posts;
 
-public sealed class Post : AggregateRoot
+public class Post : AggregateRoot
 {
     private List<Profile> _hiddenBy = [];
     private List<Reaction> _reactions = [];
