@@ -33,6 +33,8 @@ public sealed class GetProfileHandler : IRequestHandler<GetProfileQuery, Result<
             .Include(x => x.Settings)
             .Include(x => x.Friends.Where(x => x.FriendId.Equals(request.RequesterId) || x.ProfileId.Equals(request.RequesterId)))
             .Include(x => x.FollowedBy.Where(x => x.FollowerId.Equals(request.RequesterId)))
+            .Include(x => x.SentRequests.Where(x => x.ReceiverId.Equals(request.RequesterId)))
+            .Include(x => x.ReceivedRequests.Where(x => x.SenderId.Equals(request.RequesterId)))
             .FirstOrDefaultAsync(x => x.Id.Equals(request.ProfileId), cancellationToken);
 
         if (profile is null)
@@ -48,7 +50,6 @@ public sealed class GetProfileHandler : IRequestHandler<GetProfileQuery, Result<
             return GetProfileResult.MapProfile(profile, followers, following);
         }
 
-        // TODO: Test this
         var requester = request.RequesterId is not null
             ? await _repo.GetWithFriendshipAsync(request.ProfileId, request.RequesterId, cancellationToken)
                 ?? await _repo.GetWithFriendshipAsync(request.RequesterId, request.ProfileId, cancellationToken)
@@ -67,6 +68,12 @@ public sealed class GetProfileHandler : IRequestHandler<GetProfileQuery, Result<
             profile.FirstName,
             profile.CreatedAtUtc,
             profile.UpdatedAtUtc,
+            profile.Following,
+            profile.FollowedBy,
+            profile.SentRequests,
+            profile.ReceivedRequests,
+            profile.Friends,
+            profile.FriendTo,
             profile.Image,
             profile.CoverImage,
             profile.Settings.LastName       <= visibility ? profile.LastName        : null,
