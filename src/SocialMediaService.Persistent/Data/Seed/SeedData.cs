@@ -39,11 +39,9 @@ public static partial class SeedData
 
     private static async Task ClearAsync(ApplicationDbContext context)
     {
-        if (await context.Friendships.AnyAsync()) await context.Friendships.ExecuteDeleteAsync();
-        if (await context.Follows.AnyAsync()) await context.Follows.ExecuteDeleteAsync();
-        if (await context.Posts.AnyAsync()) await context.Posts.ExecuteDeleteAsync();
-        if (await context.Reactions.AnyAsync()) await context.Reactions.ExecuteDeleteAsync();
-        if (await context.Comments.AnyAsync()) await context.Comments.ExecuteDeleteAsync();
-        if (await context.Groups.AnyAsync()) await context.Groups.ExecuteDeleteAsync();
+        if (await context.Friendships.AnyAsync()) await context.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"Friendships\"");
+        if (await context.Follows.AnyAsync()) await context.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"Follows\"");
+        if (await context.Posts.AnyAsync()) await context.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"Posts\" CASCADE");
+        if (await context.Groups.AnyAsync()) await context.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"Groups\" CASCADE");
     }
 }

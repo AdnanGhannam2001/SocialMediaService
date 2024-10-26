@@ -61,7 +61,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapGrpcService<ProfileServiceImpl>();
-app.Map("test", () => "WORKS");
 app.MapControllers();
 
 app.Run();
