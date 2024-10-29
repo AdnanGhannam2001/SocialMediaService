@@ -50,10 +50,9 @@ public sealed class PostEfRepository : EfRepository<Post, string>, IPostReposito
 
     public Task<Page<Post>> GetFriendsPostsPageAsync(string profileId, PageRequest<Post> request, CancellationToken cancellationToken = default)
     {
-        var query = _context.Profiles
+        var query = _context.Friendships
             .AsNoTracking()
-            .Where(x => x.Id.Equals(profileId))
-            .SelectMany(x => x.Friends)
+            .Where(x => x.ProfileId.Equals(profileId))
                 .Select(x => x.Friend)
                 .SelectMany(x => x.Posts)
                     .Where(request.Predicate ?? (_ => true))
@@ -117,7 +116,7 @@ public sealed class PostEfRepository : EfRepository<Post, string>, IPostReposito
             .Where(x => x.Id.Equals(profileId))
             .SelectMany(x => x.Posts)
             .Where(request.Predicate ?? (_ => true))
-            .Where(x => x.Visibility >= includingVisibility && x.GroupId == null);
+            .Where(x => x.Visibility <= includingVisibility && x.GroupId == null);
 
         var orderQuery = request.KeySelector is not null
             ? request.Desc

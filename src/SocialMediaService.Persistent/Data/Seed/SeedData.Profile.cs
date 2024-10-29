@@ -21,7 +21,8 @@ public static partial class SeedData
 
             if (friendship.Profile.Id != friendship.Friend.Id)
             {
-                Profiles[i].AddFriend(friendship);
+                friendship.Profile.AddFriend(friendship);
+                friendship.Friend.AddFriend(new Friendship(friendship.Friend, friendship.Profile));
                 var message = new FriendshipCreatedEvent(friendship.Profile.Id, friendship.Friend.Id);
                 await messagePublisher.Publish(message);
             }

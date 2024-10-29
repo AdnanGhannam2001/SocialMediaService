@@ -103,7 +103,7 @@ public sealed class PostsController : ControllerBase
             x => x.CreatedAtUtc,
             desc);
 
-        var result = await _mediator.Send(new GetProfilePostsQuery(User.GetId()!, pageRequest));
+        var result = await _mediator.Send(new GetProfilePostsQuery(User.GetId()!, pageRequest, User.GetId()!));
 
         return this.GetFromResult(result);
     }
