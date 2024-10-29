@@ -53,6 +53,9 @@ public sealed class RespondToFriendshipRequestHandler : IRequestHandler<RespondT
                 friendship = new Friendship(sender, receiver);
                 sender.AddFriend(friendship);
 
+                friendship = new Friendship(receiver, sender);
+                receiver.AddFriend(friendship);
+
                 var message = new FriendshipCreatedEvent(receiver.Id, sender.Id);
                 await _publisher.Publish(message, cancellationToken);
             }
