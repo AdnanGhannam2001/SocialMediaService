@@ -62,7 +62,9 @@ public sealed class AddCommentHandler : IRequestHandler<AddCommentCommand, Resul
             comment = new Comment(parent, profile, request.Content);
             parent.AddReply(comment);
 
-            var notification = new NotifyEvent(post.ProfileId, $"{profile.FirstName} Commented on your post", $"");
+            var notification = new NotifyEvent(post.ProfileId,
+                $"{profile.FirstName} commented on your post",
+                $"profiles/{comment.ProfileId}");
             await _publisher.Publish(notification, cancellationToken);
         }
 

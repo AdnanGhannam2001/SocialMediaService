@@ -53,7 +53,7 @@ public sealed class FollowAccountHandler : IRequestHandler<FollowAccountCommand,
         var notification = new NotifyEvent(profile.Id,
             $"You got followed by {follower.Id}",
             $"profiles/{follower.Id}");
-        // await _publisher.Publish(notification, cancellationToken);
+        await _publisher.Publish(notification, cancellationToken);
 
         return follow;
     }
