@@ -25,6 +25,11 @@ public static partial class SeedData
                 friendship.Friend.AddFriend(new Friendship(friendship.Friend, friendship.Profile));
                 var message = new FriendshipCreatedEvent(friendship.Profile.Id, friendship.Friend.Id);
                 await messagePublisher.Publish(message);
+
+                var notification = new NotifyEvent(friendship.Profile.Id,
+                    $"{friendship.Friend.FirstName} accepted your friendship request",
+                    $"profiles/{friendship.Friend.Id}");
+                await messagePublisher.Publish(notification);
             }
         }
 
@@ -37,7 +42,15 @@ public static partial class SeedData
 
             var follow = followFaker.Generate();
 
-            if (follow.Follower.Id != follow.Followed.Id) Profiles[i].AddFollow(follow);
+            if (follow.Follower.Id != follow.Followed.Id)
+            {
+                follow.Follower.AddFollow(follow);
+
+                var notification = new NotifyEvent(follow.Followed.Id,
+                    $"You got followed by {follow.Follower.Id}",
+                    $"profiles/{follow.Follower.Id}");
+                await messagePublisher.Publish(notification);
+            }
         }
 
         await context.SaveChangesAsync();

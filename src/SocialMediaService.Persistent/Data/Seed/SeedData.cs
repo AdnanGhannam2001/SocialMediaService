@@ -15,10 +15,8 @@ public static partial class SeedData
     private const int GroupsCount = 50;
     private static IList<Profile> Profiles = [];
 
-    public static async Task ApplyAsync(ApplicationDbContext context, IPublishEndpoint messagePublisher, bool clear = true)
+    public static async Task ApplyAsync(ApplicationDbContext context, IPublishEndpoint messagePublisher)
     {
-        if (clear) await ClearAsync(context);
-
         Profiles = await context.Profiles.ToListAsync();
 
         if (!await context.Friendships.AnyAsync() && !await context.Follows.AnyAsync())
@@ -28,7 +26,7 @@ public static partial class SeedData
 
         if (!await context.Posts.AnyAsync())
         {
-            await SeedPostsAsync(context);
+            await SeedPostsAsync(context, messagePublisher);
         }
 
         if (!await context.Groups.AnyAsync())
@@ -37,11 +35,12 @@ public static partial class SeedData
         }
     }
 
-    private static async Task ClearAsync(ApplicationDbContext context)
+    public static async Task ClearAsync(ApplicationDbContext context)
     {
         if (await context.Friendships.AnyAsync()) await context.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"Friendships\"");
         if (await context.Follows.AnyAsync()) await context.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"Follows\"");
         if (await context.Posts.AnyAsync()) await context.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"Posts\" CASCADE");
         if (await context.Groups.AnyAsync()) await context.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"Groups\" CASCADE");
+        if (await context.Profiles.AnyAsync()) await context.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"Profiles\" CASCADE");
     }
 }

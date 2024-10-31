@@ -6,7 +6,6 @@ using SocialMediaService.Domain.Aggregates.Groups;
 using SocialMediaService.Domain.Aggregates.Groups.ValueObjects;
 using SocialMediaService.Domain.Aggregates.Posts;
 using SocialMediaService.Domain.Enums;
-using SocialMediaService.Infrastructure.Services;
 
 namespace SocialMediaService.Persistent.Data.Seed;
 

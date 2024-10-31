@@ -1,4 +1,6 @@
 using Bogus;
+using MassTransit;
+using PR2.Contracts.Events;
 using SocialMediaService.Domain.Aggregates.Posts;
 using SocialMediaService.Domain.Enums;
 
@@ -6,7 +8,7 @@ namespace SocialMediaService.Persistent.Data.Seed;
 
 public static partial class SeedData
 {
-    private static async Task SeedPostsAsync(ApplicationDbContext context)
+    private static async Task SeedPostsAsync(ApplicationDbContext context, IPublishEndpoint messagePublisher)
     {
         var postFaker = new Faker<Post>()
             .RuleFor(x => x.Profile, f => f.PickRandom(Profiles))
@@ -25,6 +27,11 @@ public static partial class SeedData
         foreach (var comment in commentFaker.Generate(CommentsCount))
         {
             comment.Post?.AddComment(comment);
+
+            var notification = new NotifyEvent(comment.Post!.Profile.Id,
+                $"{comment.Profile.FirstName} commented on your post",
+                $"profiles/{comment.Profile.Id}");
+            await messagePublisher.Publish(notification);
         }
 
         foreach (var post in posts)
@@ -39,6 +46,11 @@ public static partial class SeedData
                 var reaction = reactionFaker.Generate();
 
                 reaction.Post?.React(reaction);
+
+                var notification = new NotifyEvent(reaction.Post!.Profile.Id,
+                    $"{reaction.Profile.FirstName} reacted on your post",
+                    $"profiles/{reaction.Profile.Id}");
+                await messagePublisher.Publish(notification);
             }
         }
 

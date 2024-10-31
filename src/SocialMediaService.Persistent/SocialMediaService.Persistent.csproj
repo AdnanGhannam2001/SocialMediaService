@@ -9,6 +9,7 @@
     <PackageReference Include="Bogus" Version="35.5.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.4" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.2" />
+    <PackageReference Include="PR2.Contracts" Version="1.1.0" />
     <PackageReference Include="PR2.Shared" Version="1.5.1" />
   </ItemGroup>
 
